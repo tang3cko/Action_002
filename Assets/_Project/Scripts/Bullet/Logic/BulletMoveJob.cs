@@ -16,7 +16,6 @@ namespace Action002.Bullet.Logic
         {
             BulletState state = Src[index];
             state.Position += state.Velocity * DeltaTime;
-            state.Lifetime -= DeltaTime;
             Dst[index] = state;
         }
     }

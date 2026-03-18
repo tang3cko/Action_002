@@ -135,6 +135,17 @@ namespace Action002.Player.Systems
             onPolarityChanged?.RaiseEvent((int)state.CurrentPolarity);
         }
 
+        public bool CheckDeathImmediate()
+        {
+            if (!_gameOverFired && DamageCalculator.IsDead(state))
+            {
+                _gameOverFired = true;
+                onGameOver?.RaiseEvent();
+                return true;
+            }
+            return false;
+        }
+
         public void ApplyDamage()
         {
             if (gameConfig == null) return;
@@ -176,6 +187,24 @@ namespace Action002.Player.Systems
             if (comboCountVar != null) comboCountVar.Value = state.ComboCount;
             if (spinGaugeVar != null) spinGaugeVar.Value = state.SpinGauge;
             if (playerPolarityVar != null) playerPolarityVar.Value = (int)state.CurrentPolarity;
+        }
+
+        public void ResetForNewRun()
+        {
+            if (gameConfig == null) return;
+            state = new PlayerState
+            {
+                Position = float2.zero,
+                CurrentPolarity = Polarity.White,
+                Hp = gameConfig.MaxHp,
+                MaxHp = gameConfig.MaxHp,
+                ComboMultiplier = 1f,
+            };
+            _gameOverFired = false;
+            moveInput = Vector2.zero;
+            transform.position = Vector3.zero;
+            SyncVariables();
+            UpdateVisual();
         }
 
         private void UpdateVisual()

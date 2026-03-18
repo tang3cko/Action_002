@@ -62,6 +62,13 @@ namespace Action002.Enemy.Systems
             enemySet.Register(id, state);
         }
 
+        public void ResetForNewRun()
+        {
+            spawnTimer = 0f;
+            elapsedTime = 0f;
+            rng = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
+        }
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

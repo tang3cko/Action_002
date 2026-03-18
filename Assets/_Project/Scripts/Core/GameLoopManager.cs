@@ -9,19 +9,18 @@ using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Enemy.Systems;
 using Action002.Audio.Systems;
+using Action002.Player.Logic;
 using Action002.Player.Systems;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Core
 {
-    /// <summary>
-    /// Central simulation manager following the TinyHistory pattern.
-    /// Owns all Orchestrators and controls the full frame lifecycle:
-    /// Update:      Schedule Jobs
-    /// LateUpdate:  CompleteAndApply → structural changes (Register/Unregister)
-    /// </summary>
     public class GameLoopManager : MonoBehaviour
     {
+        [Header("Camera")]
+        [SerializeField] private Camera mainCamera;
+        [SerializeField] private GameConfigSO gameConfig;
+
         [Header("Sets")]
         [SerializeField] private EnemyStateSetSO enemySet;
         [SerializeField] private BulletStateSetSO bulletSet;
@@ -36,11 +35,17 @@ namespace Action002.Core
         [SerializeField] private EnemySpawnSystem enemySpawn;
         [SerializeField] private EnemyShootSystem enemyShoot;
 
+        [Header("Events")]
+        [SerializeField] private VoidEventChannelSO onPlayerDamaged;
+
         private ReactiveEntitySetOrchestrator<EnemyState> enemyOrchestrator;
         private ReactiveEntitySetOrchestrator<BulletState> bulletOrchestrator;
         private bool hasPendingEnemyJob;
         private bool hasPendingBulletJob;
         private List<int> despawnQueue = new List<int>(256);
+        private List<int> enemyDespawnQueue = new List<int>(64);
+        private List<int> sameContactIds = new List<int>(64);
+        private EnemyContactSessionTracker contactTracker = new EnemyContactSessionTracker();
 
         private void Start()
         {
@@ -59,7 +64,6 @@ namespace Action002.Core
 
         private void LateUpdate()
         {
-            // 1. Complete all jobs
             if (hasPendingEnemyJob)
             {
                 enemyOrchestrator.CompleteAndApply();
@@ -72,25 +76,76 @@ namespace Action002.Core
                 hasPendingBulletJob = false;
             }
 
-            // 2. Structural changes: Unregister (despawn)
-            RemoveExpiredBullets();
+            RemoveOffscreenBullets();
 
-            // 3. Advance rhythm clock (before attack/collision/spawn systems)
             if (rhythmClock != null)
                 rhythmClock.ProcessClock();
 
-            // 4. Attack & collision
             if (playerAttack != null)
                 playerAttack.ProcessAttacks();
             if (bulletCollision != null)
                 bulletCollision.ProcessCollisions();
 
-            // 5. Structural changes: Register (spawn)
+            ProcessEnemyContacts();
+
+            if (player != null && player.CheckDeathImmediate())
+                return;
+
             if (enemySpawn != null)
                 enemySpawn.ProcessSpawning();
             if (enemyShoot != null)
                 enemyShoot.ProcessShooting();
         }
+
+        // --- Enemy Contact (M4.5) ---
+
+        private void ProcessEnemyContacts()
+        {
+            if (enemySet == null || enemySet.Count == 0 || player == null || gameConfig == null) return;
+
+            sameContactIds.Clear();
+            enemyDespawnQueue.Clear();
+
+            var data = enemySet.Data;
+            var ids = enemySet.EntityIds;
+            var playerPos = player.Position;
+            var playerPolarity = player.CurrentPolarity;
+            float contactRadius = gameConfig.ContactRadius;
+
+            for (int i = 0; i < data.Length; i++)
+            {
+                var enemy = data[i];
+                if (!EnemyContactCalculator.IsContact(playerPos, enemy.Position, contactRadius))
+                    continue;
+
+                if (PolarityCalculator.IsSamePolarity(playerPolarity, enemy.Polarity))
+                {
+                    sameContactIds.Add(ids[i]);
+                }
+                else
+                {
+                    if (!DamageCalculator.IsInvincible(player.State))
+                    {
+                        player.ApplyDamage();
+                        onPlayerDamaged?.RaiseEvent();
+                        enemyDespawnQueue.Add(ids[i]);
+                    }
+                }
+            }
+
+            var newContacts = contactTracker.UpdateContacts(sameContactIds);
+            foreach (var id in newContacts)
+            {
+                player.AddScore(gameConfig.ContactScoreBonus);
+            }
+
+            foreach (var id in enemyDespawnQueue)
+            {
+                enemySet.Unregister(id);
+            }
+        }
+
+        // --- Jobs & Bounds ---
 
         private void ScheduleEnemyJob()
         {
@@ -131,19 +186,25 @@ namespace Action002.Core
             hasPendingBulletJob = true;
         }
 
-        private void RemoveExpiredBullets()
+        private void RemoveOffscreenBullets()
         {
             if (bulletSet.Count == 0) return;
             despawnQueue.Clear();
             if (despawnQueue.Capacity < bulletSet.Count)
                 despawnQueue.Capacity = bulletSet.Count;
 
+            float margin = gameConfig.BulletOffscreenMargin;
+            Vector3 bottomLeft = mainCamera.ViewportToWorldPoint(new Vector3(0f, 0f, 0f));
+            Vector3 topRight = mainCamera.ViewportToWorldPoint(new Vector3(1f, 1f, 0f));
+            float2 min = new float2(bottomLeft.x, bottomLeft.y);
+            float2 max = new float2(topRight.x, topRight.y);
+
             var data = bulletSet.Data;
             var ids = bulletSet.EntityIds;
 
             for (int i = data.Length - 1; i >= 0; i--)
             {
-                if (data[i].Lifetime <= 0f)
+                if (BulletBoundsCalculator.IsOutsideBounds(data[i].Position, min, max, margin))
                 {
                     despawnQueue.Add(ids[i]);
                 }
@@ -174,6 +235,9 @@ namespace Action002.Core
             if (bulletCollision == null) Debug.LogWarning($"[{GetType().Name}] bulletCollision not assigned on {gameObject.name}.", this);
             if (enemySpawn == null) Debug.LogWarning($"[{GetType().Name}] enemySpawn not assigned on {gameObject.name}.", this);
             if (enemyShoot == null) Debug.LogWarning($"[{GetType().Name}] enemyShoot not assigned on {gameObject.name}.", this);
+            if (mainCamera == null) Debug.LogWarning($"[{GetType().Name}] mainCamera not assigned on {gameObject.name}.", this);
+            if (gameConfig == null) Debug.LogWarning($"[{GetType().Name}] gameConfig not assigned on {gameObject.name}.", this);
+            if (onPlayerDamaged == null) Debug.LogWarning($"[{GetType().Name}] onPlayerDamaged not assigned on {gameObject.name}.", this);
         }
 #endif
     }

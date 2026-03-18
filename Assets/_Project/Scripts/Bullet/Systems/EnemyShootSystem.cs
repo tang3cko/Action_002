@@ -23,7 +23,6 @@ namespace Action002.Bullet.Systems
 
         [Header("Settings")]
         [SerializeField] private float bulletSpeed = 3f;
-        [SerializeField] private float bulletLifetime = 5f;
         [SerializeField] private float bulletScoreValue = 10f;
         [SerializeField] private int maxBulletsPerOffbeat = 100;
         [SerializeField] private float enemyShootCooldown = 1f;
@@ -67,7 +66,6 @@ namespace Action002.Bullet.Systems
                 {
                     Position = enemy.Position,
                     Velocity = velocity,
-                    Lifetime = bulletLifetime,
                     ScoreValue = bulletScoreValue,
                     Polarity = enemy.Polarity,
                     Faction = 1, // Enemy
@@ -78,6 +76,13 @@ namespace Action002.Bullet.Systems
                 _lastShotTimes[enemyId] = now;
                 fired++;
             }
+        }
+
+        public void ResetForNewRun()
+        {
+            _lastConsumedHalfBeatIndex = -1;
+            nextBulletId = 100000;
+            _lastShotTimes.Clear();
         }
 
 #if UNITY_EDITOR

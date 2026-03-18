@@ -15,8 +15,8 @@ MonoBehaviour:
   description: 
   showInMonitor: 1
   showInConsole: 0
-  value: 0
+  value: 2155
   initialValue: 0
-  onValueChanged: {fileID: 0}
+  onValueChanged: {fileID: 11400000, guid: b4e34b592c1a749ce8b76d095bda97a1, type: 2}
   gpuSyncEnabled: 0
   gpuPropertyName: 

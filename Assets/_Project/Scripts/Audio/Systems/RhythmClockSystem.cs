@@ -77,6 +77,13 @@ namespace Action002.Audio.Systems
             return result;
         }
 
+        public void ResetForNewRun()
+        {
+            StopClock();
+            _previousHalfBeatIndex = -1;
+            _currentHalfBeatIndex = 0;
+        }
+
 #if UNITY_EDITOR
         private void OnValidate()
         {

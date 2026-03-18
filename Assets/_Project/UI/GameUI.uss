@@ -1,0 +1,81 @@
+:root {
+    --color-pip-alive: rgba(220, 220, 255, 0.9);
+    --color-pip-dead: rgba(80, 80, 120, 0.3);
+    --color-text: rgba(230, 230, 255, 0.95);
+    --color-accent: #6688FF;
+    --color-gauge-track: rgba(255, 255, 255, 0.08);
+    --color-gauge-fill: #6688FF;
+}
+
+.hud {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+/* === HP Pips === */
+.hud__hp-group {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    flex-direction: row;
+    align-items: center;
+}
+
+.hud__hp-pip {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--color-pip-alive);
+    margin-right: 6px;
+}
+
+.hud__hp-pip--dead {
+    background-color: var(--color-pip-dead);
+}
+
+/* === Score + Combo === */
+.hud__score-group {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    align-items: flex-end;
+}
+
+.hud__score {
+    font-size: 22px;
+    color: var(--color-text);
+    -unity-font-style: bold;
+    -unity-text-align: upper-right;
+}
+
+.hud__combo {
+    font-size: 18px;
+    color: var(--color-accent);
+    -unity-font-style: bold;
+    -unity-text-align: upper-right;
+    min-height: 20px;
+}
+
+/* === Gauge === */
+.hud__gauge-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 4px;
+    background-color: var(--color-gauge-track);
+}
+
+.hud__gauge-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    background-color: var(--color-gauge-fill);
+    transition-duration: 0.15s;
+    transition-property: width;
+}

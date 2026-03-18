@@ -23,11 +23,15 @@ namespace Action002.Core
 
         [Header("Player Bullet")]
         [SerializeField] private float playerBulletSpeed = 15f;
-        [SerializeField] private float playerBulletLifetime = 2f;
+        [SerializeField] private float bulletOffscreenMargin = 2f;
 
         [Header("Gauge")]
         [SerializeField] private float absorbGaugeRate = 0.02f;
         [SerializeField] private float killGaugeRate = 0.05f;
+
+        [Header("Contact")]
+        [SerializeField] private float contactRadius = 0.8f;
+        [SerializeField] private int contactScoreBonus = 10;
 
         public float MoveSpeed => moveSpeed;
         public int MaxHp => maxHp;
@@ -40,8 +44,10 @@ namespace Action002.Core
         public int MaxEnemies => maxEnemies;
         public float SpawnRadius => spawnRadius;
         public float PlayerBulletSpeed => playerBulletSpeed;
-        public float PlayerBulletLifetime => playerBulletLifetime;
+        public float BulletOffscreenMargin => bulletOffscreenMargin;
         public float AbsorbGaugeRate => absorbGaugeRate;
         public float KillGaugeRate => killGaugeRate;
+        public float ContactRadius => contactRadius;
+        public int ContactScoreBonus => contactScoreBonus;
     }
 }

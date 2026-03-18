@@ -38,7 +38,6 @@ namespace Action002.Player.Systems
             {
                 Position = playerPos,
                 Velocity = direction * gameConfig.PlayerBulletSpeed,
-                Lifetime = gameConfig.PlayerBulletLifetime,
                 ScoreValue = 0f,
                 Polarity = (byte)player.CurrentPolarity,
                 Faction = 0, // Player
@@ -69,6 +68,12 @@ namespace Action002.Player.Systems
             }
 
             return bestDir;
+        }
+
+        public void ResetForNewRun()
+        {
+            _lastConsumedHalfBeatIndex = -1;
+            _nextBulletId = 200000;
         }
 
 #if UNITY_EDITOR

@@ -291,6 +291,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a1a7ece401d1e4f07a3e9284fd38eaee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Core.GameLoopManager
+  mainCamera: {fileID: 519420031}
+  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   player: {fileID: 1292937400}
@@ -299,6 +301,7 @@ MonoBehaviour:
   bulletCollision: {fileID: 777527343}
   enemySpawn: {fileID: 777527347}
   enemyShoot: {fileID: 777527344}
+  onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
 --- !u!114 &777527342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -355,9 +358,9 @@ MonoBehaviour:
   rhythmClock: {fileID: 777527350}
   player: {fileID: 1292937400}
   bulletSpeed: 3
-  bulletLifetime: 5
   bulletScoreValue: 10
-  maxBulletsPerFrame: 5
+  maxBulletsPerOffbeat: 100
+  enemyShootCooldown: 1
 --- !u!114 &777527347
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -756,6 +759,80 @@ MonoBehaviour:
   mainCamera: {fileID: 519420031}
   transitionDuration: 0.4
   maxScale: 60
+--- !u!1 &1659793574
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1659793577}
+  - component: {fileID: 1659793576}
+  - component: {fileID: 1659793575}
+  m_Layer: 0
+  m_Name: GameUI
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1659793575
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659793574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2bd598de2daee41f494625636573b4e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.UI.HudController
+  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
+  playerHpVar: {fileID: 11400000, guid: 057a6b093e2a248a8b54ddbb09ca2455, type: 2}
+  scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
+  comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}
+  spinGaugeVar: {fileID: 11400000, guid: d0dd4b52acd454de5a9509a0cd170e5b, type: 2}
+  uiDocument: {fileID: 1659793576}
+--- !u!114 &1659793576
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659793574}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 19102, guid: 0000000000000000e000000000000000, type: 0}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.dll::UnityEngine.UIElements.UIDocument
+  m_PanelSettings: {fileID: 11400000, guid: e577dadd4d8d44ca4b2e74041ea77d20, type: 2}
+  m_ParentUI: {fileID: 0}
+  sourceAsset: {fileID: 9197481963319205126, guid: f06b20498e1104b65b812a4493fdcc67, type: 3}
+  m_SortingOrder: 0
+  m_Position: 0
+  m_WorldSpaceSizeMode: 1
+  m_WorldSpaceWidth: 1920
+  m_WorldSpaceHeight: 1080
+  m_PivotReferenceSize: 0
+  m_Pivot: 0
+  m_WorldSpaceCollider: {fileID: 0}
+--- !u!4 &1659793577
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1659793574}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -764,3 +841,4 @@ SceneRoots:
   - {fileID: 1292937402}
   - {fileID: 777527348}
   - {fileID: 939776799}
+  - {fileID: 1659793577}
