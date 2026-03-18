@@ -15,7 +15,7 @@ namespace Action002.Enemy.Rendering
         [SerializeField] private Mesh quadMesh;
         [SerializeField] private Material whiteMaterial;
         [SerializeField] private Material blackMaterial;
-        [SerializeField] private float enemySize = 0.4f;
+        [SerializeField] private float enemySize = 0.8f;
 
         [Header("Outline")]
         [SerializeField] private Material whiteOutlineMaterial;

@@ -295,13 +295,16 @@ MonoBehaviour:
   gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
-  player: {fileID: 1292937400}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
+  playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
+  playerHpVar: {fileID: 11400000, guid: 057a6b093e2a248a8b54ddbb09ca2455, type: 2}
   rhythmClock: {fileID: 777527350}
   playerAttack: {fileID: 777527342}
   bulletCollision: {fileID: 777527343}
   enemySpawn: {fileID: 777527347}
   enemyShoot: {fileID: 777527344}
   onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
+  onScoreAdded: {fileID: 11400000, guid: a6c810aa4e9964c85857f3d57440aa62, type: 2}
 --- !u!114 &777527342
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -318,7 +321,8 @@ MonoBehaviour:
   rhythmClock: {fileID: 777527350}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
-  player: {fileID: 1292937400}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
+  playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
 --- !u!114 &777527343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -333,10 +337,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Bullet.Systems.BulletCollisionSystem
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
-  player: {fileID: 1292937400}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
+  playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
   onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
-  onComboChanged: {fileID: 11400000, guid: ffc3b10550e56451d83bcd77d8a38cb3, type: 2}
   onEnemyKilled: {fileID: 11400000, guid: 6e56ddcdb27984d40a318c62117b693d, type: 2}
+  onComboIncremented: {fileID: 11400000, guid: a5bb057ca18a6422eabc07343d974ab9, type: 2}
+  onKillScoreAdded: {fileID: 11400000, guid: 6c7724dd95b7b47c190a7b15620e023f, type: 2}
   absorbRadius: 1
   damageRadius: 0.5
   bulletHitRadius: 0.5
@@ -356,7 +362,7 @@ MonoBehaviour:
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   rhythmClock: {fileID: 777527350}
-  player: {fileID: 1292937400}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   bulletSpeed: 3
   bulletScoreValue: 10
   maxBulletsPerOffbeat: 100
@@ -375,7 +381,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Enemy.Systems.EnemySpawnSystem
   gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
-  player: {fileID: 1292937400}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
 --- !u!4 &777527348
 Transform:
   m_ObjectHideFlags: 0
@@ -536,7 +542,7 @@ MonoBehaviour:
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   whiteMaterial: {fileID: 2100000, guid: bb45ce4eaade742599a680c7505b12d3, type: 2}
   blackMaterial: {fileID: 2100000, guid: e615ac8c532d14814b00cd3c42380b18, type: 2}
-  bulletSize: 0.15
+  bulletSize: 0.4
   whiteOutlineMaterial: {fileID: 2100000, guid: 4155589bd7e094f1db4da5a75b64d2d9, type: 2}
   blackOutlineMaterial: {fileID: 2100000, guid: 38a37c95a09344758bbfdaff97da824c, type: 2}
   outlineScale: 1.4
@@ -557,7 +563,7 @@ MonoBehaviour:
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   whiteMaterial: {fileID: 2100000, guid: f26c4e5d5077e413cb6772e719f77346, type: 2}
   blackMaterial: {fileID: 2100000, guid: 0c38e222ac0984c63801b9bee0296253, type: 2}
-  enemySize: 0.4
+  enemySize: 0.8
   whiteOutlineMaterial: {fileID: 2100000, guid: 4155589bd7e094f1db4da5a75b64d2d9, type: 2}
   blackOutlineMaterial: {fileID: 2100000, guid: 38a37c95a09344758bbfdaff97da824c, type: 2}
   outlineScale: 1.3
@@ -606,14 +612,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab4e72f4ab12d45bc8efea2316d6eab7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Player.Systems.PlayerController
+  gameplayCamera: {fileID: 519420031}
   gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
   inputReader: {fileID: 11400000, guid: 614c9f4fa7e6f45f4ab219fb36de3023, type: 2}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
   playerHpVar: {fileID: 11400000, guid: 057a6b093e2a248a8b54ddbb09ca2455, type: 2}
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}
   spinGaugeVar: {fileID: 11400000, guid: d0dd4b52acd454de5a9509a0cd170e5b, type: 2}
-  onPolarityChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}
+  onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
+  onComboIncremented: {fileID: 11400000, guid: a5bb057ca18a6422eabc07343d974ab9, type: 2}
+  onKillScoreAdded: {fileID: 11400000, guid: 6c7724dd95b7b47c190a7b15620e023f, type: 2}
+  onScoreAdded: {fileID: 11400000, guid: a6c810aa4e9964c85857f3d57440aa62, type: 2}
   onGameOver: {fileID: 11400000, guid: accbfe13ebf0247238041e67bcf14dee, type: 2}
   spriteRenderer: {fileID: 1292937401}
 --- !u!212 &1292937401
@@ -794,6 +805,10 @@ MonoBehaviour:
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}
   spinGaugeVar: {fileID: 11400000, guid: d0dd4b52acd454de5a9509a0cd170e5b, type: 2}
+  onPlayerHpChanged: {fileID: 11400000, guid: a79ea5d21e78244fa85af269dbf6e175, type: 2}
+  onScoreChanged: {fileID: 11400000, guid: b4e34b592c1a749ce8b76d095bda97a1, type: 2}
+  onComboCountChanged: {fileID: 11400000, guid: 5ee9bed3815e04976bb93b1d3e7b2e4e, type: 2}
+  onSpinGaugeChanged: {fileID: 11400000, guid: 294057b8f85b94def8b525a58057062f, type: 2}
   uiDocument: {fileID: 1659793576}
 --- !u!114 &1659793576
 MonoBehaviour:

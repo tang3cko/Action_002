@@ -3,8 +3,8 @@ using Unity.Mathematics;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
 using Action002.Enemy.Data;
-using Action002.Player.Systems;
 using Action002.Core;
+using Tang3cko.ReactiveSO;
 
 namespace Action002.Player.Systems
 {
@@ -20,8 +20,9 @@ namespace Action002.Player.Systems
         [SerializeField] private EnemyStateSetSO enemySet;
         [SerializeField] private BulletStateSetSO bulletSet;
 
-        [Header("References")]
-        [SerializeField] private PlayerController player;
+        [Header("Variables (read)")]
+        [SerializeField] private Vector2VariableSO playerPositionVar;
+        [SerializeField] private IntVariableSO playerPolarityVar;
 
         private int _lastConsumedHalfBeatIndex = -1;
         private int _nextBulletId = 200000;
@@ -31,7 +32,7 @@ namespace Action002.Player.Systems
             if (!rhythmClock.ShouldFireOnDownbeat(ref _lastConsumedHalfBeatIndex))
                 return;
 
-            float2 playerPos = player.Position;
+            float2 playerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y);
             float2 direction = FindDirectionToNearestEnemy(playerPos);
 
             var bullet = new BulletState
@@ -39,7 +40,7 @@ namespace Action002.Player.Systems
                 Position = playerPos,
                 Velocity = direction * gameConfig.PlayerBulletSpeed,
                 ScoreValue = 0f,
-                Polarity = (byte)player.CurrentPolarity,
+                Polarity = (byte)playerPolarityVar.Value,
                 Faction = 0, // Player
                 Damage = 1,
             };
@@ -83,7 +84,8 @@ namespace Action002.Player.Systems
             if (rhythmClock == null) Debug.LogWarning($"[{GetType().Name}] rhythmClock not assigned on {gameObject.name}.", this);
             if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
             if (bulletSet == null) Debug.LogWarning($"[{GetType().Name}] bulletSet not assigned on {gameObject.name}.", this);
-            if (player == null) Debug.LogWarning($"[{GetType().Name}] player not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
+            if (playerPolarityVar == null) Debug.LogWarning($"[{GetType().Name}] playerPolarityVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }

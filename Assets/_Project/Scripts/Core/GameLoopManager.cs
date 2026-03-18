@@ -9,7 +9,6 @@ using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Enemy.Systems;
 using Action002.Audio.Systems;
-using Action002.Player.Logic;
 using Action002.Player.Systems;
 using Tang3cko.ReactiveSO;
 
@@ -25,8 +24,10 @@ namespace Action002.Core
         [SerializeField] private EnemyStateSetSO enemySet;
         [SerializeField] private BulletStateSetSO bulletSet;
 
-        [Header("References")]
-        [SerializeField] private PlayerController player;
+        [Header("Variables (read)")]
+        [SerializeField] private Vector2VariableSO playerPositionVar;
+        [SerializeField] private IntVariableSO playerPolarityVar;
+        [SerializeField] private IntVariableSO playerHpVar;
 
         [Header("Systems")]
         [SerializeField] private RhythmClockSystem rhythmClock;
@@ -35,8 +36,9 @@ namespace Action002.Core
         [SerializeField] private EnemySpawnSystem enemySpawn;
         [SerializeField] private EnemyShootSystem enemyShoot;
 
-        [Header("Events")]
+        [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onPlayerDamaged;
+        [SerializeField] private IntEventChannelSO onScoreAdded;
 
         private ReactiveEntitySetOrchestrator<EnemyState> enemyOrchestrator;
         private ReactiveEntitySetOrchestrator<BulletState> bulletOrchestrator;
@@ -49,6 +51,8 @@ namespace Action002.Core
 
         private void Start()
         {
+            if (enemySet == null || bulletSet == null) return;
+
             enemyOrchestrator = new ReactiveEntitySetOrchestrator<EnemyState>(enemySet);
             bulletOrchestrator = new ReactiveEntitySetOrchestrator<BulletState>(bulletSet);
 
@@ -88,8 +92,8 @@ namespace Action002.Core
 
             ProcessEnemyContacts();
 
-            if (player != null && player.CheckDeathImmediate())
-                return;
+            // Stop spawning if player is dead (HP set by PlayerController via VariableSO)
+            if (playerHpVar != null && playerHpVar.Value <= 0) return;
 
             if (enemySpawn != null)
                 enemySpawn.ProcessSpawning();
@@ -101,15 +105,16 @@ namespace Action002.Core
 
         private void ProcessEnemyContacts()
         {
-            if (enemySet == null || enemySet.Count == 0 || player == null || gameConfig == null) return;
+            if (enemySet == null || enemySet.Count == 0 || gameConfig == null) return;
+            if (playerPositionVar == null || playerPolarityVar == null) return;
 
             sameContactIds.Clear();
             enemyDespawnQueue.Clear();
 
             var data = enemySet.Data;
             var ids = enemySet.EntityIds;
-            var playerPos = player.Position;
-            var playerPolarity = player.CurrentPolarity;
+            float2 playerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y);
+            var playerPolarity = (Polarity)playerPolarityVar.Value;
             float contactRadius = gameConfig.ContactRadius;
 
             for (int i = 0; i < data.Length; i++)
@@ -118,25 +123,25 @@ namespace Action002.Core
                 if (!EnemyContactCalculator.IsContact(playerPos, enemy.Position, contactRadius))
                     continue;
 
-                if (PolarityCalculator.IsSamePolarity(playerPolarity, enemy.Polarity))
+                var contactResult = ContactRuleCalculator.Resolve(playerPolarity, enemy.Polarity);
+
+                if (ContactRuleCalculator.IsDamageContact(contactResult))
                 {
-                    sameContactIds.Add(ids[i]);
+                    onPlayerDamaged?.RaiseEvent();
+                    enemyDespawnQueue.Add(ids[i]);
                 }
                 else
                 {
-                    if (!DamageCalculator.IsInvincible(player.State))
-                    {
-                        player.ApplyDamage();
-                        onPlayerDamaged?.RaiseEvent();
-                        enemyDespawnQueue.Add(ids[i]);
-                    }
+                    sameContactIds.Add(ids[i]);
                 }
             }
 
             var newContacts = contactTracker.UpdateContacts(sameContactIds);
             foreach (var id in newContacts)
             {
-                player.AddScore(gameConfig.ContactScoreBonus);
+                // newContacts = first-frame contacts only (tracked by SessionTracker)
+                // IsScoringContact encodes the rule: same polarity + first contact = score
+                onScoreAdded?.RaiseEvent(gameConfig.ContactScoreBonus);
             }
 
             foreach (var id in enemyDespawnQueue)
@@ -149,7 +154,8 @@ namespace Action002.Core
 
         private void ScheduleEnemyJob()
         {
-            if (enemySet.Count == 0) return;
+            if (enemySet == null || enemySet.Count == 0) return;
+            if (playerPositionVar == null || enemyOrchestrator == null) return;
 
             var src = enemySet.Data;
             var dst = enemyOrchestrator.GetBackBuffer();
@@ -158,7 +164,7 @@ namespace Action002.Core
             {
                 Src = src,
                 Dst = dst,
-                PlayerPos = player.Position,
+                PlayerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y),
                 DeltaTime = Time.deltaTime,
             };
 
@@ -169,7 +175,8 @@ namespace Action002.Core
 
         private void ScheduleBulletJob()
         {
-            if (bulletSet.Count == 0) return;
+            if (bulletSet == null || bulletSet.Count == 0) return;
+            if (bulletOrchestrator == null) return;
 
             var src = bulletSet.Data;
             var dst = bulletOrchestrator.GetBackBuffer();
@@ -188,7 +195,9 @@ namespace Action002.Core
 
         private void RemoveOffscreenBullets()
         {
-            if (bulletSet.Count == 0) return;
+            if (bulletSet == null || bulletSet.Count == 0) return;
+            if (gameConfig == null || mainCamera == null) return;
+
             despawnQueue.Clear();
             if (despawnQueue.Capacity < bulletSet.Count)
                 despawnQueue.Capacity = bulletSet.Count;
@@ -218,6 +227,16 @@ namespace Action002.Core
 
         private void OnDestroy()
         {
+            if (hasPendingEnemyJob)
+            {
+                enemyOrchestrator?.CompleteAndApply();
+                hasPendingEnemyJob = false;
+            }
+            if (hasPendingBulletJob)
+            {
+                bulletOrchestrator?.CompleteAndApply();
+                hasPendingBulletJob = false;
+            }
             enemyOrchestrator?.Dispose();
             enemyOrchestrator = null;
             bulletOrchestrator?.Dispose();
@@ -229,7 +248,9 @@ namespace Action002.Core
         {
             if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
             if (bulletSet == null) Debug.LogWarning($"[{GetType().Name}] bulletSet not assigned on {gameObject.name}.", this);
-            if (player == null) Debug.LogWarning($"[{GetType().Name}] player not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
+            if (playerPolarityVar == null) Debug.LogWarning($"[{GetType().Name}] playerPolarityVar not assigned on {gameObject.name}.", this);
+            if (playerHpVar == null) Debug.LogWarning($"[{GetType().Name}] playerHpVar not assigned on {gameObject.name}.", this);
             if (rhythmClock == null) Debug.LogWarning($"[{GetType().Name}] rhythmClock not assigned on {gameObject.name}.", this);
             if (playerAttack == null) Debug.LogWarning($"[{GetType().Name}] playerAttack not assigned on {gameObject.name}.", this);
             if (bulletCollision == null) Debug.LogWarning($"[{GetType().Name}] bulletCollision not assigned on {gameObject.name}.", this);
@@ -238,6 +259,7 @@ namespace Action002.Core
             if (mainCamera == null) Debug.LogWarning($"[{GetType().Name}] mainCamera not assigned on {gameObject.name}.", this);
             if (gameConfig == null) Debug.LogWarning($"[{GetType().Name}] gameConfig not assigned on {gameObject.name}.", this);
             if (onPlayerDamaged == null) Debug.LogWarning($"[{GetType().Name}] onPlayerDamaged not assigned on {gameObject.name}.", this);
+            if (onScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onScoreAdded not assigned on {gameObject.name}.", this);
         }
 #endif
     }

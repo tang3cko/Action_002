@@ -48,6 +48,27 @@ namespace Action002.Tests.Player
         }
 
         [Test]
+        public void IsInvincible_TimerPositive_ReturnsTrue()
+        {
+            var state = new PlayerState { InvincibleTimer = 0.5f };
+            Assert.That(DamageCalculator.IsInvincible(state), Is.True);
+        }
+
+        [Test]
+        public void IsInvincible_TimerZero_ReturnsFalse()
+        {
+            var state = new PlayerState { InvincibleTimer = 0f };
+            Assert.That(DamageCalculator.IsInvincible(state), Is.False);
+        }
+
+        [Test]
+        public void IsInvincible_TimerNegative_ReturnsFalse()
+        {
+            var state = new PlayerState { InvincibleTimer = -0.1f };
+            Assert.That(DamageCalculator.IsInvincible(state), Is.False);
+        }
+
+        [Test]
         public void IsDead_HpZero_ReturnsTrue()
         {
             var state = new PlayerState { Hp = 0 };

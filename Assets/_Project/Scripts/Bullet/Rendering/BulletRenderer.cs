@@ -14,7 +14,7 @@ namespace Action002.Bullet.Rendering
         [SerializeField] private Mesh quadMesh;
         [SerializeField] private Material whiteMaterial;
         [SerializeField] private Material blackMaterial;
-        [SerializeField] private float bulletSize = 0.15f;
+        [SerializeField] private float bulletSize = 0.4f;
 
         [Header("Outline")]
         [SerializeField] private Material whiteOutlineMaterial;

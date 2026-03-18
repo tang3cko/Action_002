@@ -4,7 +4,6 @@ using Unity.Mathematics;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
 using Action002.Enemy.Data;
-using Action002.Player.Systems;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Bullet.Systems
@@ -18,8 +17,8 @@ namespace Action002.Bullet.Systems
         [Header("Systems")]
         [SerializeField] private RhythmClockSystem rhythmClock;
 
-        [Header("References")]
-        [SerializeField] private PlayerController player;
+        [Header("Variables (read)")]
+        [SerializeField] private Vector2VariableSO playerPositionVar;
 
         [Header("Settings")]
         [SerializeField] private float bulletSpeed = 3f;
@@ -56,7 +55,7 @@ namespace Action002.Bullet.Systems
                     continue;
 
                 var enemy = data[i];
-                float2 dir = player.Position - enemy.Position;
+                float2 dir = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y) - enemy.Position;
                 float dist = math.length(dir);
                 if (dist < 0.01f) continue;
 
@@ -91,7 +90,7 @@ namespace Action002.Bullet.Systems
             if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
             if (bulletSet == null) Debug.LogWarning($"[{GetType().Name}] bulletSet not assigned on {gameObject.name}.", this);
             if (rhythmClock == null) Debug.LogWarning($"[{GetType().Name}] rhythmClock not assigned on {gameObject.name}.", this);
-            if (player == null) Debug.LogWarning($"[{GetType().Name}] player not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }

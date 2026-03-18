@@ -9,14 +9,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17626dcb9282c4b87a0aa55defba1d68, type: 3}
-  m_Name: PlayerPolarity
-  m_EditorClassIdentifier: Tang3cko.ReactiveSO::Tang3cko.ReactiveSO.IntVariableSO
+  m_Script: {fileID: 11500000, guid: 71bbf8104353f4ab88c8d9be8f0bb62f, type: 3}
+  m_Name: PlayerPosition
+  m_EditorClassIdentifier: Tang3cko.ReactiveSO::Tang3cko.ReactiveSO.Vector2VariableSO
   description: 
   showInMonitor: 1
   showInConsole: 0
-  value: 0
-  initialValue: 0
-  onValueChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}
+  value: {x: 0, y: 0}
+  initialValue: {x: 0, y: 0}
+  onValueChanged: {fileID: 0}
   gpuSyncEnabled: 0
   gpuPropertyName: 

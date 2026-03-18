@@ -10,6 +10,9 @@ namespace Action002.Player.Systems
 {
     public class PlayerController : MonoBehaviour
     {
+        [Header("Dependencies")]
+        [SerializeField] private Camera gameplayCamera;
+
         [Header("Config")]
         [SerializeField] private GameConfigSO gameConfig;
 
@@ -17,30 +20,34 @@ namespace Action002.Player.Systems
         [SerializeField] private InputReaderSO inputReader;
 
         [Header("Variables (write)")]
+        [SerializeField] private Vector2VariableSO playerPositionVar;
         [SerializeField] private IntVariableSO playerPolarityVar;
         [SerializeField] private IntVariableSO playerHpVar;
         [SerializeField] private IntVariableSO scoreVar;
         [SerializeField] private IntVariableSO comboCountVar;
         [SerializeField] private FloatVariableSO spinGaugeVar;
 
-        [Header("Events")]
-        [SerializeField] private IntEventChannelSO onPolarityChanged;
+        [Header("Events (subscribe)")]
+        [SerializeField] private VoidEventChannelSO onPlayerDamaged;
+        [SerializeField] private FloatEventChannelSO onComboIncremented;
+        [SerializeField] private IntEventChannelSO onKillScoreAdded;
+        [SerializeField] private IntEventChannelSO onScoreAdded;
+
+        [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onGameOver;
 
         [Header("Visual")]
         [SerializeField] private SpriteRenderer spriteRenderer;
 
         private PlayerState state;
-        private bool _gameOverFired;
+        private bool hasGameOverFired;
         private Vector2 moveInput;
-        private Vector2 playAreaMin = new Vector2(-17f, -9.5f);
-        private Vector2 playAreaMax = new Vector2(17f, 9.5f);
 
-        public float2 Position => state.Position;
-        public Polarity CurrentPolarity => state.CurrentPolarity;
-        // NOTE: Exposes mutable ref for performance (used by BulletCollisionSystem).
-        // Consider replacing with read-only accessors if mutation is not needed externally.
-        public ref PlayerState State => ref state;
+        private void Awake()
+        {
+            if (gameplayCamera == null)
+                gameplayCamera = Camera.main;
+        }
 
         private void OnEnable()
         {
@@ -49,15 +56,14 @@ namespace Action002.Player.Systems
                 inputReader.OnMoveEvent += HandleMove;
                 inputReader.OnSwitchPolarityEvent += HandleSwitchPolarity;
             }
-        }
-
-        private void OnDisable()
-        {
-            if (inputReader != null)
-            {
-                inputReader.OnMoveEvent -= HandleMove;
-                inputReader.OnSwitchPolarityEvent -= HandleSwitchPolarity;
-            }
+            if (onPlayerDamaged != null)
+                onPlayerDamaged.OnEventRaised += HandleDamage;
+            if (onComboIncremented != null)
+                onComboIncremented.OnEventRaised += HandleIncrementCombo;
+            if (onKillScoreAdded != null)
+                onKillScoreAdded.OnEventRaised += HandleAddKillScore;
+            if (onScoreAdded != null)
+                onScoreAdded.OnEventRaised += HandleAddScore;
         }
 
         private void Start()
@@ -72,7 +78,7 @@ namespace Action002.Player.Systems
                 MaxHp = gameConfig.MaxHp,
                 ComboMultiplier = 1f,
             };
-            _gameOverFired = false;
+            hasGameOverFired = false;
             SyncVariables();
             UpdateVisual();
         }
@@ -81,112 +87,54 @@ namespace Action002.Player.Systems
         {
             if (gameConfig == null) return;
 
-            // Movement
             float2 input = new float2(moveInput.x, moveInput.y);
-            float2 velocity = math.normalizesafe(input) * gameConfig.MoveSpeed;
+            float2 velocity = MovementCalculator.CalculateVelocity(input, gameConfig.MoveSpeed);
             state.Position += velocity * Time.deltaTime;
 
-            // Clamp
-            state.Position = math.clamp(state.Position, new float2(playAreaMin.x, playAreaMin.y), new float2(playAreaMax.x, playAreaMax.y));
+            state.Position = ClampPositionToViewport(state.Position);
             transform.position = new Vector3(state.Position.x, state.Position.y, 0f);
+            if (playerPositionVar != null)
+                playerPositionVar.Value = new Vector2(state.Position.x, state.Position.y);
 
-            // Invincibility
             state = DamageCalculator.TickInvincibility(state, Time.deltaTime);
 
-            // Combo timeout
-            if (state.ComboCount > 0)
-            {
-                state.ComboTimer -= Time.deltaTime;
-                if (state.ComboTimer <= 0f)
-                {
-                    state.ComboCount = 0;
-                    state.ComboMultiplier = 1f;
-                    SyncVariables();
-                }
-            }
+            var prevCombo = state.ComboCount;
+            state = ComboCalculator.TickComboTimer(state, Time.deltaTime);
+            if (prevCombo > 0 && state.ComboCount == 0)
+                SyncVariables();
 
-            // Invincibility visual
             if (spriteRenderer != null)
             {
-                float alpha = DamageCalculator.IsInvincible(state) ? (Mathf.Sin(Time.time * 20f) > 0f ? 0.3f : 1f) : 1f;
+                float alpha = DamageCalculator.IsInvincible(state)
+                    ? (Mathf.Sin(Time.time * 20f) > 0f ? 0.3f : 1f)
+                    : 1f;
                 var c = spriteRenderer.color;
                 c.a = alpha;
                 spriteRenderer.color = c;
             }
 
-            // Death check
-            if (!_gameOverFired && DamageCalculator.IsDead(state))
+            if (!hasGameOverFired && DamageCalculator.IsDead(state))
             {
-                _gameOverFired = true;
+                hasGameOverFired = true;
                 onGameOver?.RaiseEvent();
             }
         }
 
-        private void HandleMove(Vector2 input)
+        private void OnDisable()
         {
-            moveInput = input;
-        }
-
-        private void HandleSwitchPolarity()
-        {
-            state.CurrentPolarity = PolarityCalculator.Toggle(state.CurrentPolarity);
-            UpdateVisual();
-            if (playerPolarityVar != null) playerPolarityVar.Value = (int)state.CurrentPolarity;
-            onPolarityChanged?.RaiseEvent((int)state.CurrentPolarity);
-        }
-
-        public bool CheckDeathImmediate()
-        {
-            if (!_gameOverFired && DamageCalculator.IsDead(state))
+            if (inputReader != null)
             {
-                _gameOverFired = true;
-                onGameOver?.RaiseEvent();
-                return true;
+                inputReader.OnMoveEvent -= HandleMove;
+                inputReader.OnSwitchPolarityEvent -= HandleSwitchPolarity;
             }
-            return false;
-        }
-
-        public void ApplyDamage()
-        {
-            if (gameConfig == null) return;
-            state = DamageCalculator.ApplyDamage(state, gameConfig.InvincibleDuration);
-            SyncVariables();
-        }
-
-        public void AddScore(int amount)
-        {
-            state.Score += amount;
-            SyncVariables();
-        }
-
-        public void IncrementCombo(float bulletValue)
-        {
-            if (gameConfig == null) return;
-            state.ComboCount++;
-            state.ComboMultiplier = Bullet.Logic.AbsorptionCalculator.CalculateComboMultiplier(state.ComboCount, gameConfig.ComboMultiplierStep);
-            state.ComboTimer = gameConfig.ComboTimeout;
-            state.SpinGauge = math.min(1f, state.SpinGauge + gameConfig.AbsorbGaugeRate);
-
-            int absorbScore = (int)Bullet.Logic.AbsorptionCalculator.CalculateAbsorbScore(bulletValue, state.ComboMultiplier);
-            state.Score += absorbScore;
-            SyncVariables();
-        }
-
-        public void AddKillScore(int baseScore)
-        {
-            if (gameConfig == null) return;
-            state.Score += baseScore;
-            state.SpinGauge = math.min(1f, state.SpinGauge + gameConfig.KillGaugeRate);
-            SyncVariables();
-        }
-
-        private void SyncVariables()
-        {
-            if (playerHpVar != null) playerHpVar.Value = state.Hp;
-            if (scoreVar != null) scoreVar.Value = state.Score;
-            if (comboCountVar != null) comboCountVar.Value = state.ComboCount;
-            if (spinGaugeVar != null) spinGaugeVar.Value = state.SpinGauge;
-            if (playerPolarityVar != null) playerPolarityVar.Value = (int)state.CurrentPolarity;
+            if (onPlayerDamaged != null)
+                onPlayerDamaged.OnEventRaised -= HandleDamage;
+            if (onComboIncremented != null)
+                onComboIncremented.OnEventRaised -= HandleIncrementCombo;
+            if (onKillScoreAdded != null)
+                onKillScoreAdded.OnEventRaised -= HandleAddKillScore;
+            if (onScoreAdded != null)
+                onScoreAdded.OnEventRaised -= HandleAddScore;
         }
 
         public void ResetForNewRun()
@@ -200,11 +148,77 @@ namespace Action002.Player.Systems
                 MaxHp = gameConfig.MaxHp,
                 ComboMultiplier = 1f,
             };
-            _gameOverFired = false;
+            hasGameOverFired = false;
             moveInput = Vector2.zero;
             transform.position = Vector3.zero;
             SyncVariables();
             UpdateVisual();
+        }
+
+        // --- Input Handlers ---
+
+        private void HandleMove(Vector2 input)
+        {
+            moveInput = input;
+        }
+
+        private void HandleSwitchPolarity()
+        {
+            state.CurrentPolarity = PolarityCalculator.Toggle(state.CurrentPolarity);
+            UpdateVisual();
+            if (playerPolarityVar != null)
+                playerPolarityVar.Value = (int)state.CurrentPolarity;
+        }
+
+        // --- Event Handlers ---
+
+        private void HandleDamage()
+        {
+            if (gameConfig == null) return;
+            if (DamageCalculator.IsInvincible(state)) return;
+            state = DamageCalculator.ApplyDamage(state, gameConfig.InvincibleDuration);
+            SyncVariables();
+            if (!hasGameOverFired && DamageCalculator.IsDead(state))
+            {
+                hasGameOverFired = true;
+                onGameOver?.RaiseEvent();
+            }
+        }
+
+        private void HandleIncrementCombo(float bulletValue)
+        {
+            if (gameConfig == null) return;
+            state = ComboCalculator.IncrementCombo(
+                state, bulletValue, gameConfig.ComboMultiplierStep,
+                gameConfig.ComboTimeout, gameConfig.AbsorbGaugeRate);
+            SyncVariables();
+        }
+
+        private void HandleAddKillScore(int baseScore)
+        {
+            if (gameConfig == null) return;
+            state = ScoreCalculator.AddKillScore(state, baseScore, gameConfig.KillGaugeRate);
+            SyncVariables();
+        }
+
+        private void HandleAddScore(int amount)
+        {
+            state.Score += amount;
+            SyncVariables();
+        }
+
+        // --- State ---
+
+        private void SyncVariables()
+        {
+            if (playerPositionVar != null)
+                playerPositionVar.Value = new Vector2(state.Position.x, state.Position.y);
+            if (playerHpVar != null) playerHpVar.Value = state.Hp;
+            if (scoreVar != null) scoreVar.Value = state.Score;
+            if (comboCountVar != null) comboCountVar.Value = state.ComboCount;
+            if (spinGaugeVar != null) spinGaugeVar.Value = state.SpinGauge;
+            if (playerPolarityVar != null)
+                playerPolarityVar.Value = (int)state.CurrentPolarity;
         }
 
         private void UpdateVisual()
@@ -215,11 +229,39 @@ namespace Action002.Player.Systems
                 : new Color(0.15f, 0.15f, 0.25f);
         }
 
+        private float2 ClampPositionToViewport(float2 position)
+        {
+            if (gameplayCamera == null)
+                return position;
+
+            float cameraDistance = Mathf.Abs(gameplayCamera.transform.position.z - transform.position.z);
+            Vector3 min = gameplayCamera.ViewportToWorldPoint(new Vector3(0f, 0f, cameraDistance));
+            Vector3 max = gameplayCamera.ViewportToWorldPoint(new Vector3(1f, 1f, cameraDistance));
+
+            return MovementCalculator.ClampPosition(
+                position,
+                new float2(min.x, min.y),
+                new float2(max.x, max.y));
+        }
+
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            if (gameplayCamera == null) Debug.LogWarning($"[{GetType().Name}] gameplayCamera not assigned on {gameObject.name}.", this);
             if (gameConfig == null) Debug.LogWarning($"[{GetType().Name}] gameConfig not assigned on {gameObject.name}.", this);
             if (inputReader == null) Debug.LogWarning($"[{GetType().Name}] inputReader not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
+            if (playerPolarityVar == null) Debug.LogWarning($"[{GetType().Name}] playerPolarityVar not assigned on {gameObject.name}.", this);
+            if (playerHpVar == null) Debug.LogWarning($"[{GetType().Name}] playerHpVar not assigned on {gameObject.name}.", this);
+            if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
+            if (comboCountVar == null) Debug.LogWarning($"[{GetType().Name}] comboCountVar not assigned on {gameObject.name}.", this);
+            if (spinGaugeVar == null) Debug.LogWarning($"[{GetType().Name}] spinGaugeVar not assigned on {gameObject.name}.", this);
+            if (onPlayerDamaged == null) Debug.LogWarning($"[{GetType().Name}] onPlayerDamaged not assigned on {gameObject.name}.", this);
+            if (onComboIncremented == null) Debug.LogWarning($"[{GetType().Name}] onComboIncremented not assigned on {gameObject.name}.", this);
+            if (onKillScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onKillScoreAdded not assigned on {gameObject.name}.", this);
+            if (onScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onScoreAdded not assigned on {gameObject.name}.", this);
+            if (onGameOver == null) Debug.LogWarning($"[{GetType().Name}] onGameOver not assigned on {gameObject.name}.", this);
+            if (spriteRenderer == null) Debug.LogWarning($"[{GetType().Name}] spriteRenderer not assigned on {gameObject.name}.", this);
         }
 #endif
     }

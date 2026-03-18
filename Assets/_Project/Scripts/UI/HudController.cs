@@ -16,6 +16,12 @@ namespace Action002.UI
         [SerializeField] private IntVariableSO comboCountVar;
         [SerializeField] private FloatVariableSO spinGaugeVar;
 
+        [Header("Events")]
+        [SerializeField] private IntEventChannelSO onPlayerHpChanged;
+        [SerializeField] private IntEventChannelSO onScoreChanged;
+        [SerializeField] private IntEventChannelSO onComboCountChanged;
+        [SerializeField] private FloatEventChannelSO onSpinGaugeChanged;
+
         [Header("UI")]
         [SerializeField] private UIDocument uiDocument;
 
@@ -34,6 +40,7 @@ namespace Action002.UI
 
             var root = uiDocument.rootVisualElement;
             var hpGroup = root.Q("HpGroup");
+            if (hpGroup == null) return;
 
             int maxHp = gameConfig != null ? gameConfig.MaxHp : 5;
             hpGroup.Clear();
@@ -51,14 +58,14 @@ namespace Action002.UI
             gaugeTrack = root.Q("GaugeTrack");
             gaugeFill = root.Q("GaugeFill");
 
-            if (playerHpVar?.OnValueChanged != null)
-                playerHpVar.OnValueChanged.OnEventRaised += OnHpChanged;
-            if (scoreVar?.OnValueChanged != null)
-                scoreVar.OnValueChanged.OnEventRaised += OnScoreChanged;
-            if (comboCountVar?.OnValueChanged != null)
-                comboCountVar.OnValueChanged.OnEventRaised += OnComboChanged;
-            if (spinGaugeVar?.OnValueChanged != null)
-                spinGaugeVar.OnValueChanged.OnEventRaised += OnGaugeChanged;
+            if (onPlayerHpChanged != null)
+                onPlayerHpChanged.OnEventRaised += OnHpChanged;
+            if (onScoreChanged != null)
+                onScoreChanged.OnEventRaised += OnScoreChanged;
+            if (onComboCountChanged != null)
+                onComboCountChanged.OnEventRaised += OnComboChanged;
+            if (onSpinGaugeChanged != null)
+                onSpinGaugeChanged.OnEventRaised += OnGaugeChanged;
 
             if (playerHpVar != null) OnHpChanged(playerHpVar.Value);
             if (scoreVar != null) OnScoreChanged(scoreVar.Value);
@@ -68,14 +75,14 @@ namespace Action002.UI
 
         private void OnDestroy()
         {
-            if (playerHpVar?.OnValueChanged != null)
-                playerHpVar.OnValueChanged.OnEventRaised -= OnHpChanged;
-            if (scoreVar?.OnValueChanged != null)
-                scoreVar.OnValueChanged.OnEventRaised -= OnScoreChanged;
-            if (comboCountVar?.OnValueChanged != null)
-                comboCountVar.OnValueChanged.OnEventRaised -= OnComboChanged;
-            if (spinGaugeVar?.OnValueChanged != null)
-                spinGaugeVar.OnValueChanged.OnEventRaised -= OnGaugeChanged;
+            if (onPlayerHpChanged != null)
+                onPlayerHpChanged.OnEventRaised -= OnHpChanged;
+            if (onScoreChanged != null)
+                onScoreChanged.OnEventRaised -= OnScoreChanged;
+            if (onComboCountChanged != null)
+                onComboCountChanged.OnEventRaised -= OnComboChanged;
+            if (onSpinGaugeChanged != null)
+                onSpinGaugeChanged.OnEventRaised -= OnGaugeChanged;
         }
 
         private void OnHpChanged(int hp)
@@ -104,8 +111,8 @@ namespace Action002.UI
 
         private void OnGaugeChanged(float gauge)
         {
-            if (gaugeFill != null && gaugeTrack != null)
-                gaugeFill.style.width = new Length(gauge * 100f, LengthUnit.Percent);
+            if (gaugeFill != null)
+                gaugeFill.style.width = new Length(Mathf.Clamp01(gauge) * 100f, LengthUnit.Percent);
         }
     }
 }
