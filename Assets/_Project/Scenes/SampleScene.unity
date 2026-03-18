@@ -270,6 +270,8 @@ GameObject:
   - component: {fileID: 777527343}
   - component: {fileID: 777527342}
   - component: {fileID: 777527341}
+  - component: {fileID: 777527350}
+  - component: {fileID: 777527349}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -292,6 +294,7 @@ MonoBehaviour:
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   player: {fileID: 1292937400}
+  rhythmClock: {fileID: 777527350}
   playerAttack: {fileID: 777527342}
   bulletCollision: {fileID: 777527343}
   enemySpawn: {fileID: 777527347}
@@ -309,10 +312,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Player.Systems.PlayerAttackSystem
   gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
+  rhythmClock: {fileID: 777527350}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
+  bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   player: {fileID: 1292937400}
-  onEnemyKilled: {fileID: 11400000, guid: 6e56ddcdb27984d40a318c62117b693d, type: 2}
-  killScore: 50
 --- !u!114 &777527343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -326,11 +329,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Bullet.Systems.BulletCollisionSystem
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
+  enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   player: {fileID: 1292937400}
   onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
   onComboChanged: {fileID: 11400000, guid: ffc3b10550e56451d83bcd77d8a38cb3, type: 2}
+  onEnemyKilled: {fileID: 11400000, guid: 6e56ddcdb27984d40a318c62117b693d, type: 2}
   absorbRadius: 1
   damageRadius: 0.5
+  bulletHitRadius: 0.5
+  killScore: 50
 --- !u!114 &777527344
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,11 +352,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Bullet.Systems.EnemyShootSystem
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
+  rhythmClock: {fileID: 777527350}
   player: {fileID: 1292937400}
   bulletSpeed: 3
   bulletLifetime: 5
   bulletScoreValue: 10
-  fireInterval: 2
   maxBulletsPerFrame: 5
 --- !u!114 &777527347
 MonoBehaviour:
@@ -381,6 +388,117 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!82 &777527349
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777527340}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!114 &777527350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 777527340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4338f86c02f734a368ec39ea0d3553d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Audio.Systems.RhythmClockSystem
+  config: {fileID: 11400000, guid: 68bd4f2f35f0543d59efe7141e220ca1, type: 2}
+  bgmSource: {fileID: 777527349}
 --- !u!1 &939776796
 GameObject:
   m_ObjectHideFlags: 0
@@ -419,6 +537,7 @@ MonoBehaviour:
   whiteOutlineMaterial: {fileID: 2100000, guid: 4155589bd7e094f1db4da5a75b64d2d9, type: 2}
   blackOutlineMaterial: {fileID: 2100000, guid: 38a37c95a09344758bbfdaff97da824c, type: 2}
   outlineScale: 1.4
+  playerBulletScale: 0.7
 --- !u!114 &939776798
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -580,7 +699,6 @@ GameObject:
   - component: {fileID: 1415793665}
   - component: {fileID: 1415793668}
   - component: {fileID: 1415793667}
-  - component: {fileID: 1415793666}
   m_Layer: 0
   m_Name: Effects
   m_TagString: Untagged
@@ -603,24 +721,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1292937402}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1415793666
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1415793664}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0bcf3d47a09848c49601c7a8484f609, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Action002::Action002.Visual.AttackRangeVisual
-  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
-  onEnemyKilled: {fileID: 11400000, guid: 6e56ddcdb27984d40a318c62117b693d, type: 2}
-  onPolarityChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}
-  baseAlpha: 0.08
-  flashAlpha: 0.3
-  flashDuration: 0.1
 --- !u!114 &1415793667
 MonoBehaviour:
   m_ObjectHideFlags: 0

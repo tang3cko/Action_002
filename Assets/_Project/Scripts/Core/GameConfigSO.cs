@@ -8,7 +8,6 @@ namespace Action002.Core
         [Header("Player")]
         [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private int maxHp = 5;
-        [SerializeField] private float attackRange = 2f;
         [SerializeField] private float attackInterval = 0.2f;
         [SerializeField] private float invincibleDuration = 1f;
 
@@ -22,13 +21,16 @@ namespace Action002.Core
         [SerializeField] private int maxEnemies = 1000;
         [SerializeField] private float spawnRadius = 15f;
 
+        [Header("Player Bullet")]
+        [SerializeField] private float playerBulletSpeed = 15f;
+        [SerializeField] private float playerBulletLifetime = 2f;
+
         [Header("Gauge")]
         [SerializeField] private float absorbGaugeRate = 0.02f;
         [SerializeField] private float killGaugeRate = 0.05f;
 
         public float MoveSpeed => moveSpeed;
         public int MaxHp => maxHp;
-        public float AttackRange => attackRange;
         public float AttackInterval => attackInterval;
         public float InvincibleDuration => invincibleDuration;
         public float ComboMultiplierStep => comboMultiplierStep;
@@ -37,6 +39,8 @@ namespace Action002.Core
         public float MinSpawnInterval => minSpawnInterval;
         public int MaxEnemies => maxEnemies;
         public float SpawnRadius => spawnRadius;
+        public float PlayerBulletSpeed => playerBulletSpeed;
+        public float PlayerBulletLifetime => playerBulletLifetime;
         public float AbsorbGaugeRate => absorbGaugeRate;
         public float KillGaugeRate => killGaugeRate;
     }

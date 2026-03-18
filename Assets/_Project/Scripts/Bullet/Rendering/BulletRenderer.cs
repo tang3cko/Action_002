@@ -21,11 +21,16 @@ namespace Action002.Bullet.Rendering
         [SerializeField] private Material blackOutlineMaterial;
         [SerializeField] private float outlineScale = 1.4f;
 
+        [Header("Player Bullets")]
+        [SerializeField] private float playerBulletScale = 0.7f;
+
         private const int BatchSize = 1023;
         private Matrix4x4[] whiteMatrices = new Matrix4x4[BatchSize];
         private Matrix4x4[] blackMatrices = new Matrix4x4[BatchSize];
         private Matrix4x4[] _whiteOutlineMatrices = new Matrix4x4[BatchSize];
         private Matrix4x4[] _blackOutlineMatrices = new Matrix4x4[BatchSize];
+        private Matrix4x4[] _playerWhiteMatrices = new Matrix4x4[BatchSize];
+        private Matrix4x4[] _playerBlackMatrices = new Matrix4x4[BatchSize];
         private Texture2D _generatedTexture;
 
         private void Start()
@@ -82,71 +87,112 @@ namespace Action002.Bullet.Rendering
             int blackCount = 0;
             int whiteOutlineCount = 0;
             int blackOutlineCount = 0;
+            int playerWhiteCount = 0;
+            int playerBlackCount = 0;
+            float playerSize = bulletSize * playerBulletScale;
             var data = bulletSet.Data;
 
             for (int i = 0; i < data.Length; i++)
             {
                 var state = data[i];
 
-                // Body matrix
-                var matrix = Matrix4x4.TRS(
-                    new Vector3(state.Position.x, state.Position.y, 0.1f),
-                    Quaternion.identity,
-                    Vector3.one * bulletSize
-                );
-
-                // Outline matrix (behind body, slightly larger)
-                var outlineMatrix = Matrix4x4.TRS(
-                    new Vector3(state.Position.x, state.Position.y, 0.15f),
-                    Quaternion.identity,
-                    Vector3.one * (bulletSize * outlineScale)
-                );
-
-                if (state.Polarity == 0)
+                if (state.Faction == 0)
                 {
-                    whiteMatrices[whiteCount++] = matrix;
-                    _whiteOutlineMatrices[whiteOutlineCount++] = outlineMatrix;
+                    // Player bullet: smaller size, no outline
+                    var matrix = Matrix4x4.TRS(
+                        new Vector3(state.Position.x, state.Position.y, 0.05f),
+                        Quaternion.identity,
+                        Vector3.one * playerSize
+                    );
 
-                    if (whiteOutlineCount == BatchSize)
+                    if (state.Polarity == 0)
                     {
-                        if (quadMesh != null && whiteOutlineMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, _whiteOutlineMatrices, whiteOutlineCount);
-                        whiteOutlineCount = 0;
+                        _playerWhiteMatrices[playerWhiteCount++] = matrix;
+                        if (playerWhiteCount == BatchSize)
+                        {
+                            if (quadMesh != null && whiteMaterial != null)
+                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, _playerWhiteMatrices, playerWhiteCount);
+                            playerWhiteCount = 0;
+                        }
                     }
-                    if (whiteCount == BatchSize)
+                    else
                     {
-                        if (quadMesh != null && whiteMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, whiteMatrices, whiteCount);
-                        whiteCount = 0;
+                        _playerBlackMatrices[playerBlackCount++] = matrix;
+                        if (playerBlackCount == BatchSize)
+                        {
+                            if (quadMesh != null && blackMaterial != null)
+                                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, _playerBlackMatrices, playerBlackCount);
+                            playerBlackCount = 0;
+                        }
                     }
                 }
                 else
                 {
-                    blackMatrices[blackCount++] = matrix;
-                    _blackOutlineMatrices[blackOutlineCount++] = outlineMatrix;
+                    // Enemy bullet: normal size with outline
+                    var matrix = Matrix4x4.TRS(
+                        new Vector3(state.Position.x, state.Position.y, 0.1f),
+                        Quaternion.identity,
+                        Vector3.one * bulletSize
+                    );
 
-                    if (blackOutlineCount == BatchSize)
+                    var outlineMatrix = Matrix4x4.TRS(
+                        new Vector3(state.Position.x, state.Position.y, 0.15f),
+                        Quaternion.identity,
+                        Vector3.one * (bulletSize * outlineScale)
+                    );
+
+                    if (state.Polarity == 0)
                     {
-                        if (quadMesh != null && blackOutlineMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, _blackOutlineMatrices, blackOutlineCount);
-                        blackOutlineCount = 0;
+                        whiteMatrices[whiteCount++] = matrix;
+                        _whiteOutlineMatrices[whiteOutlineCount++] = outlineMatrix;
+
+                        if (whiteOutlineCount == BatchSize)
+                        {
+                            if (quadMesh != null && whiteOutlineMaterial != null)
+                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, _whiteOutlineMatrices, whiteOutlineCount);
+                            whiteOutlineCount = 0;
+                        }
+                        if (whiteCount == BatchSize)
+                        {
+                            if (quadMesh != null && whiteMaterial != null)
+                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, whiteMatrices, whiteCount);
+                            whiteCount = 0;
+                        }
                     }
-                    if (blackCount == BatchSize)
+                    else
                     {
-                        if (quadMesh != null && blackMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, blackMatrices, blackCount);
-                        blackCount = 0;
+                        blackMatrices[blackCount++] = matrix;
+                        _blackOutlineMatrices[blackOutlineCount++] = outlineMatrix;
+
+                        if (blackOutlineCount == BatchSize)
+                        {
+                            if (quadMesh != null && blackOutlineMaterial != null)
+                                Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, _blackOutlineMatrices, blackOutlineCount);
+                            blackOutlineCount = 0;
+                        }
+                        if (blackCount == BatchSize)
+                        {
+                            if (quadMesh != null && blackMaterial != null)
+                                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, blackMatrices, blackCount);
+                            blackCount = 0;
+                        }
                     }
                 }
             }
 
-            // Draw outlines first (behind bodies)
+            // Draw player bullets first (behind enemy bullets)
+            if (playerWhiteCount > 0 && whiteMaterial != null && quadMesh != null)
+                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, _playerWhiteMatrices, playerWhiteCount);
+            if (playerBlackCount > 0 && blackMaterial != null && quadMesh != null)
+                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, _playerBlackMatrices, playerBlackCount);
+
+            // Draw enemy outlines (behind enemy bodies)
             if (whiteOutlineCount > 0 && whiteOutlineMaterial != null && quadMesh != null)
                 Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, _whiteOutlineMatrices, whiteOutlineCount);
             if (blackOutlineCount > 0 && blackOutlineMaterial != null && quadMesh != null)
                 Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, _blackOutlineMatrices, blackOutlineCount);
 
-            // Draw bodies on top
+            // Draw enemy bodies on top
             if (whiteCount > 0 && whiteMaterial != null && quadMesh != null)
                 Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, whiteMatrices, whiteCount);
             if (blackCount > 0 && blackMaterial != null && quadMesh != null)

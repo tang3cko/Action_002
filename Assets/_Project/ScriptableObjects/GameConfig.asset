@@ -14,7 +14,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Core.GameConfigSO
   moveSpeed: 5
   maxHp: 5
-  attackRange: 2
   attackInterval: 0.2
   invincibleDuration: 1
   comboMultiplierStep: 0.1

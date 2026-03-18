@@ -8,6 +8,7 @@ using Action002.Bullet.Systems;
 using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Enemy.Systems;
+using Action002.Audio.Systems;
 using Action002.Player.Systems;
 using Tang3cko.ReactiveSO;
 
@@ -29,6 +30,7 @@ namespace Action002.Core
         [SerializeField] private PlayerController player;
 
         [Header("Systems")]
+        [SerializeField] private RhythmClockSystem rhythmClock;
         [SerializeField] private PlayerAttackSystem playerAttack;
         [SerializeField] private BulletCollisionSystem bulletCollision;
         [SerializeField] private EnemySpawnSystem enemySpawn;
@@ -44,6 +46,9 @@ namespace Action002.Core
         {
             enemyOrchestrator = new ReactiveEntitySetOrchestrator<EnemyState>(enemySet);
             bulletOrchestrator = new ReactiveEntitySetOrchestrator<BulletState>(bulletSet);
+
+            if (rhythmClock != null)
+                rhythmClock.StartClock();
         }
 
         private void Update()
@@ -70,12 +75,17 @@ namespace Action002.Core
             // 2. Structural changes: Unregister (despawn)
             RemoveExpiredBullets();
 
+            // 3. Advance rhythm clock (before attack/collision/spawn systems)
+            if (rhythmClock != null)
+                rhythmClock.ProcessClock();
+
+            // 4. Attack & collision
             if (playerAttack != null)
                 playerAttack.ProcessAttacks();
             if (bulletCollision != null)
                 bulletCollision.ProcessCollisions();
 
-            // 3. Structural changes: Register (spawn)
+            // 5. Structural changes: Register (spawn)
             if (enemySpawn != null)
                 enemySpawn.ProcessSpawning();
             if (enemyShoot != null)
@@ -159,6 +169,7 @@ namespace Action002.Core
             if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
             if (bulletSet == null) Debug.LogWarning($"[{GetType().Name}] bulletSet not assigned on {gameObject.name}.", this);
             if (player == null) Debug.LogWarning($"[{GetType().Name}] player not assigned on {gameObject.name}.", this);
+            if (rhythmClock == null) Debug.LogWarning($"[{GetType().Name}] rhythmClock not assigned on {gameObject.name}.", this);
             if (playerAttack == null) Debug.LogWarning($"[{GetType().Name}] playerAttack not assigned on {gameObject.name}.", this);
             if (bulletCollision == null) Debug.LogWarning($"[{GetType().Name}] bulletCollision not assigned on {gameObject.name}.", this);
             if (enemySpawn == null) Debug.LogWarning($"[{GetType().Name}] enemySpawn not assigned on {gameObject.name}.", this);
