@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ac7f9b8cbc284ec6812e7f54cd80cdf, type: 3}
-  m_Name: RhythmClockConfig
-  m_EditorClassIdentifier: Action002::Action002.Audio.Data.RhythmClockConfigSO
-  bpm: 180
-  startOffset: 0
+  m_Script: {fileID: 11500000, guid: 97829ab0a86a54c88831da5954a3a115, type: 3}
+  m_Name: OnGamePhaseChanged
+  m_EditorClassIdentifier: Tang3cko.ReactiveSO::Tang3cko.ReactiveSO.IntEventChannelSO
+  description: 
+  showInMonitor: 1
+  showInConsole: 0

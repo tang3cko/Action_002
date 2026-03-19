@@ -48,6 +48,9 @@ namespace Action002.Core
         private List<int> enemyDespawnQueue = new List<int>(64);
         private List<int> sameContactIds = new List<int>(64);
         private EnemyContactSessionTracker contactTracker = new EnemyContactSessionTracker();
+        private bool isRunning;
+
+        // --- Unity Lifecycle ---
 
         private void Start()
         {
@@ -55,19 +58,20 @@ namespace Action002.Core
 
             enemyOrchestrator = new ReactiveEntitySetOrchestrator<EnemyState>(enemySet);
             bulletOrchestrator = new ReactiveEntitySetOrchestrator<BulletState>(bulletSet);
-
-            if (rhythmClock != null)
-                rhythmClock.StartClock();
         }
 
         private void Update()
         {
+            if (!isRunning) return;
+
             ScheduleEnemyJob();
             ScheduleBulletJob();
         }
 
         private void LateUpdate()
         {
+            if (!isRunning) return;
+
             if (hasPendingEnemyJob)
             {
                 enemyOrchestrator.CompleteAndApply();
@@ -101,7 +105,56 @@ namespace Action002.Core
                 enemyShoot.ProcessShooting();
         }
 
-        // --- Enemy Contact (M4.5) ---
+        private void OnDestroy()
+        {
+            if (hasPendingEnemyJob)
+            {
+                enemyOrchestrator?.CompleteAndApply();
+                hasPendingEnemyJob = false;
+            }
+            if (hasPendingBulletJob)
+            {
+                bulletOrchestrator?.CompleteAndApply();
+                hasPendingBulletJob = false;
+            }
+            enemyOrchestrator?.Dispose();
+            enemyOrchestrator = null;
+            bulletOrchestrator?.Dispose();
+            bulletOrchestrator = null;
+        }
+
+        // --- Public Methods ---
+
+        public void SetRunning(bool running)
+        {
+            if (running && !isRunning)
+            {
+                if (rhythmClock != null)
+                    rhythmClock.StartClock();
+            }
+            isRunning = running;
+        }
+
+        public void StopAndCleanup()
+        {
+            isRunning = false;
+
+            if (rhythmClock != null)
+                rhythmClock.StopClock();
+
+            if (hasPendingEnemyJob)
+            {
+                enemyOrchestrator?.CompleteAndApply();
+                hasPendingEnemyJob = false;
+            }
+            if (hasPendingBulletJob)
+            {
+                bulletOrchestrator?.CompleteAndApply();
+                hasPendingBulletJob = false;
+            }
+        }
+
+        // --- Private Methods ---
 
         private void ProcessEnemyContacts()
         {
@@ -149,8 +202,6 @@ namespace Action002.Core
                 enemySet.Unregister(id);
             }
         }
-
-        // --- Jobs & Bounds ---
 
         private void ScheduleEnemyJob()
         {
@@ -223,24 +274,6 @@ namespace Action002.Core
             {
                 bulletSet.Unregister(id);
             }
-        }
-
-        private void OnDestroy()
-        {
-            if (hasPendingEnemyJob)
-            {
-                enemyOrchestrator?.CompleteAndApply();
-                hasPendingEnemyJob = false;
-            }
-            if (hasPendingBulletJob)
-            {
-                bulletOrchestrator?.CompleteAndApply();
-                hasPendingBulletJob = false;
-            }
-            enemyOrchestrator?.Dispose();
-            enemyOrchestrator = null;
-            bulletOrchestrator?.Dispose();
-            bulletOrchestrator = null;
         }
 
 #if UNITY_EDITOR

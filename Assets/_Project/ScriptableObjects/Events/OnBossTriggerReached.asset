@@ -9,8 +9,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ac7f9b8cbc284ec6812e7f54cd80cdf, type: 3}
-  m_Name: RhythmClockConfig
-  m_EditorClassIdentifier: Action002::Action002.Audio.Data.RhythmClockConfigSO
-  bpm: 180
-  startOffset: 0
+  m_Script: {fileID: 11500000, guid: 0c842aa37fdce4801a727bd874ff1df0, type: 3}
+  m_Name: OnBossTriggerReached
+  m_EditorClassIdentifier: Tang3cko.ReactiveSO::Tang3cko.ReactiveSO.VoidEventChannelSO
+  description: 
+  showInMonitor: 1
+  showInConsole: 0
