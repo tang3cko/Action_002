@@ -83,6 +83,16 @@ namespace Action002.Visual
         }
 
         /// <summary>
+        /// Animates a close transition that converges toward the supplied world position.
+        /// Used for game-over flow to focus the wipe on the player's last location.
+        /// </summary>
+        public void Converge(Vector2 worldPosition)
+        {
+            SetTransitionOriginFromWorldPosition(worldPosition);
+            StartConvergeTransition();
+        }
+
+        /// <summary>
         /// Instantly clears the transition mask without animation.
         /// Used after scene load to reveal the new scene immediately.
         /// </summary>
@@ -96,6 +106,16 @@ namespace Action002.Visual
 
             maskSprite.transform.localScale = Vector3.zero;
             maskSprite.transform.position = defaultMaskWorldPosition;
+        }
+
+        private void StartConvergeTransition()
+        {
+            if (maskSprite == null) return;
+
+            if (transitionCoroutine != null)
+                StopCoroutine(transitionCoroutine);
+
+            transitionCoroutine = StartCoroutine(ConvergeCoroutine());
         }
 
         private void StartCloseTransition()
@@ -152,6 +172,35 @@ namespace Action002.Visual
                 onScreenTransitionClosed.RaiseEvent();
         }
 
+        private IEnumerator ConvergeCoroutine()
+        {
+            if (playerPolarityVar != null)
+                maskSprite.color = TransitionColorHelper.GetColor(playerPolarityVar.Value);
+            else
+                maskSprite.color = TransitionColorHelper.WhitePolarityColor;
+
+            maskSprite.transform.position = currentTransitionOriginWorldPosition;
+            maskSprite.gameObject.SetActive(true);
+            maskSprite.transform.localScale = new Vector3(maxScale, maxScale, 1f);
+
+            float elapsed = 0f;
+            while (elapsed < transitionDuration)
+            {
+                elapsed += Time.unscaledDeltaTime;
+                float t = Mathf.Clamp01(elapsed / transitionDuration);
+                float eased = t * t; // EaseInQuad – decisive closing
+                float scale = Mathf.Lerp(maxScale, 0f, eased);
+                maskSprite.transform.localScale = new Vector3(scale, scale, 1f);
+                yield return null;
+            }
+
+            maskSprite.transform.localScale = Vector3.zero;
+            transitionCoroutine = null;
+
+            if (onScreenTransitionClosed != null)
+                onScreenTransitionClosed.RaiseEvent();
+        }
+
         private IEnumerator OpenCoroutine()
         {
             maskSprite.transform.position = currentTransitionOriginWorldPosition;
@@ -179,6 +228,11 @@ namespace Action002.Visual
         private void SetTransitionOriginToDefault()
         {
             currentTransitionOriginWorldPosition = defaultMaskWorldPosition;
+        }
+
+        private void SetTransitionOriginFromWorldPosition(Vector2 worldPosition)
+        {
+            currentTransitionOriginWorldPosition = new Vector3(worldPosition.x, worldPosition.y, defaultMaskWorldPosition.z);
         }
 
         private void SetTransitionOriginFromScreenPosition(Vector2 screenPosition)

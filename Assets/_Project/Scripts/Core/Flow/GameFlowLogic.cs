@@ -10,6 +10,7 @@ namespace Action002.Core.Flow
         void LoadScene(string sceneName);
         void CloseTransition();
         void CloseTransitionWithOrigin(float screenX, float screenY);
+        void ConvergeTransitionToPlayer();
         void ClearTransitionImmediate();
         void RaiseBossPhaseRequested();
         void RaiseGamePhaseChanged(int phase);
@@ -56,7 +57,7 @@ namespace Action002.Core.Flow
         {
             PendingPhase = GamePhase.Result;
             PendingResultType = GameResultType.GameOver;
-            actions.CloseTransition();
+            actions.ConvergeTransitionToPlayer();
         }
 
         public void HandleTutorialCompleted()

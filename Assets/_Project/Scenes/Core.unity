@@ -302,6 +302,7 @@ MonoBehaviour:
   onSceneLoadCompleted: {fileID: 11400000, guid: 055e89871e66045bfb0ac74105190716, type: 2}
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
   onBossPhaseRequested: {fileID: 11400000, guid: 2e4072e1130c549dea4f6af253ec2b9d, type: 2}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   gamePhaseVar: {fileID: 11400000, guid: 5629dd0aba6044ee3be0a3debc079476, type: 2}
   resultTypeVar: {fileID: 11400000, guid: 9680e4cf7c4e9475db2fd483c857a816, type: 2}
 --- !u!4 &709527821

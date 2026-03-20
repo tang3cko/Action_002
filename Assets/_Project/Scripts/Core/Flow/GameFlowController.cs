@@ -29,6 +29,9 @@ namespace Action002.Core.Flow
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
         [SerializeField] private VoidEventChannelSO onBossPhaseRequested;
 
+        [Header("Variables (read)")]
+        [SerializeField] private Vector2VariableSO playerPositionVar;
+
         [Header("Variables (write)")]
         [SerializeField] private IntVariableSO gamePhaseVar;
         [SerializeField] private IntVariableSO resultTypeVar;
@@ -176,6 +179,16 @@ namespace Action002.Core.Flow
                 screenTransitionController.Close(new Vector2(screenX, screenY));
         }
 
+        void IGameFlowActions.ConvergeTransitionToPlayer()
+        {
+            if (screenTransitionController == null) return;
+
+            if (playerPositionVar != null)
+                screenTransitionController.Converge(playerPositionVar.Value);
+            else
+                screenTransitionController.Close();
+        }
+
         void IGameFlowActions.ClearTransitionImmediate()
         {
             if (screenTransitionController != null)
@@ -235,6 +248,7 @@ namespace Action002.Core.Flow
             if (onSceneLoadCompleted == null) Debug.LogWarning($"[{GetType().Name}] onSceneLoadCompleted not assigned on {gameObject.name}.", this);
             if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
             if (onBossPhaseRequested == null) Debug.LogWarning($"[{GetType().Name}] onBossPhaseRequested not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
             if (gamePhaseVar == null) Debug.LogWarning($"[{GetType().Name}] gamePhaseVar not assigned on {gameObject.name}.", this);
             if (resultTypeVar == null) Debug.LogWarning($"[{GetType().Name}] resultTypeVar not assigned on {gameObject.name}.", this);
         }

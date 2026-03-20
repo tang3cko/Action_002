@@ -640,6 +640,7 @@ namespace Action002.Tests.Core
         private class SpyGameFlowActions : IGameFlowActions
         {
             public int CloseTransitionCallCount { get; private set; }
+            public int ConvergeTransitionToPlayerCallCount { get; private set; }
             public int ClearTransitionImmediateCallCount { get; private set; }
 
             public int LoadSceneCallCount { get; private set; }
@@ -694,6 +695,11 @@ namespace Action002.Tests.Core
             public void CloseTransition()
             {
                 CloseTransitionCallCount++;
+            }
+
+            public void ConvergeTransitionToPlayer()
+            {
+                ConvergeTransitionToPlayerCallCount++;
             }
 
             public void ClearTransitionImmediate()
@@ -973,6 +979,21 @@ namespace Action002.Tests.Core
             Assert.That(spy.LastGamePhaseVarValue, Is.EqualTo((int)GamePhase.Result));
             Assert.That(spy.LastResultTypeVarValue, Is.EqualTo((int)GameResultType.GameOver),
                 "resultTypeVar should be set to GameOver when transitioning to Result.");
+        }
+
+        [Test]
+        public void Controller_GameOver_ShouldCallConvergeTransitionToPlayer()
+        {
+            // Arrange
+            var (logic, spy) = CreateInitializedLogic();
+            AdvanceToStage(logic);
+
+            // Act
+            logic.HandleGameOver();
+
+            // Assert
+            Assert.That(spy.ConvergeTransitionToPlayerCallCount, Is.EqualTo(1),
+                "HandleGameOver should call ConvergeTransitionToPlayer (not CloseTransition).");
         }
 
         #endregion
