@@ -30,6 +30,8 @@ namespace Action002.Enemy.Systems
 
         public void ProcessSpawning()
         {
+            if (gameConfig == null || enemySet == null || playerPositionVar == null) return;
+
             elapsedTime += Time.deltaTime;
             spawnTimer -= Time.deltaTime;
 
@@ -47,14 +49,18 @@ namespace Action002.Enemy.Systems
             float2 spawnPos = SpawnCalculator.GetSpawnPosition(new float2(playerPositionVar.Value.x, playerPositionVar.Value.y), gameConfig.SpawnRadius, angle);
             Polarity polarity = SpawnCalculator.GetRandomPolarity(rng.NextFloat());
 
+            var typeId = SpawnWaveCalculator.SelectType(elapsedTime, rng.NextFloat());
+            var spec = EnemyTypeTable.Get(typeId);
+
             float speedVariance = rng.NextFloat(0.8f, 1.2f);
 
             var state = new EnemyState
             {
                 Position = spawnPos,
-                Speed = 2f * speedVariance * (1f + elapsedTime * 0.003f),
-                Hp = 1,
+                Speed = 2f * speedVariance * spec.SpeedMultiplier * (1f + elapsedTime * 0.003f),
+                Hp = spec.Hp,
                 Polarity = (byte)polarity,
+                TypeId = typeId,
             };
 
             int id = nextId++;

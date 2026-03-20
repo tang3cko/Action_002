@@ -7,27 +7,27 @@ namespace Action002.Tests.Bullet
     public class EnemyContactCalculatorTests
     {
         [Test]
-        public void IsContact_WithinRadius_ReturnsTrue()
+        public void IsContact_WithinCombinedRadius_ReturnsTrue()
         {
             var playerPos = new float2(0f, 0f);
             var enemyPos = new float2(0.5f, 0f);
-            Assert.That(EnemyContactCalculator.IsContact(playerPos, enemyPos, 1f), Is.True);
+            Assert.That(EnemyContactCalculator.IsContact(playerPos, enemyPos, 0.3f, 0.5f), Is.True);
         }
 
         [Test]
-        public void IsContact_ExactlyOnRadius_ReturnsTrue()
+        public void IsContact_ExactlyOnCombinedRadius_ReturnsTrue()
         {
             var playerPos = new float2(0f, 0f);
-            var enemyPos = new float2(1f, 0f);
-            Assert.That(EnemyContactCalculator.IsContact(playerPos, enemyPos, 1f), Is.True);
+            var enemyPos = new float2(0.79f, 0f);
+            Assert.That(EnemyContactCalculator.IsContact(playerPos, enemyPos, 0.3f, 0.5f), Is.True);
         }
 
         [Test]
-        public void IsContact_OutsideRadius_ReturnsFalse()
+        public void IsContact_OutsideCombinedRadius_ReturnsFalse()
         {
             var playerPos = new float2(0f, 0f);
             var enemyPos = new float2(2f, 0f);
-            Assert.That(EnemyContactCalculator.IsContact(playerPos, enemyPos, 1f), Is.False);
+            Assert.That(EnemyContactCalculator.IsContact(playerPos, enemyPos, 0.3f, 0.5f), Is.False);
         }
     }
 }

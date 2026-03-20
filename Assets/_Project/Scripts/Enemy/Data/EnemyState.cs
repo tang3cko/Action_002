@@ -9,6 +9,6 @@ namespace Action002.Enemy.Data
         public float Speed;
         public int Hp;
         public byte Polarity;
-        public int EnemyTypeId;
+        public EnemyTypeId TypeId;
     }
 }

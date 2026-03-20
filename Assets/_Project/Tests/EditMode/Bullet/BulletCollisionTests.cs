@@ -324,12 +324,12 @@ namespace Action002.Tests.Bullet
             onEnemyKilled.OnEventRaised += (_) => killCount++;
 
             var enemy1 = new EnemyState { Position = new float2(1f, 0f), Hp = 1 };
-            var enemy2 = new EnemyState { Position = new float2(2f, 0f), Hp = 1 };
+            var enemy2 = new EnemyState { Position = new float2(5f, 0f), Hp = 1 };
             enemySet.Register(1, enemy1);
             enemySet.Register(2, enemy2);
 
             var bullet1 = new BulletState { Position = new float2(1f, 0f), Faction = 0, Damage = 1 };
-            var bullet2 = new BulletState { Position = new float2(2f, 0f), Faction = 0, Damage = 1 };
+            var bullet2 = new BulletState { Position = new float2(5f, 0f), Faction = 0, Damage = 1 };
             bulletSet.Register(200000, bullet1);
             bulletSet.Register(200001, bullet2);
 

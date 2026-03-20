@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.Mathematics;
 using Action002.Enemy.Data;
+using Action002.Enemy.Logic;
 using Action002.Visual;
 using Tang3cko.ReactiveSO;
 
@@ -15,7 +16,6 @@ namespace Action002.Enemy.Rendering
         [SerializeField] private Mesh quadMesh;
         [SerializeField] private Material whiteMaterial;
         [SerializeField] private Material blackMaterial;
-        [SerializeField] private float enemySize = 0.8f;
 
         [Header("Outline")]
         [SerializeField] private Material whiteOutlineMaterial;
@@ -84,15 +84,16 @@ namespace Action002.Enemy.Rendering
             int whiteOutlineCount = 0;
             int blackOutlineCount = 0;
             var data = enemySet.Data;
-            float outlineSizeValue = enemySize * outlineScale;
 
             for (int i = 0; i < data.Length; i++)
             {
                 var state = data[i];
+                float size = EnemyTypeTable.Get(state.TypeId).VisualScale;
+                float outlineSizeValue = size * outlineScale;
                 var bodyMatrix = Matrix4x4.TRS(
                     new Vector3(state.Position.x, state.Position.y, 0f),
                     Quaternion.identity,
-                    Vector3.one * enemySize
+                    Vector3.one * size
                 );
                 var outlineMatrix = Matrix4x4.TRS(
                     new Vector3(state.Position.x, state.Position.y, 0.05f),

@@ -1,3 +1,4 @@
+using System;
 using Action002.Audio.Data;
 using Action002.Audio.Logic;
 
@@ -6,6 +7,7 @@ namespace Action002.Audio.Systems
     public class RhythmClock : IRhythmClock
     {
         private readonly RhythmClockConfigSO config;
+        private readonly Func<double> dspTimeSource;
 
         private double startDspTime;
         private float secondsPerHalfBeat;
@@ -17,18 +19,19 @@ namespace Action002.Audio.Systems
         public bool IsPlaying => isPlaying;
         public float SecondsPerHalfBeat => secondsPerHalfBeat;
 
-        public RhythmClock(RhythmClockConfigSO config)
+        public RhythmClock(RhythmClockConfigSO config, Func<double> dspTimeSource)
         {
             this.config = config;
+            this.dspTimeSource = dspTimeSource;
         }
 
-        public void StartClock(double currentDspTime)
+        public void StartClock()
         {
             if (config == null) return;
             if (config.Bpm <= 0f) return;
             secondsPerHalfBeat = BeatClockCalculator.SecondsPerHalfBeat(config.Bpm);
             if (secondsPerHalfBeat <= 0f) return;
-            startDspTime = currentDspTime + config.StartOffset;
+            startDspTime = dspTimeSource() + config.StartOffset;
             previousHalfBeatIndex = -1;
             currentHalfBeatIndex = 0;
             isPlaying = true;
@@ -39,11 +42,11 @@ namespace Action002.Audio.Systems
             isPlaying = false;
         }
 
-        public void ProcessClock(double currentDspTime)
+        public void ProcessClock()
         {
             if (!isPlaying || config == null) return;
 
-            double songTime = currentDspTime - startDspTime;
+            double songTime = dspTimeSource() - startDspTime;
             if (songTime < 0) return;
 
             previousHalfBeatIndex = currentHalfBeatIndex;

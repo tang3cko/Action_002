@@ -1,9 +1,12 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Mathematics;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
+using Action002.Bullet.Logic;
 using Action002.Enemy.Data;
+using Action002.Enemy.Logic;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Bullet.Systems
@@ -21,10 +24,7 @@ namespace Action002.Bullet.Systems
         [SerializeField] private Vector2VariableSO playerPositionVar;
 
         [Header("Settings")]
-        [SerializeField] private float bulletSpeed = 3f;
-        [SerializeField] private float bulletScoreValue = 10f;
         [SerializeField] private int maxBulletsPerOffbeat = 100;
-        [SerializeField] private float enemyShootCooldown = 1f;
 
         private int lastConsumedHalfBeatIndex = -1;
         private int nextBulletId = 100000;
@@ -32,7 +32,7 @@ namespace Action002.Bullet.Systems
 
         public void ProcessShooting()
         {
-            if (rhythmClock == null) return;
+            if (rhythmClock == null || enemySet == null || bulletSet == null || playerPositionVar == null) return;
             if (enemySet.Count == 0) return;
 
             if (!rhythmClock.ShouldFireOnOffbeat(ref lastConsumedHalfBeatIndex))
@@ -41,6 +41,7 @@ namespace Action002.Bullet.Systems
             var data = enemySet.Data;
             var entityIds = enemySet.EntityIds;
             float now = Time.time;
+            float2 playerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y);
             int fired = 0;
 
             for (int i = 0; i < data.Length; i++)
@@ -48,32 +49,28 @@ namespace Action002.Bullet.Systems
                 if (fired >= maxBulletsPerOffbeat) break;
 
                 int enemyId = entityIds[i];
+                var enemy = data[i];
+                var spec = EnemyTypeTable.Get(enemy.TypeId);
 
-                // Per-enemy cooldown check
                 if (lastShotTimes.TryGetValue(enemyId, out float lastTime)
-                    && now - lastTime < enemyShootCooldown)
+                    && now - lastTime < spec.ShootCooldown)
                     continue;
 
-                var enemy = data[i];
-                float2 dir = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y) - enemy.Position;
-                float dist = math.length(dir);
-                if (dist < 0.01f) continue;
+                int remaining = maxBulletsPerOffbeat - fired;
+                if (spec.ShotPattern.Count > remaining) continue;
 
-                float2 velocity = (dir / dist) * bulletSpeed;
+                Span<BulletState> buf = stackalloc BulletState[spec.ShotPattern.Count];
+                int written = ShotPatternCalculator.Calculate(buf, spec.ShotPattern, enemy.Position, playerPos, enemy.Polarity, spec.ScoreValue);
 
-                var bulletState = new BulletState
+                if (written == 0) continue;
+
+                for (int j = 0; j < written; j++)
                 {
-                    Position = enemy.Position,
-                    Velocity = velocity,
-                    ScoreValue = bulletScoreValue,
-                    Polarity = enemy.Polarity,
-                    Faction = 1, // Enemy
-                    Damage = 1,
-                };
+                    bulletSet.Register(nextBulletId++, buf[j]);
+                }
 
-                bulletSet.Register(nextBulletId++, bulletState);
                 lastShotTimes[enemyId] = now;
-                fired++;
+                fired += written;
             }
         }
 

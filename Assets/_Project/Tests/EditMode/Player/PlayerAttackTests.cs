@@ -215,9 +215,9 @@ namespace Action002.Tests.Player
             public float SecondsPerHalfBeat => 0.167f;
             public bool ShouldFireResult { get; set; }
 
-            public void StartClock(double currentDspTime) { }
+            public void StartClock() { }
             public void StopClock() { }
-            public void ProcessClock(double currentDspTime) { }
+            public void ProcessClock() { }
 
             public bool ShouldFireOnDownbeat(ref int lastConsumedIndex)
             {

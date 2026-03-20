@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using Unity.Mathematics;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
+using Action002.Bullet.Logic;
 using Action002.Enemy.Data;
+using Action002.Enemy.Logic;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Bullet.Systems
@@ -13,10 +16,7 @@ namespace Action002.Bullet.Systems
         private readonly EnemyStateSetSO enemySet;
         private readonly BulletStateSetSO bulletSet;
         private readonly Vector2VariableSO playerPositionVar;
-        private readonly float bulletSpeed;
-        private readonly float bulletScoreValue;
         private readonly int maxBulletsPerOffbeat;
-        private readonly float enemyShootCooldown;
 
         private int lastConsumedHalfBeatIndex = -1;
         private int nextBulletId = 100000;
@@ -27,19 +27,13 @@ namespace Action002.Bullet.Systems
             EnemyStateSetSO enemySet,
             BulletStateSetSO bulletSet,
             Vector2VariableSO playerPositionVar,
-            float bulletSpeed = 3f,
-            float bulletScoreValue = 10f,
-            int maxBulletsPerOffbeat = 100,
-            float enemyShootCooldown = 1f)
+            int maxBulletsPerOffbeat = 100)
         {
             this.rhythmClock = rhythmClock;
             this.enemySet = enemySet;
             this.bulletSet = bulletSet;
             this.playerPositionVar = playerPositionVar;
-            this.bulletSpeed = bulletSpeed;
-            this.bulletScoreValue = bulletScoreValue;
             this.maxBulletsPerOffbeat = maxBulletsPerOffbeat;
-            this.enemyShootCooldown = enemyShootCooldown;
         }
 
         public void ProcessShooting(float currentTime)
@@ -53,6 +47,7 @@ namespace Action002.Bullet.Systems
 
             var data = enemySet.Data;
             var entityIds = enemySet.EntityIds;
+            float2 playerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y);
             int fired = 0;
 
             for (int i = 0; i < data.Length; i++)
@@ -60,31 +55,28 @@ namespace Action002.Bullet.Systems
                 if (fired >= maxBulletsPerOffbeat) break;
 
                 int enemyId = entityIds[i];
+                var enemy = data[i];
+                var spec = EnemyTypeTable.Get(enemy.TypeId);
 
                 if (lastShotTimes.TryGetValue(enemyId, out float lastTime)
-                    && currentTime - lastTime < enemyShootCooldown)
+                    && currentTime - lastTime < spec.ShootCooldown)
                     continue;
 
-                var enemy = data[i];
-                float2 dir = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y) - enemy.Position;
-                float dist = math.length(dir);
-                if (dist < 0.01f) continue;
+                int remaining = maxBulletsPerOffbeat - fired;
+                if (spec.ShotPattern.Count > remaining) continue;
 
-                float2 velocity = (dir / dist) * bulletSpeed;
+                Span<BulletState> buf = stackalloc BulletState[spec.ShotPattern.Count];
+                int written = ShotPatternCalculator.Calculate(buf, spec.ShotPattern, enemy.Position, playerPos, enemy.Polarity, spec.ScoreValue);
 
-                var bulletState = new BulletState
+                if (written == 0) continue;
+
+                for (int j = 0; j < written; j++)
                 {
-                    Position = enemy.Position,
-                    Velocity = velocity,
-                    ScoreValue = bulletScoreValue,
-                    Polarity = enemy.Polarity,
-                    Faction = 1,
-                    Damage = 1,
-                };
+                    bulletSet.Register(nextBulletId++, buf[j]);
+                }
 
-                bulletSet.Register(nextBulletId++, bulletState);
                 lastShotTimes[enemyId] = currentTime;
-                fired++;
+                fired += written;
             }
         }
 

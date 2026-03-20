@@ -291,7 +291,7 @@ namespace Action002.Tests.Core
                 Speed = 1f,
                 Hp = 3,
                 Polarity = 0,
-                EnemyTypeId = 1
+                TypeId = EnemyTypeId.NWay
             };
 
             enemySet.Register(100, defaultState);

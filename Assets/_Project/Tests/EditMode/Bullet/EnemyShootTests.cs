@@ -31,10 +31,7 @@ namespace Action002.Tests.Bullet
                 enemySet,
                 bulletSet,
                 playerPositionVar,
-                bulletSpeed: 3f,
-                bulletScoreValue: 10f,
-                maxBulletsPerOffbeat: 100,
-                enemyShootCooldown: 1f);
+                maxBulletsPerOffbeat: 100);
         }
 
         [TearDown]
@@ -88,8 +85,7 @@ namespace Action002.Tests.Bullet
         {
             var limitedShooter = new EnemyShoot(
                 stubClock, enemySet, bulletSet, playerPositionVar,
-                bulletSpeed: 3f, bulletScoreValue: 10f,
-                maxBulletsPerOffbeat: 2, enemyShootCooldown: 0f);
+                maxBulletsPerOffbeat: 2);
 
             stubClock.ShouldFireOffbeatResult = true;
             stubClock.CurrentHalfBeatIndex = 1;
@@ -234,7 +230,8 @@ namespace Action002.Tests.Bullet
 
             shooter.ProcessShooting(0f);
 
-            Assert.That(bulletSet.Data[0].ScoreValue, Is.EqualTo(10f));
+            // Shooter's ScoreValue from EnemyTypeTable is 50f
+            Assert.That(bulletSet.Data[0].ScoreValue, Is.EqualTo(50f));
         }
 
         [Test]
@@ -319,9 +316,9 @@ namespace Action002.Tests.Bullet
             public float SecondsPerHalfBeat => 0.167f;
             public bool ShouldFireOffbeatResult { get; set; }
 
-            public void StartClock(double currentDspTime) { }
+            public void StartClock() { }
             public void StopClock() { }
-            public void ProcessClock(double currentDspTime) { }
+            public void ProcessClock() { }
 
             public bool ShouldFireOnDownbeat(ref int lastConsumedIndex) => false;
 

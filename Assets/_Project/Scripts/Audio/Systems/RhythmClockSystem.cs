@@ -5,7 +5,7 @@ using Tang3cko.ReactiveSO;
 
 namespace Action002.Audio.Systems
 {
-    public class RhythmClockSystem : MonoBehaviour
+    public class RhythmClockSystem : MonoBehaviour, IRhythmClock
     {
         [Header("Config")]
         [SerializeField] private RhythmClockConfigSO config;

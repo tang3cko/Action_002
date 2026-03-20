@@ -1,7 +1,9 @@
 using UnityEngine;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
+using Action002.Bullet.Systems;
 using Action002.Enemy.Data;
+using Action002.Enemy.Systems;
 using Action002.Input;
 using Tang3cko.ReactiveSO;
 
@@ -19,6 +21,8 @@ namespace Action002.Core.Flow
         [Header("Systems")]
         [SerializeField] private GameLoopManager gameLoopManager;
         [SerializeField] private RhythmClockSystem rhythmClockSystem;
+        [SerializeField] private EnemySpawnSystem enemySpawnSystem;
+        [SerializeField] private EnemyShootSystem enemyShootSystem;
 
         [Header("Variables (reset)")]
         [SerializeField] private IntVariableSO playerHpVar;
@@ -43,6 +47,10 @@ namespace Action002.Core.Flow
 
         private void Start()
         {
+            if (rhythmClockSystem != null) rhythmClockSystem.ResetForNewRun();
+            if (enemySpawnSystem != null) enemySpawnSystem.ResetForNewRun();
+            if (enemyShootSystem != null) enemyShootSystem.ResetForNewRun();
+
             if (inputReader != null) inputReader.EnablePlayerInput();
             if (rhythmClockSystem != null) rhythmClockSystem.StartClock();
             if (gameLoopManager != null) gameLoopManager.SetRunning(true);

@@ -10,6 +10,7 @@ namespace Action002.Tests.Audio
     {
         private RhythmClockConfigSO config;
         private RhythmClock clock;
+        private double currentDspTime;
 
         [SetUp]
         public void SetUp()
@@ -17,7 +18,8 @@ namespace Action002.Tests.Audio
             config = ScriptableObject.CreateInstance<RhythmClockConfigSO>();
             SetConfigBpm(config, 120f);
             SetConfigStartOffset(config, 0.0);
-            clock = new RhythmClock(config);
+            currentDspTime = 0.0;
+            clock = new RhythmClock(config, () => currentDspTime);
         }
 
         [TearDown]
@@ -32,7 +34,7 @@ namespace Action002.Tests.Audio
         [Test]
         public void StartClock_SetsIsPlayingTrue()
         {
-            clock.StartClock(0.0);
+            clock.StartClock();
 
             Assert.That(clock.IsPlaying, Is.True);
         }
@@ -40,22 +42,21 @@ namespace Action002.Tests.Audio
         [Test]
         public void StartClock_NullConfig_DoesNotStart()
         {
-            var nullClock = new RhythmClock(null);
+            var nullClock = new RhythmClock(null, () => 0.0);
 
-            nullClock.StartClock(0.0);
+            nullClock.StartClock();
 
             Assert.That(nullClock.IsPlaying, Is.False);
         }
 
         [Test]
-        public void StartClock_InvalidBpm_DoesNotStart()
+        public void StartClock_NullConfig_DoesNotStart_Duplicate()
         {
-            // OnValidate clamps BPM to 120 when set to <= 0 via SerializedObject,
-            // so we test the null config path instead, which exercises the same
-            // defensive guard in StartClock.
-            var nullClock = new RhythmClock(null);
+            // OnValidate clamps BPM to 120 when set to <= 0,
+            // so we test null config to exercise the defensive guard.
+            var nullClock = new RhythmClock(null, () => 0.0);
 
-            nullClock.StartClock(0.0);
+            nullClock.StartClock();
 
             Assert.That(nullClock.IsPlaying, Is.False);
         }
@@ -63,7 +64,7 @@ namespace Action002.Tests.Audio
         [Test]
         public void StartClock_InitializesSecondsPerHalfBeat()
         {
-            clock.StartClock(0.0);
+            clock.StartClock();
 
             Assert.That(clock.SecondsPerHalfBeat, Is.EqualTo(0.25f));
         }
@@ -71,9 +72,11 @@ namespace Action002.Tests.Audio
         [Test]
         public void StartClock_ResetsHalfBeatIndex()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(1.0);
-            clock.StartClock(0.0);
+            clock.StartClock();
+            currentDspTime = 1.0;
+            clock.ProcessClock();
+            currentDspTime = 0.0;
+            clock.StartClock();
 
             Assert.That(clock.CurrentHalfBeatIndex, Is.EqualTo(0));
         }
@@ -83,7 +86,7 @@ namespace Action002.Tests.Audio
         [Test]
         public void StopClock_SetsIsPlayingFalse()
         {
-            clock.StartClock(0.0);
+            clock.StartClock();
 
             clock.StopClock();
 
@@ -103,9 +106,10 @@ namespace Action002.Tests.Audio
         [Test]
         public void ProcessClock_UpdatesHalfBeatIndex()
         {
-            clock.StartClock(0.0);
+            clock.StartClock();
 
-            clock.ProcessClock(0.5);
+            currentDspTime = 0.5;
+            clock.ProcessClock();
 
             Assert.That(clock.CurrentHalfBeatIndex, Is.EqualTo(2));
         }
@@ -114,10 +118,11 @@ namespace Action002.Tests.Audio
         public void ProcessClock_BeforeStartTime_DoesNotUpdate()
         {
             SetConfigStartOffset(config, 1.0);
-            var offsetClock = new RhythmClock(config);
-            offsetClock.StartClock(0.0);
+            var offsetClock = new RhythmClock(config, () => currentDspTime);
+            offsetClock.StartClock();
 
-            offsetClock.ProcessClock(0.5);
+            currentDspTime = 0.5;
+            offsetClock.ProcessClock();
 
             Assert.That(offsetClock.CurrentHalfBeatIndex, Is.EqualTo(0));
         }
@@ -125,7 +130,8 @@ namespace Action002.Tests.Audio
         [Test]
         public void ProcessClock_NotPlaying_DoesNotUpdate()
         {
-            clock.ProcessClock(1.0);
+            currentDspTime = 1.0;
+            clock.ProcessClock();
 
             Assert.That(clock.CurrentHalfBeatIndex, Is.EqualTo(0));
         }
@@ -134,10 +140,11 @@ namespace Action002.Tests.Audio
         public void ProcessClock_AfterStartOffset_UpdatesCorrectly()
         {
             SetConfigStartOffset(config, 0.5);
-            var offsetClock = new RhythmClock(config);
-            offsetClock.StartClock(0.0);
+            var offsetClock = new RhythmClock(config, () => currentDspTime);
+            offsetClock.StartClock();
 
-            offsetClock.ProcessClock(1.0);
+            currentDspTime = 1.0;
+            offsetClock.ProcessClock();
 
             Assert.That(offsetClock.CurrentHalfBeatIndex, Is.EqualTo(2));
         }
@@ -147,8 +154,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnDownbeat_OnEvenIndex_ReturnsTrue()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.5);
+            clock.StartClock();
+            currentDspTime = 0.5;
+            clock.ProcessClock();
             int consumed = -1;
 
             bool result = clock.ShouldFireOnDownbeat(ref consumed);
@@ -159,8 +167,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnDownbeat_OnOddIndex_ReturnsFalse()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.25);
+            clock.StartClock();
+            currentDspTime = 0.25;
+            clock.ProcessClock();
             int consumed = -1;
 
             bool result = clock.ShouldFireOnDownbeat(ref consumed);
@@ -181,8 +190,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnDownbeat_AlreadyConsumed_ReturnsFalse()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.5);
+            clock.StartClock();
+            currentDspTime = 0.5;
+            clock.ProcessClock();
             int consumed = -1;
             clock.ShouldFireOnDownbeat(ref consumed);
 
@@ -194,8 +204,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnDownbeat_ConsumesIndex()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.5);
+            clock.StartClock();
+            currentDspTime = 0.5;
+            clock.ProcessClock();
             int consumed = -1;
 
             clock.ShouldFireOnDownbeat(ref consumed);
@@ -208,8 +219,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnOffbeat_OnOddIndex_ReturnsTrue()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.25);
+            clock.StartClock();
+            currentDspTime = 0.25;
+            clock.ProcessClock();
             int consumed = -1;
 
             bool result = clock.ShouldFireOnOffbeat(ref consumed);
@@ -220,8 +232,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnOffbeat_OnEvenIndex_ReturnsFalse()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.5);
+            clock.StartClock();
+            currentDspTime = 0.5;
+            clock.ProcessClock();
             int consumed = -1;
 
             bool result = clock.ShouldFireOnOffbeat(ref consumed);
@@ -242,8 +255,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ShouldFireOnOffbeat_AlreadyConsumed_ReturnsFalse()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(0.25);
+            clock.StartClock();
+            currentDspTime = 0.25;
+            clock.ProcessClock();
             int consumed = -1;
             clock.ShouldFireOnOffbeat(ref consumed);
 
@@ -257,8 +271,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void ResetForNewRun_StopsAndResetsIndices()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(1.0);
+            clock.StartClock();
+            currentDspTime = 1.0;
+            clock.ProcessClock();
 
             clock.ResetForNewRun();
 
@@ -269,11 +284,13 @@ namespace Action002.Tests.Audio
         [Test]
         public void ResetForNewRun_AllowsRestart()
         {
-            clock.StartClock(0.0);
-            clock.ProcessClock(1.0);
+            clock.StartClock();
+            currentDspTime = 1.0;
+            clock.ProcessClock();
             clock.ResetForNewRun();
 
-            clock.StartClock(0.0);
+            currentDspTime = 0.0;
+            clock.StartClock();
 
             Assert.That(clock.IsPlaying, Is.True);
             Assert.That(clock.CurrentHalfBeatIndex, Is.EqualTo(0));

@@ -3,6 +3,7 @@ using Action002.Bullet.Data;
 using Action002.Bullet.Logic;
 using Action002.Core;
 using Action002.Enemy.Data;
+using Action002.Enemy.Logic;
 using Action002.Player.Logic;
 using Tang3cko.ReactiveSO;
 using System.Collections.Generic;
@@ -118,7 +119,8 @@ namespace Action002.Bullet.Systems
             {
                 var enemy = enemyData[j];
 
-                if (BulletCollisionCalculator.IsWithinRadius(bullet.Position, enemy.Position, bulletHitRadius))
+                float enemyCollisionRadius = EnemyTypeTable.Get(enemy.TypeId).CollisionRadius;
+                if (BulletCollisionCalculator.IsWithinRadius(bullet.Position, enemy.Position, bulletHitRadius + enemyCollisionRadius))
                 {
                     int enemyId = enemyIds[j];
 

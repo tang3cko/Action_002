@@ -4,9 +4,10 @@ namespace Action002.Bullet.Logic
 {
     public static class EnemyContactCalculator
     {
-        public static bool IsContact(float2 playerPos, float2 enemyPos, float contactRadius)
+        public static bool IsContact(float2 playerPos, float2 enemyPos, float playerRadius, float enemyRadius)
         {
-            return math.distancesq(playerPos, enemyPos) <= contactRadius * contactRadius;
+            float combined = playerRadius + enemyRadius;
+            return math.distancesq(playerPos, enemyPos) <= combined * combined;
         }
     }
 }

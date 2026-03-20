@@ -30,7 +30,7 @@ namespace Action002.Core
         [SerializeField] private float killGaugeRate = 0.05f;
 
         [Header("Contact")]
-        [SerializeField] private float contactRadius = 0.8f;
+        [SerializeField] private float playerContactRadius = 0.3f;
         [SerializeField] private int contactScoreBonus = 10;
 
         public float MoveSpeed => moveSpeed;
@@ -47,7 +47,7 @@ namespace Action002.Core
         public float BulletOffscreenMargin => bulletOffscreenMargin;
         public float AbsorbGaugeRate => absorbGaugeRate;
         public float KillGaugeRate => killGaugeRate;
-        public float ContactRadius => contactRadius;
+        public float PlayerContactRadius => playerContactRadius;
         public int ContactScoreBonus => contactScoreBonus;
     }
 }

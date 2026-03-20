@@ -165,12 +165,13 @@ namespace Action002.Core
             var ids = enemySet.EntityIds;
             float2 playerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y);
             var playerPolarity = (Polarity)playerPolarityVar.Value;
-            float contactRadius = gameConfig.ContactRadius;
+            float playerContactRadius = gameConfig.PlayerContactRadius;
 
             for (int i = 0; i < data.Length; i++)
             {
                 var enemy = data[i];
-                if (!EnemyContactCalculator.IsContact(playerPos, enemy.Position, contactRadius))
+                float enemyCollisionRadius = EnemyTypeTable.Get(enemy.TypeId).CollisionRadius;
+                if (!EnemyContactCalculator.IsContact(playerPos, enemy.Position, playerContactRadius, enemyCollisionRadius))
                     continue;
 
                 var contactResult = ContactRuleCalculator.Resolve(playerPolarity, enemy.Polarity);
