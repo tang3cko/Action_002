@@ -215,7 +215,7 @@ namespace Action002.Tests.Player
             public float SecondsPerHalfBeat => 0.167f;
             public bool ShouldFireResult { get; set; }
 
-            public void StartClock() { }
+            public bool StartClock() { return true; }
             public void StopClock() { }
             public void ProcessClock() { }
 

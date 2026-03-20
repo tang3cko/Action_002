@@ -9,7 +9,7 @@ using Tang3cko.ReactiveSO;
 
 namespace Action002.Core.Flow
 {
-    public class GameplaySceneLifetime : MonoBehaviour
+    public class GameplaySceneLifetime : MonoBehaviour, IGameplayStartupActions
     {
         [Header("Sets")]
         [SerializeField] private EnemyStateSetSO enemyStateSet;
@@ -47,13 +47,47 @@ namespace Action002.Core.Flow
 
         private void Start()
         {
+            var logic = new GameplayStartupLogic(this);
+            logic.Execute();
+        }
+
+        // --- IGameplayStartupActions implementation ---
+
+        void IGameplayStartupActions.DisablePlayerInput()
+        {
+            if (inputReader != null) inputReader.DisablePlayerInput();
+        }
+
+        void IGameplayStartupActions.EnablePlayerInput()
+        {
+            if (inputReader != null) inputReader.EnablePlayerInput();
+        }
+
+        void IGameplayStartupActions.ResetForNewRun()
+        {
             if (rhythmClockSystem != null) rhythmClockSystem.ResetForNewRun();
             if (enemySpawnSystem != null) enemySpawnSystem.ResetForNewRun();
             if (enemyShootSystem != null) enemyShootSystem.ResetForNewRun();
+        }
 
-            if (inputReader != null) inputReader.EnablePlayerInput();
-            if (rhythmClockSystem != null) rhythmClockSystem.StartClock();
-            if (gameLoopManager != null) gameLoopManager.SetRunning(true);
+        bool IGameplayStartupActions.StartClock()
+        {
+            if (rhythmClockSystem == null)
+            {
+                Debug.LogError("[GameplaySceneLifetime] RhythmClockSystem is not assigned.", this);
+                return false;
+            }
+            return rhythmClockSystem.StartClock();
+        }
+
+        void IGameplayStartupActions.LogStartupError(string message)
+        {
+            Debug.LogError(message, this);
+        }
+
+        void IGameplayStartupActions.SetRunning(bool running)
+        {
+            if (gameLoopManager != null) gameLoopManager.SetRunning(running);
         }
 
         private void OnDestroy()
@@ -76,6 +110,8 @@ namespace Action002.Core.Flow
             if (inputReader == null) Debug.LogWarning($"[{GetType().Name}] inputReader not assigned on {gameObject.name}.", this);
             if (gameLoopManager == null) Debug.LogWarning($"[{GetType().Name}] gameLoopManager not assigned on {gameObject.name}.", this);
             if (rhythmClockSystem == null) Debug.LogWarning($"[{GetType().Name}] rhythmClockSystem not assigned on {gameObject.name}.", this);
+            if (enemySpawnSystem == null) Debug.LogWarning($"[{GetType().Name}] enemySpawnSystem not assigned on {gameObject.name}.", this);
+            if (enemyShootSystem == null) Debug.LogWarning($"[{GetType().Name}] enemyShootSystem not assigned on {gameObject.name}.", this);
             if (playerHpVar == null) Debug.LogWarning($"[{GetType().Name}] playerHpVar not assigned on {gameObject.name}.", this);
             if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
             if (comboCountVar == null) Debug.LogWarning($"[{GetType().Name}] comboCountVar not assigned on {gameObject.name}.", this);

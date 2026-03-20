@@ -1,7 +1,5 @@
 using UnityEngine;
 using Action002.Audio.Data;
-using Action002.Audio.Logic;
-using Tang3cko.ReactiveSO;
 
 namespace Action002.Audio.Systems
 {
@@ -13,75 +11,60 @@ namespace Action002.Audio.Systems
         [Header("Audio")]
         [SerializeField] private AudioSource bgmSource;
 
-        private double startDspTime;
-        private float secondsPerHalfBeat;
-        private int currentHalfBeatIndex;
-        private int previousHalfBeatIndex = -1;
-        private bool isPlaying;
+        private RhythmClock clock;
 
-        public int CurrentHalfBeatIndex => currentHalfBeatIndex;
-        public bool IsPlaying => isPlaying;
-        public float SecondsPerHalfBeat => secondsPerHalfBeat;
+        public int CurrentHalfBeatIndex => clock?.CurrentHalfBeatIndex ?? 0;
+        public bool IsPlaying => clock?.IsPlaying ?? false;
+        public float SecondsPerHalfBeat => clock?.SecondsPerHalfBeat ?? 0f;
 
-        public void StartClock()
+        private void Awake()
         {
-            if (config == null) return;
-            secondsPerHalfBeat = BeatClockCalculator.SecondsPerHalfBeat(config.Bpm);
-            if (secondsPerHalfBeat <= 0f)
-            {
-                Debug.LogError($"[{GetType().Name}] Invalid BPM config. Clock not started.", this);
-                return;
-            }
-            startDspTime = AudioSettings.dspTime + config.StartOffset;
-            previousHalfBeatIndex = -1;
-            currentHalfBeatIndex = 0;
-            isPlaying = true;
+            clock = new RhythmClock(config, () => AudioSettings.dspTime);
+        }
 
-            if (bgmSource != null)
-                bgmSource.PlayScheduled(startDspTime);
+        public bool StartClock()
+        {
+            if (clock == null)
+                clock = new RhythmClock(config, () => AudioSettings.dspTime);
+
+            bool success = clock.StartClock();
+            if (success && bgmSource != null)
+            {
+                double scheduledTime = AudioSettings.dspTime + (config != null ? config.StartOffset : 0.0);
+                bgmSource.PlayScheduled(scheduledTime);
+            }
+            return success;
         }
 
         public void StopClock()
         {
-            isPlaying = false;
+            clock?.StopClock();
             if (bgmSource != null)
                 bgmSource.Stop();
         }
 
-        // Called by GameLoopManager in LateUpdate, before attack systems
         public void ProcessClock()
         {
-            if (!isPlaying || config == null) return;
-
-            double songTime = AudioSettings.dspTime - startDspTime;
-            if (songTime < 0) return; // not started yet
-
-            previousHalfBeatIndex = currentHalfBeatIndex;
-            currentHalfBeatIndex = BeatClockCalculator.GetHalfBeatIndex(songTime, secondsPerHalfBeat);
+            clock?.ProcessClock();
         }
 
-        // For attack systems to check if they should fire
         public bool ShouldFireOnDownbeat(ref int lastConsumedIndex)
         {
-            if (!isPlaying) return false;
-            bool result = BeatGateCalculator.ShouldFireOnDownbeat(currentHalfBeatIndex, lastConsumedIndex);
-            if (result) lastConsumedIndex = currentHalfBeatIndex;
-            return result;
+            if (clock == null) return false;
+            return clock.ShouldFireOnDownbeat(ref lastConsumedIndex);
         }
 
         public bool ShouldFireOnOffbeat(ref int lastConsumedIndex)
         {
-            if (!isPlaying) return false;
-            bool result = BeatGateCalculator.ShouldFireOnOffbeat(currentHalfBeatIndex, lastConsumedIndex);
-            if (result) lastConsumedIndex = currentHalfBeatIndex;
-            return result;
+            if (clock == null) return false;
+            return clock.ShouldFireOnOffbeat(ref lastConsumedIndex);
         }
 
         public void ResetForNewRun()
         {
-            StopClock();
-            previousHalfBeatIndex = -1;
-            currentHalfBeatIndex = 0;
+            clock?.ResetForNewRun();
+            if (bgmSource != null)
+                bgmSource.Stop();
         }
 
 #if UNITY_EDITOR

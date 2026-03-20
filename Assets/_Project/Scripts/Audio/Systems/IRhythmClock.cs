@@ -5,7 +5,7 @@ namespace Action002.Audio.Systems
         bool IsPlaying { get; }
         int CurrentHalfBeatIndex { get; }
         float SecondsPerHalfBeat { get; }
-        void StartClock();
+        bool StartClock();
         void StopClock();
         void ProcessClock();
         bool ShouldFireOnDownbeat(ref int lastConsumedIndex);

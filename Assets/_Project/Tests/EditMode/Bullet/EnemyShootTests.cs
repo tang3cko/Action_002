@@ -316,7 +316,7 @@ namespace Action002.Tests.Bullet
             public float SecondsPerHalfBeat => 0.167f;
             public bool ShouldFireOffbeatResult { get; set; }
 
-            public void StartClock() { }
+            public bool StartClock() { return true; }
             public void StopClock() { }
             public void ProcessClock() { }
 

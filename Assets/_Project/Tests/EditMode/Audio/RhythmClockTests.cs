@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using UnityEngine;
+using UnityEngine.TestTools;
 using UnityEditor;
 using Action002.Audio.Data;
 using Action002.Audio.Systems;
@@ -34,8 +35,9 @@ namespace Action002.Tests.Audio
         [Test]
         public void StartClock_SetsIsPlayingTrue()
         {
-            clock.StartClock();
+            bool result = clock.StartClock();
 
+            Assert.That(result, Is.True);
             Assert.That(clock.IsPlaying, Is.True);
         }
 
@@ -43,9 +45,11 @@ namespace Action002.Tests.Audio
         public void StartClock_NullConfig_DoesNotStart()
         {
             var nullClock = new RhythmClock(null, () => 0.0);
+            LogAssert.Expect(LogType.Error, "[RhythmClock] config is null. Clock not started.");
 
-            nullClock.StartClock();
+            bool result = nullClock.StartClock();
 
+            Assert.That(result, Is.False);
             Assert.That(nullClock.IsPlaying, Is.False);
         }
 
@@ -55,9 +59,11 @@ namespace Action002.Tests.Audio
             // OnValidate clamps BPM to 120 when set to <= 0,
             // so we test null config to exercise the defensive guard.
             var nullClock = new RhythmClock(null, () => 0.0);
+            LogAssert.Expect(LogType.Error, "[RhythmClock] config is null. Clock not started.");
 
-            nullClock.StartClock();
+            bool result = nullClock.StartClock();
 
+            Assert.That(result, Is.False);
             Assert.That(nullClock.IsPlaying, Is.False);
         }
 

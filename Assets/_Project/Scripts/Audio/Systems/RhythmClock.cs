@@ -25,16 +25,29 @@ namespace Action002.Audio.Systems
             this.dspTimeSource = dspTimeSource;
         }
 
-        public void StartClock()
+        public bool StartClock()
         {
-            if (config == null) return;
-            if (config.Bpm <= 0f) return;
+            if (config == null)
+            {
+                UnityEngine.Debug.LogError("[RhythmClock] config is null. Clock not started.");
+                return false;
+            }
+            if (config.Bpm <= 0f)
+            {
+                UnityEngine.Debug.LogError("[RhythmClock] Invalid BPM config. Clock not started.");
+                return false;
+            }
             secondsPerHalfBeat = BeatClockCalculator.SecondsPerHalfBeat(config.Bpm);
-            if (secondsPerHalfBeat <= 0f) return;
+            if (secondsPerHalfBeat <= 0f)
+            {
+                UnityEngine.Debug.LogError("[RhythmClock] SecondsPerHalfBeat is invalid. Clock not started.");
+                return false;
+            }
             startDspTime = dspTimeSource() + config.StartOffset;
             previousHalfBeatIndex = -1;
             currentHalfBeatIndex = 0;
             isPlaying = true;
+            return true;
         }
 
         public void StopClock()

@@ -19,7 +19,6 @@ namespace Action002.Input
                 inputActions = new InputSystem_Actions();
                 inputActions.Player.SetCallbacks(this);
             }
-            inputActions.Player.Enable();
         }
 
         private void OnDisable()
@@ -38,7 +37,22 @@ namespace Action002.Input
                 OnSwitchPolarityEvent?.Invoke();
         }
 
-        public void EnablePlayerInput() => inputActions?.Player.Enable();
-        public void DisablePlayerInput() => inputActions?.Player.Disable();
+        public void EnablePlayerInput()
+        {
+            if (inputActions == null)
+            {
+                inputActions = new InputSystem_Actions();
+                inputActions.Player.SetCallbacks(this);
+            }
+            inputActions.Player.Enable();
+        }
+
+        public void DisablePlayerInput()
+        {
+            if (inputActions != null)
+            {
+                inputActions.Player.Disable();
+            }
+        }
     }
 }
