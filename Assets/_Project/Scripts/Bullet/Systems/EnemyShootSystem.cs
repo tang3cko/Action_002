@@ -26,16 +26,16 @@ namespace Action002.Bullet.Systems
         [SerializeField] private int maxBulletsPerOffbeat = 100;
         [SerializeField] private float enemyShootCooldown = 1f;
 
-        private int _lastConsumedHalfBeatIndex = -1;
+        private int lastConsumedHalfBeatIndex = -1;
         private int nextBulletId = 100000;
-        private readonly Dictionary<int, float> _lastShotTimes = new Dictionary<int, float>(256);
+        private readonly Dictionary<int, float> lastShotTimes = new Dictionary<int, float>(256);
 
         public void ProcessShooting()
         {
             if (rhythmClock == null) return;
             if (enemySet.Count == 0) return;
 
-            if (!rhythmClock.ShouldFireOnOffbeat(ref _lastConsumedHalfBeatIndex))
+            if (!rhythmClock.ShouldFireOnOffbeat(ref lastConsumedHalfBeatIndex))
                 return;
 
             var data = enemySet.Data;
@@ -50,7 +50,7 @@ namespace Action002.Bullet.Systems
                 int enemyId = entityIds[i];
 
                 // Per-enemy cooldown check
-                if (_lastShotTimes.TryGetValue(enemyId, out float lastTime)
+                if (lastShotTimes.TryGetValue(enemyId, out float lastTime)
                     && now - lastTime < enemyShootCooldown)
                     continue;
 
@@ -72,16 +72,16 @@ namespace Action002.Bullet.Systems
                 };
 
                 bulletSet.Register(nextBulletId++, bulletState);
-                _lastShotTimes[enemyId] = now;
+                lastShotTimes[enemyId] = now;
                 fired++;
             }
         }
 
         public void ResetForNewRun()
         {
-            _lastConsumedHalfBeatIndex = -1;
+            lastConsumedHalfBeatIndex = -1;
             nextBulletId = 100000;
-            _lastShotTimes.Clear();
+            lastShotTimes.Clear();
         }
 
 #if UNITY_EDITOR

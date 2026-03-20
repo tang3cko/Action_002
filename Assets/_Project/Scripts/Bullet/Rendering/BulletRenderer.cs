@@ -27,42 +27,42 @@ namespace Action002.Bullet.Rendering
         private const int BatchSize = 1023;
         private Matrix4x4[] whiteMatrices = new Matrix4x4[BatchSize];
         private Matrix4x4[] blackMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] _whiteOutlineMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] _blackOutlineMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] _playerWhiteMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] _playerBlackMatrices = new Matrix4x4[BatchSize];
-        private Texture2D _generatedTexture;
+        private Matrix4x4[] whiteOutlineMatrices = new Matrix4x4[BatchSize];
+        private Matrix4x4[] blackOutlineMatrices = new Matrix4x4[BatchSize];
+        private Matrix4x4[] playerWhiteMatrices = new Matrix4x4[BatchSize];
+        private Matrix4x4[] playerBlackMatrices = new Matrix4x4[BatchSize];
+        private Texture2D generatedTexture;
 
         private void Start()
         {
-            _generatedTexture = CircleTextureGenerator.Create(64);
+            generatedTexture = CircleTextureGenerator.Create(64);
             if (whiteMaterial != null)
             {
                 whiteMaterial = Instantiate(whiteMaterial);
-                SetupMaterialAlphaClip(whiteMaterial, _generatedTexture);
+                SetupMaterialAlphaClip(whiteMaterial, generatedTexture);
             }
             if (blackMaterial != null)
             {
                 blackMaterial = Instantiate(blackMaterial);
-                SetupMaterialAlphaClip(blackMaterial, _generatedTexture);
+                SetupMaterialAlphaClip(blackMaterial, generatedTexture);
             }
             if (whiteOutlineMaterial != null)
             {
                 whiteOutlineMaterial = Instantiate(whiteOutlineMaterial);
-                SetupMaterialAlphaClip(whiteOutlineMaterial, _generatedTexture);
+                SetupMaterialAlphaClip(whiteOutlineMaterial, generatedTexture);
                 whiteOutlineMaterial.SetFloat("_ZWrite", 0f);
             }
             if (blackOutlineMaterial != null)
             {
                 blackOutlineMaterial = Instantiate(blackOutlineMaterial);
-                SetupMaterialAlphaClip(blackOutlineMaterial, _generatedTexture);
+                SetupMaterialAlphaClip(blackOutlineMaterial, generatedTexture);
                 blackOutlineMaterial.SetFloat("_ZWrite", 0f);
             }
         }
 
         private void OnDestroy()
         {
-            if (_generatedTexture != null) Destroy(_generatedTexture);
+            if (generatedTexture != null) Destroy(generatedTexture);
             if (whiteMaterial != null) Destroy(whiteMaterial);
             if (blackMaterial != null) Destroy(blackMaterial);
             if (whiteOutlineMaterial != null) Destroy(whiteOutlineMaterial);
@@ -107,21 +107,21 @@ namespace Action002.Bullet.Rendering
 
                     if (state.Polarity == 0)
                     {
-                        _playerWhiteMatrices[playerWhiteCount++] = matrix;
+                        playerWhiteMatrices[playerWhiteCount++] = matrix;
                         if (playerWhiteCount == BatchSize)
                         {
                             if (quadMesh != null && whiteMaterial != null)
-                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, _playerWhiteMatrices, playerWhiteCount);
+                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, playerWhiteMatrices, playerWhiteCount);
                             playerWhiteCount = 0;
                         }
                     }
                     else
                     {
-                        _playerBlackMatrices[playerBlackCount++] = matrix;
+                        playerBlackMatrices[playerBlackCount++] = matrix;
                         if (playerBlackCount == BatchSize)
                         {
                             if (quadMesh != null && blackMaterial != null)
-                                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, _playerBlackMatrices, playerBlackCount);
+                                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, playerBlackMatrices, playerBlackCount);
                             playerBlackCount = 0;
                         }
                     }
@@ -144,12 +144,12 @@ namespace Action002.Bullet.Rendering
                     if (state.Polarity == 0)
                     {
                         whiteMatrices[whiteCount++] = matrix;
-                        _whiteOutlineMatrices[whiteOutlineCount++] = outlineMatrix;
+                        whiteOutlineMatrices[whiteOutlineCount++] = outlineMatrix;
 
                         if (whiteOutlineCount == BatchSize)
                         {
                             if (quadMesh != null && whiteOutlineMaterial != null)
-                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, _whiteOutlineMatrices, whiteOutlineCount);
+                                Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, whiteOutlineMatrices, whiteOutlineCount);
                             whiteOutlineCount = 0;
                         }
                         if (whiteCount == BatchSize)
@@ -162,12 +162,12 @@ namespace Action002.Bullet.Rendering
                     else
                     {
                         blackMatrices[blackCount++] = matrix;
-                        _blackOutlineMatrices[blackOutlineCount++] = outlineMatrix;
+                        blackOutlineMatrices[blackOutlineCount++] = outlineMatrix;
 
                         if (blackOutlineCount == BatchSize)
                         {
                             if (quadMesh != null && blackOutlineMaterial != null)
-                                Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, _blackOutlineMatrices, blackOutlineCount);
+                                Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, blackOutlineMatrices, blackOutlineCount);
                             blackOutlineCount = 0;
                         }
                         if (blackCount == BatchSize)
@@ -182,15 +182,15 @@ namespace Action002.Bullet.Rendering
 
             // Draw player bullets first (behind enemy bullets)
             if (playerWhiteCount > 0 && whiteMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, _playerWhiteMatrices, playerWhiteCount);
+                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, playerWhiteMatrices, playerWhiteCount);
             if (playerBlackCount > 0 && blackMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, _playerBlackMatrices, playerBlackCount);
+                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, playerBlackMatrices, playerBlackCount);
 
             // Draw enemy outlines (behind enemy bodies)
             if (whiteOutlineCount > 0 && whiteOutlineMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, _whiteOutlineMatrices, whiteOutlineCount);
+                Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, whiteOutlineMatrices, whiteOutlineCount);
             if (blackOutlineCount > 0 && blackOutlineMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, _blackOutlineMatrices, blackOutlineCount);
+                Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, blackOutlineMatrices, blackOutlineCount);
 
             // Draw enemy bodies on top
             if (whiteCount > 0 && whiteMaterial != null && quadMesh != null)

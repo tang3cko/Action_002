@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UIElements;
+using Action002.Core.Flow;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.UI
@@ -7,11 +8,15 @@ namespace Action002.UI
     [RequireComponent(typeof(UIDocument))]
     public class TitleScreenController : MonoBehaviour
     {
-        [Header("Events")]
+        [Header("Events (subscribe)")]
+        [SerializeField] private IntEventChannelSO onGamePhaseChanged;
+
+        [Header("Events (publish)")]
+        [SerializeField] private Vector2EventChannelSO onTitleStartTransitionOriginSelected;
         [SerializeField] private VoidEventChannelSO onTitleStartSelected;
 
         private UIDocument uiDocument;
-        private VisualElement rootVisualElement;
+        private VisualElement titleScreenRoot;
         private Button startButton;
 
         private void Awake()
@@ -23,45 +28,81 @@ namespace Action002.UI
         {
             if (uiDocument == null) return;
 
-            rootVisualElement = uiDocument.rootVisualElement;
+            var root = uiDocument.rootVisualElement;
+            titleScreenRoot = root.Q<VisualElement>("TitleScreen");
+            if (titleScreenRoot == null)
+            {
+                Debug.LogError($"[{GetType().Name}] TitleScreen panel not found in UIDocument on {gameObject.name}.", this);
+                return;
+            }
 
-            startButton = rootVisualElement.Q<Button>("StartButton");
+            startButton = titleScreenRoot.Q<Button>("TitleStartButton");
             if (startButton == null)
             {
-                Debug.LogError($"[{GetType().Name}] StartButton not found in UIDocument on {gameObject.name}.", this);
+                Debug.LogError($"[{GetType().Name}] TitleStartButton not found in UIDocument on {gameObject.name}.", this);
                 return;
             }
 
             startButton.clicked += OnStartButtonClicked;
+
+            if (onGamePhaseChanged != null)
+                onGamePhaseChanged.OnEventRaised += HandleGamePhaseChanged;
+
+            Show();
         }
 
         private void OnDisable()
         {
             if (startButton != null)
                 startButton.clicked -= OnStartButtonClicked;
+
+            if (onGamePhaseChanged != null)
+                onGamePhaseChanged.OnEventRaised -= HandleGamePhaseChanged;
         }
 
-        public void Show()
+        private void HandleGamePhaseChanged(int phase)
         {
-            if (rootVisualElement != null)
-                rootVisualElement.style.display = DisplayStyle.Flex;
+            if (phase == (int)GamePhase.Title)
+                Show();
+            else
+                Hide();
         }
 
-        public void Hide()
+        private void Show()
         {
-            if (rootVisualElement != null)
-                rootVisualElement.style.display = DisplayStyle.None;
+            if (titleScreenRoot != null)
+                titleScreenRoot.style.display = DisplayStyle.Flex;
+        }
+
+        private void Hide()
+        {
+            if (titleScreenRoot != null)
+                titleScreenRoot.style.display = DisplayStyle.None;
         }
 
         private void OnStartButtonClicked()
         {
+            if (startButton != null)
+            {
+                Vector2 transitionOrigin = GetStartButtonScreenPosition();
+                onTitleStartTransitionOriginSelected?.RaiseEvent(transitionOrigin);
+            }
+
             onTitleStartSelected?.RaiseEvent();
+        }
+
+        private Vector2 GetStartButtonScreenPosition()
+        {
+            Vector2 buttonCenter = startButton.worldBound.center;
+            return new Vector2(buttonCenter.x, Screen.height - buttonCenter.y);
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             if (GetComponent<UIDocument>() == null) Debug.LogWarning($"[{GetType().Name}] UIDocument component missing on {gameObject.name}.", this);
+            if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
+            if (onTitleStartTransitionOriginSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartTransitionOriginSelected not assigned on {gameObject.name}.", this);
             if (onTitleStartSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartSelected not assigned on {gameObject.name}.", this);
         }
 #endif

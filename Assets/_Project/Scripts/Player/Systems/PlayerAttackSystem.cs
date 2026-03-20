@@ -24,12 +24,12 @@ namespace Action002.Player.Systems
         [SerializeField] private Vector2VariableSO playerPositionVar;
         [SerializeField] private IntVariableSO playerPolarityVar;
 
-        private int _lastConsumedHalfBeatIndex = -1;
-        private int _nextBulletId = 200000;
+        private int lastConsumedHalfBeatIndex = -1;
+        private int nextBulletId = 200000;
 
         public void ProcessAttacks()
         {
-            if (!rhythmClock.ShouldFireOnDownbeat(ref _lastConsumedHalfBeatIndex))
+            if (!rhythmClock.ShouldFireOnDownbeat(ref lastConsumedHalfBeatIndex))
                 return;
 
             float2 playerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y);
@@ -45,7 +45,7 @@ namespace Action002.Player.Systems
                 Damage = 1,
             };
 
-            bulletSet.Register(_nextBulletId++, bullet);
+            bulletSet.Register(nextBulletId++, bullet);
         }
 
         private float2 FindDirectionToNearestEnemy(float2 playerPos)
@@ -73,8 +73,8 @@ namespace Action002.Player.Systems
 
         public void ResetForNewRun()
         {
-            _lastConsumedHalfBeatIndex = -1;
-            _nextBulletId = 200000;
+            lastConsumedHalfBeatIndex = -1;
+            nextBulletId = 200000;
         }
 
 #if UNITY_EDITOR

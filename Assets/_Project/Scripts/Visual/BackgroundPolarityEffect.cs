@@ -11,8 +11,9 @@ namespace Action002.Visual
         [SerializeField] private IntEventChannelSO onPolarityChanged;
 
         [Header("References")]
-        [SerializeField] private Transform playerTransform;
-        [SerializeField] private Camera mainCamera;
+        [SerializeField] private Vector2VariableSO playerPositionVar;
+
+        private Camera mainCamera;
 
         [Header("Settings")]
         [SerializeField] private float transitionDuration = 0.4f;
@@ -26,8 +27,7 @@ namespace Action002.Visual
 
         private void Awake()
         {
-            if (mainCamera == null)
-                mainCamera = Camera.main;
+            mainCamera = Camera.main;
 
             if (mainCamera != null)
                 mainCamera.backgroundColor = WhitePolarityBg;
@@ -76,9 +76,11 @@ namespace Action002.Visual
             transitionSprite.color = targetColor;
             transitionSprite.gameObject.SetActive(true);
 
-            if (playerTransform != null)
-                transitionSprite.transform.position = new Vector3(
-                    playerTransform.position.x, playerTransform.position.y, 5f);
+            if (playerPositionVar != null)
+            {
+                var pos = playerPositionVar.Value;
+                transitionSprite.transform.position = new Vector3(pos.x, pos.y, 5f);
+            }
 
             float elapsed = 0f;
             while (elapsed < transitionDuration)
@@ -113,8 +115,8 @@ namespace Action002.Visual
         {
             if (onPolarityChanged == null)
                 Debug.LogWarning($"[{GetType().Name}] onPolarityChanged not assigned on {gameObject.name}.", this);
-            if (mainCamera == null)
-                Debug.LogWarning($"[{GetType().Name}] mainCamera not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null)
+                Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }

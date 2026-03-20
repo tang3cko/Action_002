@@ -4,14 +4,14 @@ using Action002.Core;
 using Action002.Player.Data;
 using Action002.Player.Logic;
 using Action002.Input;
+using Action002.Visual;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Player.Systems
 {
     public class PlayerController : MonoBehaviour
     {
-        [Header("Dependencies")]
-        [SerializeField] private Camera gameplayCamera;
+        private Camera gameplayCamera;
 
         [Header("Config")]
         [SerializeField] private GameConfigSO gameConfig;
@@ -42,11 +42,11 @@ namespace Action002.Player.Systems
         private PlayerState state;
         private bool hasGameOverFired;
         private Vector2 moveInput;
+        private Texture2D generatedTexture;
 
         private void Awake()
         {
-            if (gameplayCamera == null)
-                gameplayCamera = Camera.main;
+            gameplayCamera = Camera.main;
         }
 
         private void OnEnable()
@@ -69,6 +69,14 @@ namespace Action002.Player.Systems
         private void Start()
         {
             if (gameConfig == null) return;
+
+            if (spriteRenderer != null && spriteRenderer.sprite == null)
+            {
+                generatedTexture = CircleTextureGenerator.Create(64);
+                spriteRenderer.sprite = Sprite.Create(generatedTexture,
+                    new Rect(0, 0, generatedTexture.width, generatedTexture.height),
+                    new Vector2(0.5f, 0.5f), generatedTexture.width);
+            }
 
             state = new PlayerState
             {
@@ -117,6 +125,18 @@ namespace Action002.Player.Systems
             {
                 hasGameOverFired = true;
                 onGameOver?.RaiseEvent();
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (spriteRenderer != null && spriteRenderer.sprite != null && generatedTexture != null)
+            {
+                var sprite = spriteRenderer.sprite;
+                spriteRenderer.sprite = null;
+                Destroy(sprite);
+                Destroy(generatedTexture);
+                generatedTexture = null;
             }
         }
 
@@ -247,7 +267,6 @@ namespace Action002.Player.Systems
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if (gameplayCamera == null) Debug.LogWarning($"[{GetType().Name}] gameplayCamera not assigned on {gameObject.name}.", this);
             if (gameConfig == null) Debug.LogWarning($"[{GetType().Name}] gameConfig not assigned on {gameObject.name}.", this);
             if (inputReader == null) Debug.LogWarning($"[{GetType().Name}] inputReader not assigned on {gameObject.name}.", this);
             if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);

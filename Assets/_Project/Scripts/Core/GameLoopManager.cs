@@ -16,8 +16,8 @@ namespace Action002.Core
 {
     public class GameLoopManager : MonoBehaviour
     {
-        [Header("Camera")]
-        [SerializeField] private Camera mainCamera;
+        [Header("Config")]
+        private Camera mainCamera;
         [SerializeField] private GameConfigSO gameConfig;
 
         [Header("Sets")]
@@ -54,6 +54,8 @@ namespace Action002.Core
 
         private void Start()
         {
+            mainCamera = Camera.main;
+
             if (enemySet == null || bulletSet == null) return;
 
             enemyOrchestrator = new ReactiveEntitySetOrchestrator<EnemyState>(enemySet);
@@ -127,11 +129,6 @@ namespace Action002.Core
 
         public void SetRunning(bool running)
         {
-            if (running && !isRunning)
-            {
-                if (rhythmClock != null)
-                    rhythmClock.StartClock();
-            }
             isRunning = running;
         }
 
@@ -289,7 +286,6 @@ namespace Action002.Core
             if (bulletCollision == null) Debug.LogWarning($"[{GetType().Name}] bulletCollision not assigned on {gameObject.name}.", this);
             if (enemySpawn == null) Debug.LogWarning($"[{GetType().Name}] enemySpawn not assigned on {gameObject.name}.", this);
             if (enemyShoot == null) Debug.LogWarning($"[{GetType().Name}] enemyShoot not assigned on {gameObject.name}.", this);
-            if (mainCamera == null) Debug.LogWarning($"[{GetType().Name}] mainCamera not assigned on {gameObject.name}.", this);
             if (gameConfig == null) Debug.LogWarning($"[{GetType().Name}] gameConfig not assigned on {gameObject.name}.", this);
             if (onPlayerDamaged == null) Debug.LogWarning($"[{GetType().Name}] onPlayerDamaged not assigned on {gameObject.name}.", this);
             if (onScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onScoreAdded not assigned on {gameObject.name}.", this);

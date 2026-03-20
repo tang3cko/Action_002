@@ -1,44 +1,41 @@
 using UnityEngine;
 using Action002.Core.Save;
+using Action002.Visual;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Core.Flow
 {
-    public class GameFlowController : MonoBehaviour
+    public class GameFlowController : MonoBehaviour, IGameFlowActions
     {
         [Header("Dependencies")]
-        [SerializeField] private RunSessionController runSessionController;
+        [SerializeField] private SceneLoader sceneLoader;
         [SerializeField] private FirstPlayFlagRepository firstPlayFlagRepository;
+        [SerializeField] private ScreenTransitionController screenTransitionController;
 
         [Header("Events (subscribe)")]
         [SerializeField] private VoidEventChannelSO onGameOver;
         [SerializeField] private VoidEventChannelSO onTutorialCompleted;
+        [SerializeField] private Vector2EventChannelSO onTitleStartTransitionOriginSelected;
         [SerializeField] private VoidEventChannelSO onTitleStartSelected;
         [SerializeField] private VoidEventChannelSO onBossTriggerReached;
         [SerializeField] private VoidEventChannelSO onBossDefeated;
         [SerializeField] private VoidEventChannelSO onResultRetrySelected;
         [SerializeField] private VoidEventChannelSO onResultBackToTitleSelected;
+        [SerializeField] private VoidEventChannelSO onScreenTransitionClosed;
+        [SerializeField] private VoidEventChannelSO onScreenTransitionOpened;
+        [SerializeField] private VoidEventChannelSO onSceneLoadCompleted;
+
+        [Header("Events (publish)")]
+        [SerializeField] private IntEventChannelSO onGamePhaseChanged;
+        [SerializeField] private VoidEventChannelSO onBossPhaseRequested;
 
         [Header("Variables (write)")]
         [SerializeField] private IntVariableSO gamePhaseVar;
+        [SerializeField] private IntVariableSO resultTypeVar;
 
-        private GamePhase currentPhase;
+        private GameFlowLogic logic;
 
-        private void Awake()
-        {
-            if (firstPlayFlagRepository != null && firstPlayFlagRepository.HasCompletedTutorial())
-            {
-                // チュートリアル完了済み → Title（実画面未実装のためStageへフォールバック）
-                TransitionTo(GamePhase.Title);
-                TransitionTo(GamePhase.Stage);
-            }
-            else
-            {
-                // 未完了 → Tutorial（実画面未実装のためStageへフォールバック）
-                TransitionTo(GamePhase.Tutorial);
-                TransitionTo(GamePhase.Stage);
-            }
-        }
+        private GameFlowLogic Logic => logic ?? (logic = new GameFlowLogic(this));
 
         private void OnEnable()
         {
@@ -46,6 +43,8 @@ namespace Action002.Core.Flow
                 onGameOver.OnEventRaised += HandleGameOver;
             if (onTutorialCompleted != null)
                 onTutorialCompleted.OnEventRaised += HandleTutorialCompleted;
+            if (onTitleStartTransitionOriginSelected != null)
+                onTitleStartTransitionOriginSelected.OnEventRaised += HandleTitleStartTransitionOriginSelected;
             if (onTitleStartSelected != null)
                 onTitleStartSelected.OnEventRaised += HandleTitleStartSelected;
             if (onBossTriggerReached != null)
@@ -56,6 +55,12 @@ namespace Action002.Core.Flow
                 onResultRetrySelected.OnEventRaised += HandleResultRetrySelected;
             if (onResultBackToTitleSelected != null)
                 onResultBackToTitleSelected.OnEventRaised += HandleResultBackToTitleSelected;
+            if (onScreenTransitionClosed != null)
+                onScreenTransitionClosed.OnEventRaised += HandleTransitionClosed;
+            if (onScreenTransitionOpened != null)
+                onScreenTransitionOpened.OnEventRaised += HandleTransitionOpened;
+            if (onSceneLoadCompleted != null)
+                onSceneLoadCompleted.OnEventRaised += HandleSceneLoadCompleted;
         }
 
         private void OnDisable()
@@ -64,6 +69,8 @@ namespace Action002.Core.Flow
                 onGameOver.OnEventRaised -= HandleGameOver;
             if (onTutorialCompleted != null)
                 onTutorialCompleted.OnEventRaised -= HandleTutorialCompleted;
+            if (onTitleStartTransitionOriginSelected != null)
+                onTitleStartTransitionOriginSelected.OnEventRaised -= HandleTitleStartTransitionOriginSelected;
             if (onTitleStartSelected != null)
                 onTitleStartSelected.OnEventRaised -= HandleTitleStartSelected;
             if (onBossTriggerReached != null)
@@ -74,88 +81,162 @@ namespace Action002.Core.Flow
                 onResultRetrySelected.OnEventRaised -= HandleResultRetrySelected;
             if (onResultBackToTitleSelected != null)
                 onResultBackToTitleSelected.OnEventRaised -= HandleResultBackToTitleSelected;
+            if (onScreenTransitionClosed != null)
+                onScreenTransitionClosed.OnEventRaised -= HandleTransitionClosed;
+            if (onScreenTransitionOpened != null)
+                onScreenTransitionOpened.OnEventRaised -= HandleTransitionOpened;
+            if (onSceneLoadCompleted != null)
+                onSceneLoadCompleted.OnEventRaised -= HandleSceneLoadCompleted;
         }
 
-        // --- Event Handlers ---
+        private void Start()
+        {
+            Logic.Initialize();
+        }
+
+        // --- Event Handlers (delegate to logic) ---
 
         private void HandleGameOver()
         {
-            if (runSessionController != null)
-                runSessionController.StopRunLoop();
-            TransitionTo(GamePhase.Result);
+            Logic.HandleGameOver();
         }
 
         private void HandleTutorialCompleted()
         {
-            if (firstPlayFlagRepository == null)
-                return;
+            Logic.HandleTutorialCompleted();
+        }
 
-            firstPlayFlagRepository.SaveTutorialCompleted();
-            TransitionTo(GamePhase.Title);
+        private void HandleTitleStartTransitionOriginSelected(Vector2 screenPosition)
+        {
+            Logic.HandleTitleStartTransitionOriginSelected(screenPosition.x, screenPosition.y);
         }
 
         private void HandleTitleStartSelected()
         {
-            TransitionTo(GamePhase.Stage);
+            Logic.HandleTitleStartSelected();
         }
 
         private void HandleBossTriggerReached()
         {
-            if (runSessionController != null)
-                runSessionController.PrepareBossPhase();
-            TransitionTo(GamePhase.Boss);
+            Logic.HandleBossTriggerReached();
         }
 
         private void HandleBossDefeated()
         {
-            if (runSessionController != null)
-                runSessionController.StopRunLoop();
-            TransitionTo(GamePhase.Result);
+            Logic.HandleBossDefeated();
         }
 
         private void HandleResultRetrySelected()
         {
-            if (runSessionController != null)
-            {
-                runSessionController.ResetRun();
-                runSessionController.StartRun();
-            }
-            TransitionTo(GamePhase.Stage);
+            Logic.HandleResultRetrySelected();
         }
 
         private void HandleResultBackToTitleSelected()
         {
-            if (runSessionController != null)
-                runSessionController.CleanupRunState();
-            TransitionTo(GamePhase.Title);
+            Logic.HandleResultBackToTitleSelected();
         }
 
-        // --- Phase Transition ---
-
-        private void TransitionTo(GamePhase next)
+        private void HandleTransitionClosed()
         {
-            currentPhase = next;
+            Logic.HandleTransitionClosed();
+        }
 
+        private void HandleTransitionOpened()
+        {
+            Logic.HandleTransitionOpened();
+        }
+
+        private void HandleSceneLoadCompleted()
+        {
+            Logic.HandleSceneLoadCompleted();
+        }
+
+        // --- IGameFlowActions implementation ---
+
+        void IGameFlowActions.LoadScene(string sceneName)
+        {
+            if (sceneLoader == null)
+            {
+                Debug.LogError($"[{GetType().Name}] sceneLoader not assigned on {gameObject.name}. Failed to load scene '{sceneName}'.", this);
+                return;
+            }
+
+            sceneLoader.LoadScene(sceneName);
+        }
+
+        void IGameFlowActions.CloseTransition()
+        {
+            if (screenTransitionController != null)
+                screenTransitionController.Close();
+        }
+
+        void IGameFlowActions.CloseTransitionWithOrigin(float screenX, float screenY)
+        {
+            if (screenTransitionController != null)
+                screenTransitionController.Close(new Vector2(screenX, screenY));
+        }
+
+        void IGameFlowActions.ClearTransitionImmediate()
+        {
+            if (screenTransitionController != null)
+                screenTransitionController.ClearImmediate();
+        }
+
+        void IGameFlowActions.RaiseBossPhaseRequested()
+        {
+            onBossPhaseRequested?.RaiseEvent();
+        }
+
+        void IGameFlowActions.RaiseGamePhaseChanged(int phase)
+        {
+            onGamePhaseChanged?.RaiseEvent(phase);
+        }
+
+        void IGameFlowActions.SetGamePhaseVariable(int phase)
+        {
             if (gamePhaseVar != null)
-                gamePhaseVar.Value = (int)currentPhase;
+                gamePhaseVar.Value = phase;
+        }
 
-            if (runSessionController != null)
-                runSessionController.SetPhase(currentPhase);
+        void IGameFlowActions.SetResultTypeVariable(int resultType)
+        {
+            if (resultTypeVar != null)
+                resultTypeVar.Value = resultType;
+        }
+
+        void IGameFlowActions.SaveTutorialCompleted()
+        {
+            if (firstPlayFlagRepository != null)
+            {
+                firstPlayFlagRepository.SaveTutorialCompleted();
+            }
+            else
+            {
+                Debug.LogWarning($"[{GetType().Name}] firstPlayFlagRepository not assigned on {gameObject.name}. Tutorial completion was not persisted.", this);
+            }
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if (runSessionController == null) Debug.LogWarning($"[{GetType().Name}] runSessionController not assigned on {gameObject.name}.", this);
+            if (sceneLoader == null) Debug.LogWarning($"[{GetType().Name}] sceneLoader not assigned on {gameObject.name}.", this);
             if (firstPlayFlagRepository == null) Debug.LogWarning($"[{GetType().Name}] firstPlayFlagRepository not assigned on {gameObject.name}.", this);
+            if (screenTransitionController == null) Debug.LogWarning($"[{GetType().Name}] screenTransitionController not assigned on {gameObject.name}.", this);
             if (onGameOver == null) Debug.LogWarning($"[{GetType().Name}] onGameOver not assigned on {gameObject.name}.", this);
             if (onTutorialCompleted == null) Debug.LogWarning($"[{GetType().Name}] onTutorialCompleted not assigned on {gameObject.name}.", this);
+            if (onTitleStartTransitionOriginSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartTransitionOriginSelected not assigned on {gameObject.name}.", this);
             if (onTitleStartSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartSelected not assigned on {gameObject.name}.", this);
             if (onBossTriggerReached == null) Debug.LogWarning($"[{GetType().Name}] onBossTriggerReached not assigned on {gameObject.name}.", this);
             if (onBossDefeated == null) Debug.LogWarning($"[{GetType().Name}] onBossDefeated not assigned on {gameObject.name}.", this);
             if (onResultRetrySelected == null) Debug.LogWarning($"[{GetType().Name}] onResultRetrySelected not assigned on {gameObject.name}.", this);
             if (onResultBackToTitleSelected == null) Debug.LogWarning($"[{GetType().Name}] onResultBackToTitleSelected not assigned on {gameObject.name}.", this);
+            if (onScreenTransitionClosed == null) Debug.LogWarning($"[{GetType().Name}] onScreenTransitionClosed not assigned on {gameObject.name}.", this);
+            if (onScreenTransitionOpened == null) Debug.LogWarning($"[{GetType().Name}] onScreenTransitionOpened not assigned on {gameObject.name}.", this);
+            if (onSceneLoadCompleted == null) Debug.LogWarning($"[{GetType().Name}] onSceneLoadCompleted not assigned on {gameObject.name}.", this);
+            if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
+            if (onBossPhaseRequested == null) Debug.LogWarning($"[{GetType().Name}] onBossPhaseRequested not assigned on {gameObject.name}.", this);
             if (gamePhaseVar == null) Debug.LogWarning($"[{GetType().Name}] gamePhaseVar not assigned on {gameObject.name}.", this);
+            if (resultTypeVar == null) Debug.LogWarning($"[{GetType().Name}] resultTypeVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }

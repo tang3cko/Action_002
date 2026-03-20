@@ -1,0 +1,15 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <Style src="GameUI.uss" />
+    <ui:VisualElement name="ResultScreen" class="result-screen">
+        <ui:VisualElement class="result-screen__bar" />
+        <ui:Label name="ResultTypeLabel" text="" class="result-screen__type" />
+        <ui:Label name="ResultTitleLabel" text="" class="result-screen__title" />
+        <ui:VisualElement class="result-screen__bar result-screen__bar--narrow" />
+        <ui:Label text="SCORE" class="result-screen__score-caption" />
+        <ui:Label name="ResultScoreLabel" text="0" class="result-screen__score" />
+        <ui:VisualElement class="result-screen__button-group">
+            <ui:Button name="RetryButton" text="RESONATE" class="result-screen__button result-screen__button--primary" />
+            <ui:Button name="TitleButton" text="RETREAT" class="result-screen__button result-screen__button--ghost" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

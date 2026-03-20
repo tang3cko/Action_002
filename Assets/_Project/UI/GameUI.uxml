@@ -15,4 +15,18 @@
             <ui:VisualElement name="GaugeFill" class="hud__gauge-fill" />
         </ui:VisualElement>
     </ui:VisualElement>
+
+    <ui:VisualElement name="TitleScreen" class="title-screen" style="display: none;">
+        <ui:Label name="TitleLabel" text="POLARITY" class="title-screen__label" />
+        <ui:Button name="TitleStartButton" text="START" class="title-screen__button" />
+    </ui:VisualElement>
+
+    <ui:VisualElement name="ResultScreen" class="result-screen" style="display: none;">
+        <ui:Label name="ResultTitleLabel" text="GAME OVER" class="result-screen__title" />
+        <ui:Label name="ResultScoreLabel" text="0" class="result-screen__score" />
+        <ui:VisualElement class="result-screen__button-group">
+            <ui:Button name="RetryButton" text="RETRY" class="result-screen__button" />
+            <ui:Button name="TitleButton" text="TITLE" class="result-screen__button" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>

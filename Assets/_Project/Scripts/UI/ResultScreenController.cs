@@ -8,12 +8,20 @@ namespace Action002.UI
     [RequireComponent(typeof(UIDocument))]
     public class ResultScreenController : MonoBehaviour
     {
-        [Header("Events")]
+        [Header("Events (subscribe)")]
+        [SerializeField] private IntEventChannelSO onGamePhaseChanged;
+
+        [Header("Variables (read)")]
+        [SerializeField] private IntVariableSO scoreVar;
+        [SerializeField] private IntVariableSO resultTypeVar;
+
+        [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onResultRetrySelected;
         [SerializeField] private VoidEventChannelSO onResultBackToTitleSelected;
 
         private UIDocument uiDocument;
-        private VisualElement root;
+        private VisualElement resultScreenRoot;
+        private Label resultTypeLabel;
         private Label resultLabel;
         private Label scoreLabel;
         private Button retryButton;
@@ -28,23 +36,33 @@ namespace Action002.UI
         {
             if (uiDocument == null) return;
 
-            root = uiDocument.rootVisualElement;
+            var root = uiDocument.rootVisualElement;
+            resultScreenRoot = root.Q<VisualElement>("ResultScreen");
+            if (resultScreenRoot == null)
+            {
+                Debug.LogError($"[{GetType().Name}] ResultScreen panel not found in UIDocument on {gameObject.name}.", this);
+                return;
+            }
 
-            retryButton = root.Q<Button>("RetryButton");
+            retryButton = resultScreenRoot.Q<Button>("RetryButton");
             if (retryButton == null)
                 Debug.LogError($"[{GetType().Name}] RetryButton not found in UIDocument on {gameObject.name}.", this);
 
-            titleButton = root.Q<Button>("TitleButton");
+            titleButton = resultScreenRoot.Q<Button>("TitleButton");
             if (titleButton == null)
                 Debug.LogError($"[{GetType().Name}] TitleButton not found in UIDocument on {gameObject.name}.", this);
 
-            resultLabel = root.Q<Label>("ResultLabel");
-            if (resultLabel == null)
-                Debug.LogError($"[{GetType().Name}] ResultLabel not found in UIDocument on {gameObject.name}.", this);
+            resultTypeLabel = resultScreenRoot.Q<Label>("ResultTypeLabel");
+            if (resultTypeLabel == null)
+                Debug.LogError($"[{GetType().Name}] ResultTypeLabel not found in UIDocument on {gameObject.name}.", this);
 
-            scoreLabel = root.Q<Label>("ScoreLabel");
+            resultLabel = resultScreenRoot.Q<Label>("ResultTitleLabel");
+            if (resultLabel == null)
+                Debug.LogError($"[{GetType().Name}] ResultTitleLabel not found in UIDocument on {gameObject.name}.", this);
+
+            scoreLabel = resultScreenRoot.Q<Label>("ResultScoreLabel");
             if (scoreLabel == null)
-                Debug.LogError($"[{GetType().Name}] ScoreLabel not found in UIDocument on {gameObject.name}.", this);
+                Debug.LogError($"[{GetType().Name}] ResultScoreLabel not found in UIDocument on {gameObject.name}.", this);
 
             if (retryButton != null)
                 retryButton.clicked += OnRetryClicked;
@@ -52,7 +70,10 @@ namespace Action002.UI
             if (titleButton != null)
                 titleButton.clicked += OnTitleClicked;
 
-            Hide();
+            if (onGamePhaseChanged != null)
+                onGamePhaseChanged.OnEventRaised += HandleGamePhaseChanged;
+
+            Show();
         }
 
         private void OnDisable()
@@ -62,49 +83,74 @@ namespace Action002.UI
 
             if (titleButton != null)
                 titleButton.clicked -= OnTitleClicked;
+
+            if (onGamePhaseChanged != null)
+                onGamePhaseChanged.OnEventRaised -= HandleGamePhaseChanged;
         }
 
-        public void Show(GameResultType resultType, int score)
+        private void HandleGamePhaseChanged(int phase)
         {
-            if (root != null)
-                root.style.display = DisplayStyle.Flex;
+            if (phase == (int)GamePhase.Result)
+                Show();
+            else
+                Hide();
+        }
+
+        private void Show()
+        {
+            if (resultScreenRoot == null) return;
+
+            resultScreenRoot.style.display = DisplayStyle.Flex;
+
+            if (resultTypeVar == null)
+                Debug.LogError($"[{GetType().Name}] resultTypeVar is null on {gameObject.name}. Defaulting to GameOver.", this);
+
+            int resultType = resultTypeVar != null ? resultTypeVar.Value : (int)GameResultType.GameOver;
+            bool isClear = resultType == (int)GameResultType.Clear;
+
+            if (!isClear && resultType != (int)GameResultType.GameOver)
+                Debug.LogWarning($"[{GetType().Name}] Unknown resultType={resultType} on {gameObject.name}. Defaulting to GameOver.", this);
+
+            resultScreenRoot.RemoveFromClassList("result-screen--gameover");
+            resultScreenRoot.RemoveFromClassList("result-screen--clear");
+            resultScreenRoot.AddToClassList(isClear ? "result-screen--clear" : "result-screen--gameover");
+
+            if (resultTypeLabel != null)
+                resultTypeLabel.text = isClear ? "STAGE CLEAR" : "GAME OVER";
 
             if (resultLabel != null)
-            {
-                resultLabel.text = resultType switch
-                {
-                    GameResultType.Clear => "STAGE CLEAR",
-                    GameResultType.GameOver => "GAME OVER",
-                    _ => ""
-                };
-            }
+                resultLabel.text = isClear ? "RESONANCE HELD" : "POLARITY COLLAPSED";
 
             if (scoreLabel != null)
-                scoreLabel.text = score.ToString();
+                scoreLabel.text = scoreVar != null ? scoreVar.Value.ToString() : "0";
         }
 
-        public void Hide()
+        private void Hide()
         {
-            if (root != null)
-                root.style.display = DisplayStyle.None;
+            if (resultScreenRoot == null) return;
+
+            resultScreenRoot.style.display = DisplayStyle.None;
+            resultScreenRoot.RemoveFromClassList("result-screen--gameover");
+            resultScreenRoot.RemoveFromClassList("result-screen--clear");
         }
 
         private void OnRetryClicked()
         {
-            if (onResultRetrySelected != null)
-                onResultRetrySelected.RaiseEvent();
+            onResultRetrySelected?.RaiseEvent();
         }
 
         private void OnTitleClicked()
         {
-            if (onResultBackToTitleSelected != null)
-                onResultBackToTitleSelected.RaiseEvent();
+            onResultBackToTitleSelected?.RaiseEvent();
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             if (GetComponent<UIDocument>() == null) Debug.LogWarning($"[{GetType().Name}] UIDocument component missing on {gameObject.name}.", this);
+            if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
+            if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
+            if (resultTypeVar == null) Debug.LogWarning($"[{GetType().Name}] resultTypeVar not assigned on {gameObject.name}.", this);
             if (onResultRetrySelected == null) Debug.LogWarning($"[{GetType().Name}] onResultRetrySelected not assigned on {gameObject.name}.", this);
             if (onResultBackToTitleSelected == null) Debug.LogWarning($"[{GetType().Name}] onResultBackToTitleSelected not assigned on {gameObject.name}.", this);
         }

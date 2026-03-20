@@ -13,37 +13,37 @@ namespace Action002.Audio.Systems
         [Header("Audio")]
         [SerializeField] private AudioSource bgmSource;
 
-        private double _startDspTime;
-        private float _secondsPerHalfBeat;
-        private int _currentHalfBeatIndex;
-        private int _previousHalfBeatIndex = -1;
-        private bool _isPlaying;
+        private double startDspTime;
+        private float secondsPerHalfBeat;
+        private int currentHalfBeatIndex;
+        private int previousHalfBeatIndex = -1;
+        private bool isPlaying;
 
-        public int CurrentHalfBeatIndex => _currentHalfBeatIndex;
-        public bool IsPlaying => _isPlaying;
-        public float SecondsPerHalfBeat => _secondsPerHalfBeat;
+        public int CurrentHalfBeatIndex => currentHalfBeatIndex;
+        public bool IsPlaying => isPlaying;
+        public float SecondsPerHalfBeat => secondsPerHalfBeat;
 
         public void StartClock()
         {
             if (config == null) return;
-            _secondsPerHalfBeat = BeatClockCalculator.SecondsPerHalfBeat(config.Bpm);
-            if (_secondsPerHalfBeat <= 0f)
+            secondsPerHalfBeat = BeatClockCalculator.SecondsPerHalfBeat(config.Bpm);
+            if (secondsPerHalfBeat <= 0f)
             {
                 Debug.LogError($"[{GetType().Name}] Invalid BPM config. Clock not started.", this);
                 return;
             }
-            _startDspTime = AudioSettings.dspTime + config.StartOffset;
-            _previousHalfBeatIndex = -1;
-            _currentHalfBeatIndex = 0;
-            _isPlaying = true;
+            startDspTime = AudioSettings.dspTime + config.StartOffset;
+            previousHalfBeatIndex = -1;
+            currentHalfBeatIndex = 0;
+            isPlaying = true;
 
             if (bgmSource != null)
-                bgmSource.PlayScheduled(_startDspTime);
+                bgmSource.PlayScheduled(startDspTime);
         }
 
         public void StopClock()
         {
-            _isPlaying = false;
+            isPlaying = false;
             if (bgmSource != null)
                 bgmSource.Stop();
         }
@@ -51,37 +51,37 @@ namespace Action002.Audio.Systems
         // Called by GameLoopManager in LateUpdate, before attack systems
         public void ProcessClock()
         {
-            if (!_isPlaying || config == null) return;
+            if (!isPlaying || config == null) return;
 
-            double songTime = AudioSettings.dspTime - _startDspTime;
+            double songTime = AudioSettings.dspTime - startDspTime;
             if (songTime < 0) return; // not started yet
 
-            _previousHalfBeatIndex = _currentHalfBeatIndex;
-            _currentHalfBeatIndex = BeatClockCalculator.GetHalfBeatIndex(songTime, _secondsPerHalfBeat);
+            previousHalfBeatIndex = currentHalfBeatIndex;
+            currentHalfBeatIndex = BeatClockCalculator.GetHalfBeatIndex(songTime, secondsPerHalfBeat);
         }
 
         // For attack systems to check if they should fire
         public bool ShouldFireOnDownbeat(ref int lastConsumedIndex)
         {
-            if (!_isPlaying) return false;
-            bool result = BeatGateCalculator.ShouldFireOnDownbeat(_currentHalfBeatIndex, lastConsumedIndex);
-            if (result) lastConsumedIndex = _currentHalfBeatIndex;
+            if (!isPlaying) return false;
+            bool result = BeatGateCalculator.ShouldFireOnDownbeat(currentHalfBeatIndex, lastConsumedIndex);
+            if (result) lastConsumedIndex = currentHalfBeatIndex;
             return result;
         }
 
         public bool ShouldFireOnOffbeat(ref int lastConsumedIndex)
         {
-            if (!_isPlaying) return false;
-            bool result = BeatGateCalculator.ShouldFireOnOffbeat(_currentHalfBeatIndex, lastConsumedIndex);
-            if (result) lastConsumedIndex = _currentHalfBeatIndex;
+            if (!isPlaying) return false;
+            bool result = BeatGateCalculator.ShouldFireOnOffbeat(currentHalfBeatIndex, lastConsumedIndex);
+            if (result) lastConsumedIndex = currentHalfBeatIndex;
             return result;
         }
 
         public void ResetForNewRun()
         {
             StopClock();
-            _previousHalfBeatIndex = -1;
-            _currentHalfBeatIndex = 0;
+            previousHalfBeatIndex = -1;
+            currentHalfBeatIndex = 0;
         }
 
 #if UNITY_EDITOR

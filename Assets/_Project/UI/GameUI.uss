@@ -5,6 +5,16 @@
     --color-accent: #6688FF;
     --color-gauge-track: rgba(255, 255, 255, 0.08);
     --color-gauge-fill: #6688FF;
+
+    --color-gameover: #FF4466;
+    --color-gameover-bg: rgba(255, 68, 102, 0.1);
+    --color-clear: #66FFCC;
+    --color-clear-title: rgba(180, 255, 220, 0.98);
+    --color-clear-bg: rgba(102, 255, 204, 0.1);
+    --color-result-overlay: rgba(5, 5, 15, 0.94);
+
+    --hud-font-size: 22px;
+    --hud-font-size-small: 18px;
 }
 
 .hud {
@@ -45,14 +55,14 @@
 }
 
 .hud__score {
-    font-size: 22px;
+    font-size: var(--hud-font-size);
     color: var(--color-text);
     -unity-font-style: bold;
     -unity-text-align: upper-right;
 }
 
 .hud__combo {
-    font-size: 18px;
+    font-size: var(--hud-font-size-small);
     color: var(--color-accent);
     -unity-font-style: bold;
     -unity-text-align: upper-right;
@@ -78,4 +88,180 @@
     background-color: var(--color-gauge-fill);
     transition-duration: 0.15s;
     transition-property: width;
+}
+
+/* === Title Screen === */
+.title-screen {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    padding: 48px 40px;
+    background-color: rgba(5, 5, 15, 0.0);
+}
+
+.title-screen__header {
+    align-items: center;
+    margin-bottom: 36px;
+}
+
+.title-screen__title {
+    font-size: 64px;
+    -unity-font-style: bold;
+    letter-spacing: 8px;
+    color: var(--color-text);
+    -unity-text-align: middle-center;
+    margin-bottom: 4px;
+}
+
+.title-screen__subtitle {
+    font-size: 18px;
+    letter-spacing: 6px;
+    color: var(--color-accent);
+    -unity-text-align: middle-center;
+    opacity: 0.6;
+}
+
+.title-screen__bar {
+    width: 48px;
+    height: 1px;
+    background-color: var(--color-accent);
+    opacity: 0.3;
+    margin-bottom: 36px;
+}
+
+.title-screen__button {
+    font-size: 18px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    color: var(--color-text);
+    background-color: transparent;
+    border-width: 1px;
+    border-color: var(--color-accent);
+    border-radius: 2px;
+    padding: 10px 48px;
+}
+
+/* === Result Screen === */
+.result-screen {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--color-result-overlay);
+    padding: 40px 32px;
+}
+
+.result-screen__bar {
+    width: 100%;
+    height: 1px;
+    background-color: var(--color-accent);
+    opacity: 0.3;
+    margin: 20px 0;
+}
+
+.result-screen__bar--narrow {
+    width: 64px;
+    margin: 20px 0 14px 0;
+    opacity: 0.5;
+}
+
+.result-screen__type {
+    font-size: 18px;
+    letter-spacing: 4px;
+    color: var(--color-accent);
+    -unity-font-style: bold;
+    -unity-text-align: middle-center;
+    opacity: 0.7;
+    margin-bottom: 10px;
+}
+
+.result-screen__title {
+    font-size: 48px;
+    -unity-font-style: bold;
+    letter-spacing: 2px;
+    color: var(--color-text);
+    -unity-text-align: middle-center;
+}
+
+.result-screen__score-caption {
+    font-size: 18px;
+    letter-spacing: 3px;
+    color: var(--color-text);
+    -unity-text-align: middle-center;
+    opacity: 0.35;
+    margin-bottom: 4px;
+}
+
+.result-screen__score {
+    font-size: 44px;
+    -unity-font-style: bold;
+    color: var(--color-text);
+    -unity-text-align: middle-center;
+    margin-bottom: 32px;
+}
+
+.result-screen__button-group {
+    flex-direction: column;
+    align-items: center;
+}
+
+.result-screen__button {
+    font-size: 18px;
+    letter-spacing: 4px;
+    -unity-font-style: bold;
+    color: var(--color-text);
+    background-color: transparent;
+    border-width: 0;
+    border-radius: 2px;
+    padding: 10px 48px;
+    margin: 4px 0;
+}
+
+.result-screen__button--primary {
+    border-width: 1px;
+    border-color: var(--color-accent);
+    background-color: rgba(102, 136, 255, 0.1);
+}
+
+.result-screen__button--ghost {
+    opacity: 0.4;
+}
+
+/* === Result Screen: GameOver variant === */
+.result-screen--gameover .result-screen__bar {
+    background-color: var(--color-gameover);
+}
+
+.result-screen--gameover .result-screen__type {
+    color: var(--color-gameover);
+}
+
+.result-screen--gameover .result-screen__button--primary {
+    border-color: var(--color-gameover);
+    background-color: var(--color-gameover-bg);
+}
+
+/* === Result Screen: Clear variant === */
+.result-screen--clear .result-screen__bar {
+    background-color: var(--color-clear);
+}
+
+.result-screen--clear .result-screen__type {
+    color: var(--color-clear);
+}
+
+.result-screen--clear .result-screen__title {
+    color: var(--color-clear-title);
+}
+
+.result-screen--clear .result-screen__button--primary {
+    border-color: var(--color-clear);
+    background-color: var(--color-clear-bg);
 }
