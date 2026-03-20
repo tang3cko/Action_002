@@ -210,9 +210,7 @@ namespace Action002.Tests.Player
 
         private class StubRhythmClock : IRhythmClock
         {
-            public bool IsPlaying => true;
             public int CurrentHalfBeatIndex { get; set; }
-            public float SecondsPerHalfBeat => 0.167f;
             public bool ShouldFireResult { get; set; }
 
             public bool StartClock() { return true; }

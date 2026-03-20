@@ -40,13 +40,6 @@ namespace Action002.Tests.Core
             return so;
         }
 
-        private GameObject CreateGameObject(string name = "TestObject")
-        {
-            var go = new GameObject(name);
-            disposables.Add(go);
-            return go;
-        }
-
         /// <summary>
         /// Sets a private serialized field on a ScriptableObject via reflection.
         /// </summary>
@@ -64,19 +57,6 @@ namespace Action002.Tests.Core
                 type = type.BaseType;
             }
             Assert.Fail($"Field '{fieldName}' not found on {target.GetType().Name} or its base types.");
-        }
-
-        private static T GetField<T>(object target, string fieldName)
-        {
-            var type = target.GetType();
-            while (type != null)
-            {
-                var field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                if (field != null) return (T)field.GetValue(target);
-                type = type.BaseType;
-            }
-            Assert.Fail($"Field '{fieldName}' not found on {target.GetType().Name}");
-            return default;
         }
 
         #region Phase Change Events

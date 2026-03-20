@@ -83,7 +83,7 @@ namespace Action002.Player.Systems
                 Position = new float2(transform.position.x, transform.position.y),
                 CurrentPolarity = Polarity.White,
                 Hp = gameConfig.MaxHp,
-                MaxHp = gameConfig.MaxHp,
+
                 ComboMultiplier = 1f,
             };
             hasGameOverFired = false;
@@ -165,7 +165,7 @@ namespace Action002.Player.Systems
                 Position = float2.zero,
                 CurrentPolarity = Polarity.White,
                 Hp = gameConfig.MaxHp,
-                MaxHp = gameConfig.MaxHp,
+
                 ComboMultiplier = 1f,
             };
             hasGameOverFired = false;

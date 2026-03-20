@@ -54,38 +54,10 @@ namespace Action002.Tests.Audio
         }
 
         [Test]
-        public void SecondsPerBeat_120BPM_ReturnsHalf()
-        {
-            float result = BeatClockCalculator.SecondsPerBeat(120f);
-            Assert.That(result, Is.EqualTo(0.5f));
-        }
-
-        [Test]
         public void SecondsPerHalfBeat_120BPM_ReturnsQuarter()
         {
             float result = BeatClockCalculator.SecondsPerHalfBeat(120f);
             Assert.That(result, Is.EqualTo(0.25f));
-        }
-
-        [Test]
-        public void GetHalfBeatPhase_MidPoint_ReturnsHalf()
-        {
-            float result = BeatClockCalculator.GetHalfBeatPhase(0.125, 0.25f);
-            Assert.That(result, Is.EqualTo(0.5f).Within(0.001f));
-        }
-
-        [Test]
-        public void SecondsPerBeat_ZeroBPM_ReturnsSafeDefault()
-        {
-            float result = BeatClockCalculator.SecondsPerBeat(0f);
-            Assert.That(result, Is.EqualTo(0.5f));
-        }
-
-        [Test]
-        public void SecondsPerBeat_NegativeBPM_ReturnsSafeDefault()
-        {
-            float result = BeatClockCalculator.SecondsPerBeat(-10f);
-            Assert.That(result, Is.EqualTo(0.5f));
         }
 
         [Test]

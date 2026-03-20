@@ -8,7 +8,6 @@ namespace Action002.Player.Data
         public float2 Position;
         public Polarity CurrentPolarity;
         public int Hp;
-        public int MaxHp;
         public float InvincibleTimer;
         public int ComboCount;
         public float ComboTimer;

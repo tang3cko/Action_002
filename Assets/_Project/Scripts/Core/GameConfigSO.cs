@@ -8,7 +8,6 @@ namespace Action002.Core
         [Header("Player")]
         [SerializeField] private float moveSpeed = 5f;
         [SerializeField] private int maxHp = 5;
-        [SerializeField] private float attackInterval = 0.2f;
         [SerializeField] private float invincibleDuration = 1f;
 
         [Header("Combo")]
@@ -35,7 +34,6 @@ namespace Action002.Core
 
         public float MoveSpeed => moveSpeed;
         public int MaxHp => maxHp;
-        public float AttackInterval => attackInterval;
         public float InvincibleDuration => invincibleDuration;
         public float ComboMultiplierStep => comboMultiplierStep;
         public float ComboTimeout => comboTimeout;

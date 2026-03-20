@@ -12,7 +12,6 @@ namespace Action002.Audio.Systems
         private double startDspTime;
         private float secondsPerHalfBeat;
         private int currentHalfBeatIndex;
-        private int previousHalfBeatIndex = -1;
         private bool isPlaying;
 
         public int CurrentHalfBeatIndex => currentHalfBeatIndex;
@@ -44,7 +43,6 @@ namespace Action002.Audio.Systems
                 return false;
             }
             startDspTime = dspTimeSource() + config.StartOffset;
-            previousHalfBeatIndex = -1;
             currentHalfBeatIndex = 0;
             isPlaying = true;
             return true;
@@ -62,7 +60,6 @@ namespace Action002.Audio.Systems
             double songTime = dspTimeSource() - startDspTime;
             if (songTime < 0) return;
 
-            previousHalfBeatIndex = currentHalfBeatIndex;
             currentHalfBeatIndex = BeatClockCalculator.GetHalfBeatIndex(songTime, secondsPerHalfBeat);
         }
 
@@ -85,7 +82,6 @@ namespace Action002.Audio.Systems
         public void ResetForNewRun()
         {
             StopClock();
-            previousHalfBeatIndex = -1;
             currentHalfBeatIndex = 0;
         }
     }
