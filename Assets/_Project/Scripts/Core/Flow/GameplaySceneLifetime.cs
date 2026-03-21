@@ -1,9 +1,7 @@
 using UnityEngine;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
-using Action002.Bullet.Systems;
 using Action002.Enemy.Data;
-using Action002.Enemy.Systems;
 using Action002.Input;
 using Tang3cko.ReactiveSO;
 
@@ -21,8 +19,6 @@ namespace Action002.Core.Flow
         [Header("Systems")]
         [SerializeField] private GameLoopManager gameLoopManager;
         [SerializeField] private RhythmClockSystem rhythmClockSystem;
-        [SerializeField] private EnemySpawnSystem enemySpawnSystem;
-        [SerializeField] private EnemyShootSystem enemyShootSystem;
 
         [Header("Variables (reset)")]
         [SerializeField] private IntVariableSO playerHpVar;
@@ -66,8 +62,6 @@ namespace Action002.Core.Flow
         void IGameplayStartupActions.ResetForNewRun()
         {
             if (rhythmClockSystem != null) rhythmClockSystem.ResetForNewRun();
-            if (enemySpawnSystem != null) enemySpawnSystem.ResetForNewRun();
-            if (enemyShootSystem != null) enemyShootSystem.ResetForNewRun();
         }
 
         bool IGameplayStartupActions.StartClock()
@@ -110,8 +104,6 @@ namespace Action002.Core.Flow
             if (inputReader == null) Debug.LogWarning($"[{GetType().Name}] inputReader not assigned on {gameObject.name}.", this);
             if (gameLoopManager == null) Debug.LogWarning($"[{GetType().Name}] gameLoopManager not assigned on {gameObject.name}.", this);
             if (rhythmClockSystem == null) Debug.LogWarning($"[{GetType().Name}] rhythmClockSystem not assigned on {gameObject.name}.", this);
-            if (enemySpawnSystem == null) Debug.LogWarning($"[{GetType().Name}] enemySpawnSystem not assigned on {gameObject.name}.", this);
-            if (enemyShootSystem == null) Debug.LogWarning($"[{GetType().Name}] enemyShootSystem not assigned on {gameObject.name}.", this);
             if (playerHpVar == null) Debug.LogWarning($"[{GetType().Name}] playerHpVar not assigned on {gameObject.name}.", this);
             if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
             if (comboCountVar == null) Debug.LogWarning($"[{GetType().Name}] comboCountVar not assigned on {gameObject.name}.", this);

@@ -214,7 +214,6 @@ GameObject:
   - component: {fileID: 445281357}
   - component: {fileID: 445281356}
   - component: {fileID: 445281355}
-  - component: {fileID: 445281354}
   m_Layer: 0
   m_Name: Systems
   m_TagString: Untagged
@@ -222,20 +221,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &445281354
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 445281353}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 41fdacf234cbf4fe68b183db95aa69ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Action002::Action002.Audio.Systems.BgmPlayer
-  bgmSource: {fileID: 445281355}
-  config: {fileID: 11400000, guid: 68bd4f2f35f0543d59efe7141e220ca1, type: 2}
 --- !u!82 &445281355
 AudioSource:
   m_ObjectHideFlags: 0
@@ -430,10 +415,7 @@ MonoBehaviour:
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   rhythmClock: {fileID: 445281356}
   playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
-  bulletSpeed: 3
-  bulletScoreValue: 10
   maxBulletsPerOffbeat: 100
-  enemyShootCooldown: 1
 --- !u!114 &445281361
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -854,7 +836,6 @@ MonoBehaviour:
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   whiteMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
   blackMaterial: {fileID: 2100000, guid: 744eb16403af94bf0aa2aedd4dc933ee, type: 2}
-  enemySize: 0.8
   whiteOutlineMaterial: {fileID: 2100000, guid: 4155589bd7e094f1db4da5a75b64d2d9, type: 2}
   blackOutlineMaterial: {fileID: 2100000, guid: 38a37c95a09344758bbfdaff97da824c, type: 2}
   outlineScale: 1.3
