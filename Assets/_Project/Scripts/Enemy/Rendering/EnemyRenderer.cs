@@ -1,9 +1,7 @@
 using UnityEngine;
-using Unity.Mathematics;
 using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Visual;
-using Tang3cko.ReactiveSO;
 
 namespace Action002.Enemy.Rendering
 {
@@ -14,55 +12,72 @@ namespace Action002.Enemy.Rendering
 
         [Header("Rendering")]
         [SerializeField] private Mesh quadMesh;
-        [SerializeField] private Material whiteMaterial;
-        [SerializeField] private Material blackMaterial;
+        [SerializeField] private Material baseMaterial;
+
+        [Header("Visual Config")]
+        [SerializeField] private EnemyVisualConfigSO visualConfig;
 
         [Header("Outline")]
-        [SerializeField] private Material whiteOutlineMaterial;
-        [SerializeField] private Material blackOutlineMaterial;
         [SerializeField] private float outlineScale = 1.3f;
 
         private const int BatchSize = 1023;
-        private Matrix4x4[] whiteMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] blackMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] whiteOutlineMatrices = new Matrix4x4[BatchSize];
-        private Matrix4x4[] blackOutlineMatrices = new Matrix4x4[BatchSize];
-        private Texture2D generatedTexture;
+
+        private Material bodyMaterial;
+        private Material outlineMaterial;
+        private Texture2D fallbackTexture;
+        private MaterialPropertyBlock bodyBlock;
+        private MaterialPropertyBlock outlineBlock;
+
+        // Per EnemyTypeId × Polarity batch arrays
+        private Matrix4x4[][] bodyBatches;
+        private Matrix4x4[][] outlineBatches;
+        private int[] bodyCounts;
+        private int[] outlineCounts;
+        private int typeCount;
+
+        private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
+        private static readonly int ColorId = Shader.PropertyToID("_BaseColor");
 
         private void Start()
         {
-            generatedTexture = DiamondTextureGenerator.Create(64);
-            if (whiteMaterial != null)
+            fallbackTexture = DiamondTextureGenerator.Create(64);
+
+            if (baseMaterial != null)
             {
-                whiteMaterial = Instantiate(whiteMaterial);
-                SetupMaterialAlphaClip(whiteMaterial, generatedTexture);
+                bodyMaterial = Instantiate(baseMaterial);
+                SetupMaterialAlphaClip(bodyMaterial, fallbackTexture);
+
+                outlineMaterial = Instantiate(baseMaterial);
+                SetupMaterialAlphaClip(outlineMaterial, fallbackTexture);
+                outlineMaterial.SetFloat("_ZWrite", 0f);
             }
-            if (blackMaterial != null)
+
+            bodyBlock = new MaterialPropertyBlock();
+            outlineBlock = new MaterialPropertyBlock();
+
+            var typeValues = System.Enum.GetValues(typeof(EnemyTypeId));
+            int maxTypeIndex = 0;
+            foreach (EnemyTypeId id in typeValues)
+                if ((int)id > maxTypeIndex) maxTypeIndex = (int)id;
+            typeCount = maxTypeIndex + 1;
+            // 2 polarities per type
+            int slotCount = typeCount * 2;
+            bodyBatches = new Matrix4x4[slotCount][];
+            outlineBatches = new Matrix4x4[slotCount][];
+            bodyCounts = new int[slotCount];
+            outlineCounts = new int[slotCount];
+            for (int i = 0; i < slotCount; i++)
             {
-                blackMaterial = Instantiate(blackMaterial);
-                SetupMaterialAlphaClip(blackMaterial, generatedTexture);
-            }
-            if (whiteOutlineMaterial != null)
-            {
-                whiteOutlineMaterial = Instantiate(whiteOutlineMaterial);
-                SetupMaterialAlphaClip(whiteOutlineMaterial, generatedTexture);
-                whiteOutlineMaterial.SetFloat("_ZWrite", 0f);
-            }
-            if (blackOutlineMaterial != null)
-            {
-                blackOutlineMaterial = Instantiate(blackOutlineMaterial);
-                SetupMaterialAlphaClip(blackOutlineMaterial, generatedTexture);
-                blackOutlineMaterial.SetFloat("_ZWrite", 0f);
+                bodyBatches[i] = new Matrix4x4[BatchSize];
+                outlineBatches[i] = new Matrix4x4[BatchSize];
             }
         }
 
         private void OnDestroy()
         {
-            if (generatedTexture != null) Destroy(generatedTexture);
-            if (whiteMaterial != null) Destroy(whiteMaterial);
-            if (blackMaterial != null) Destroy(blackMaterial);
-            if (whiteOutlineMaterial != null) Destroy(whiteOutlineMaterial);
-            if (blackOutlineMaterial != null) Destroy(blackOutlineMaterial);
+            if (fallbackTexture != null) Destroy(fallbackTexture);
+            if (bodyMaterial != null) Destroy(bodyMaterial);
+            if (outlineMaterial != null) Destroy(outlineMaterial);
         }
 
         private static void SetupMaterialAlphaClip(Material mat, Texture2D tex)
@@ -78,78 +93,100 @@ namespace Action002.Enemy.Rendering
         private void LateUpdate()
         {
             if (enemySet == null || enemySet.Count == 0) return;
+            if (bodyMaterial == null || outlineMaterial == null || quadMesh == null) return;
 
-            int whiteCount = 0;
-            int blackCount = 0;
-            int whiteOutlineCount = 0;
-            int blackOutlineCount = 0;
+            int slotCount = typeCount * 2;
+            for (int i = 0; i < slotCount; i++)
+            {
+                bodyCounts[i] = 0;
+                outlineCounts[i] = 0;
+            }
+
             var data = enemySet.Data;
 
             for (int i = 0; i < data.Length; i++)
             {
                 var state = data[i];
+                int typeIndex = (int)state.TypeId;
+                int polarityBit = state.Polarity == 0 ? 0 : 1;
+                int slot = typeIndex * 2 + polarityBit;
+
                 float size = EnemyTypeTable.Get(state.TypeId).VisualScale;
                 float outlineSizeValue = size * outlineScale;
+
                 var bodyMatrix = Matrix4x4.TRS(
-                    new Vector3(state.Position.x, state.Position.y, 0f),
+                    new Vector3(state.Position.x, state.Position.y, 0.04f),
                     Quaternion.identity,
                     Vector3.one * size
                 );
-                var outlineMatrix = Matrix4x4.TRS(
-                    new Vector3(state.Position.x, state.Position.y, 0.05f),
+                var outMatrix = Matrix4x4.TRS(
+                    new Vector3(state.Position.x, state.Position.y, 0.06f),
                     Quaternion.identity,
                     Vector3.one * outlineSizeValue
                 );
 
-                if (state.Polarity == 0) // White
+                bodyBatches[slot][bodyCounts[slot]++] = bodyMatrix;
+                if (bodyCounts[slot] == BatchSize)
                 {
-                    whiteMatrices[whiteCount++] = bodyMatrix;
-                    if (whiteCount == BatchSize)
-                    {
-                        if (quadMesh != null && whiteMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, whiteMatrices, whiteCount);
-                        whiteCount = 0;
-                    }
-
-                    whiteOutlineMatrices[whiteOutlineCount++] = outlineMatrix;
-                    if (whiteOutlineCount == BatchSize)
-                    {
-                        if (quadMesh != null && whiteOutlineMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, whiteOutlineMatrices, whiteOutlineCount);
-                        whiteOutlineCount = 0;
-                    }
+                    FlushBody(slot);
+                    bodyCounts[slot] = 0;
                 }
-                else // Black
-                {
-                    blackMatrices[blackCount++] = bodyMatrix;
-                    if (blackCount == BatchSize)
-                    {
-                        if (quadMesh != null && blackMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, blackMatrices, blackCount);
-                        blackCount = 0;
-                    }
 
-                    blackOutlineMatrices[blackOutlineCount++] = outlineMatrix;
-                    if (blackOutlineCount == BatchSize)
-                    {
-                        if (quadMesh != null && blackOutlineMaterial != null)
-                            Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, blackOutlineMatrices, blackOutlineCount);
-                        blackOutlineCount = 0;
-                    }
+                outlineBatches[slot][outlineCounts[slot]++] = outMatrix;
+                if (outlineCounts[slot] == BatchSize)
+                {
+                    FlushOutline(slot);
+                    outlineCounts[slot] = 0;
                 }
             }
 
-            // Draw outlines BEFORE bodies (outlines are behind at z=0.05)
-            if (whiteOutlineCount > 0 && whiteOutlineMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, whiteOutlineMaterial, whiteOutlineMatrices, whiteOutlineCount);
-            if (blackOutlineCount > 0 && blackOutlineMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, blackOutlineMaterial, blackOutlineMatrices, blackOutlineCount);
+            // Draw outlines first (behind bodies)
+            for (int slot = 0; slot < slotCount; slot++)
+            {
+                if (outlineCounts[slot] > 0)
+                    FlushOutline(slot);
+            }
 
             // Draw bodies on top
-            if (whiteCount > 0 && whiteMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, whiteMaterial, whiteMatrices, whiteCount);
-            if (blackCount > 0 && blackMaterial != null && quadMesh != null)
-                Graphics.DrawMeshInstanced(quadMesh, 0, blackMaterial, blackMatrices, blackCount);
+            for (int slot = 0; slot < slotCount; slot++)
+            {
+                if (bodyCounts[slot] > 0)
+                    FlushBody(slot);
+            }
+        }
+
+        private void FlushBody(int slot)
+        {
+            int typeIndex = slot / 2;
+            int polarityBit = slot % 2;
+
+            Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
+            bodyBlock.SetTexture(MainTexId, tex);
+            bodyBlock.SetColor(ColorId, PolarityColors.GetForeground(polarityBit));
+
+            Graphics.DrawMeshInstanced(quadMesh, 0, bodyMaterial, bodyBatches[slot], bodyCounts[slot], bodyBlock);
+        }
+
+        private void FlushOutline(int slot)
+        {
+            int typeIndex = slot / 2;
+            int polarityBit = slot % 2;
+
+            Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
+            outlineBlock.SetTexture(MainTexId, tex);
+            outlineBlock.SetColor(ColorId, PolarityColors.GetBackground(polarityBit));
+
+            Graphics.DrawMeshInstanced(quadMesh, 0, outlineMaterial, outlineBatches[slot], outlineCounts[slot], outlineBlock);
+        }
+
+        private Texture2D GetTextureForType(EnemyTypeId typeId)
+        {
+            if (visualConfig != null)
+            {
+                var tex = visualConfig.GetTexture(typeId);
+                if (tex != null) return tex;
+            }
+            return fallbackTexture;
         }
 
 #if UNITY_EDITOR
@@ -157,8 +194,8 @@ namespace Action002.Enemy.Rendering
         {
             if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
             if (quadMesh == null) Debug.LogWarning($"[{GetType().Name}] quadMesh not assigned on {gameObject.name}.", this);
-            if (whiteOutlineMaterial == null) Debug.LogWarning($"[{GetType().Name}] whiteOutlineMaterial not assigned on {gameObject.name}.", this);
-            if (blackOutlineMaterial == null) Debug.LogWarning($"[{GetType().Name}] blackOutlineMaterial not assigned on {gameObject.name}.", this);
+            if (baseMaterial == null) Debug.LogWarning($"[{GetType().Name}] baseMaterial not assigned on {gameObject.name}.", this);
+            if (visualConfig == null) Debug.LogWarning($"[{GetType().Name}] visualConfig not assigned on {gameObject.name}.", this);
         }
 #endif
     }

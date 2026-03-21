@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using Unity.Mathematics;
+using Action002.Bullet.Data;
 using Action002.Bullet.Logic;
 
 namespace Action002.Tests.Bullet
@@ -9,13 +10,13 @@ namespace Action002.Tests.Bullet
         [Test]
         public void IsPlayerBullet_FactionZero_ReturnsTrue()
         {
-            Assert.That(BulletCollisionCalculator.IsPlayerBullet(0), Is.True);
+            Assert.That(BulletCollisionCalculator.IsPlayerBullet(BulletFaction.Player), Is.True);
         }
 
         [Test]
         public void IsPlayerBullet_FactionOne_ReturnsFalse()
         {
-            Assert.That(BulletCollisionCalculator.IsPlayerBullet(1), Is.False);
+            Assert.That(BulletCollisionCalculator.IsPlayerBullet(BulletFaction.Enemy), Is.False);
         }
 
         [Test]

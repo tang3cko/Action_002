@@ -19,7 +19,7 @@ namespace Action002.Tests.Bullet
             Assert.That(written, Is.EqualTo(1));
             Assert.That(buf[0].Velocity.x, Is.GreaterThan(0f));
             Assert.That(buf[0].Velocity.y, Is.EqualTo(0f).Within(0.001f));
-            Assert.That(buf[0].Faction, Is.EqualTo(1));
+            Assert.That(buf[0].Faction, Is.EqualTo(BulletFaction.Enemy));
             Assert.That(buf[0].Polarity, Is.EqualTo(0));
         }
 
@@ -51,7 +51,7 @@ namespace Action002.Tests.Bullet
             // All bullets should have enemy faction and black polarity
             for (int i = 0; i < written; i++)
             {
-                Assert.That(buf[i].Faction, Is.EqualTo(1));
+                Assert.That(buf[i].Faction, Is.EqualTo(BulletFaction.Enemy));
                 Assert.That(buf[i].Polarity, Is.EqualTo(1));
             }
         }

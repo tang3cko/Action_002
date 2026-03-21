@@ -116,7 +116,7 @@ namespace Action002.Tests.Player
             attack.ProcessAttacks();
 
             var bulletData = bulletSet.Data;
-            Assert.That(bulletData[0].Faction, Is.EqualTo(0));
+            Assert.That(bulletData[0].Faction, Is.EqualTo(BulletFaction.Player));
         }
 
         [Test]

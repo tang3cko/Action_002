@@ -52,7 +52,7 @@ namespace Action002.Player.Systems
                 Velocity = direction * gameConfig.PlayerBulletSpeed,
                 ScoreValue = 0f,
                 Polarity = (byte)playerPolarityVar.Value,
-                Faction = 0,
+                Faction = BulletFaction.Player,
                 Damage = 1,
             };
 

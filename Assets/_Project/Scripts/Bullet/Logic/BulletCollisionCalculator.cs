@@ -4,9 +4,9 @@ namespace Action002.Bullet.Logic
 {
     public static class BulletCollisionCalculator
     {
-        public static bool IsPlayerBullet(byte faction)
+        public static bool IsPlayerBullet(Data.BulletFaction faction)
         {
-            return faction == 0;
+            return faction == Data.BulletFaction.Player;
         }
 
         public static bool IsWithinRadius(float2 posA, float2 posB, float radius)

@@ -174,7 +174,7 @@ namespace Action002.Tests.Bullet
 
             shooter.ProcessShooting(0f);
 
-            Assert.That(bulletSet.Data[0].Faction, Is.EqualTo(1));
+            Assert.That(bulletSet.Data[0].Faction, Is.EqualTo(BulletFaction.Enemy));
         }
 
         [Test]

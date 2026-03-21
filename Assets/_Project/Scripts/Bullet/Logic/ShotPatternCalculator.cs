@@ -45,7 +45,7 @@ namespace Action002.Bullet.Logic
                 Velocity = velocity,
                 ScoreValue = scoreValue,
                 Polarity = polarity,
-                Faction = 1,
+                Faction = BulletFaction.Enemy,
                 Damage = 1,
             };
             return 1;
@@ -80,7 +80,7 @@ namespace Action002.Bullet.Logic
                     Velocity = new float2(math.cos(angle), math.sin(angle)) * pattern.BulletSpeed,
                     ScoreValue = scoreValue,
                     Polarity = polarity,
-                    Faction = 1,
+                    Faction = BulletFaction.Enemy,
                     Damage = 1,
                 };
             }
@@ -108,7 +108,7 @@ namespace Action002.Bullet.Logic
                     Velocity = new float2(math.cos(angle), math.sin(angle)) * pattern.BulletSpeed,
                     ScoreValue = scoreValue,
                     Polarity = polarity,
-                    Faction = 1,
+                    Faction = BulletFaction.Enemy,
                     Damage = 1,
                 };
             }

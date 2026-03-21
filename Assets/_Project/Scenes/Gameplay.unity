@@ -813,13 +813,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Bullet.Rendering.BulletRenderer
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  whiteMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
-  blackMaterial: {fileID: 2100000, guid: 744eb16403af94bf0aa2aedd4dc933ee, type: 2}
-  bulletSize: 0.4
-  whiteOutlineMaterial: {fileID: 2100000, guid: 4155589bd7e094f1db4da5a75b64d2d9, type: 2}
-  blackOutlineMaterial: {fileID: 2100000, guid: 38a37c95a09344758bbfdaff97da824c, type: 2}
+  baseMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
+  visualConfig: {fileID: 11400000, guid: 5f9059f895e854c838b484b334ac6d34, type: 2}
   outlineScale: 1.4
-  playerBulletScale: 0.7
 --- !u!114 &1560037486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -834,10 +830,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Enemy.Rendering.EnemyRenderer
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
-  whiteMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
-  blackMaterial: {fileID: 2100000, guid: 744eb16403af94bf0aa2aedd4dc933ee, type: 2}
-  whiteOutlineMaterial: {fileID: 2100000, guid: 4155589bd7e094f1db4da5a75b64d2d9, type: 2}
-  blackOutlineMaterial: {fileID: 2100000, guid: 38a37c95a09344758bbfdaff97da824c, type: 2}
+  baseMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
+  visualConfig: {fileID: 11400000, guid: 6bcea781202334e92b389914098ff582, type: 2}
   outlineScale: 1.3
 --- !u!4 &1560037487
 Transform:

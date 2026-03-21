@@ -92,7 +92,7 @@ namespace Action002.Tests.Bullet
             {
                 Position = new float2(5f, 5f),
                 Velocity = new float2(0f, 1f),
-                Faction = 0,
+                Faction = BulletFaction.Player,
                 Damage = 1,
             };
             bulletSet.Register(200000, bullet);
@@ -121,7 +121,7 @@ namespace Action002.Tests.Bullet
             {
                 Position = new float2(5f, 5f),
                 Velocity = new float2(0f, 1f),
-                Faction = 0,
+                Faction = BulletFaction.Player,
                 Damage = 1,
             };
             bulletSet.Register(200000, bullet);
@@ -152,7 +152,7 @@ namespace Action002.Tests.Bullet
             {
                 Position = new float2(5f, 5f),
                 Velocity = new float2(0f, 1f),
-                Faction = 0,
+                Faction = BulletFaction.Player,
                 Damage = 1,
             };
             bulletSet.Register(200000, bullet);
@@ -179,7 +179,7 @@ namespace Action002.Tests.Bullet
             var bullet = new BulletState
             {
                 Position = new float2(5f, 5f),
-                Faction = 0,
+                Faction = BulletFaction.Player,
                 Damage = 1,
             };
             bulletSet.Register(200000, bullet);
@@ -202,7 +202,7 @@ namespace Action002.Tests.Bullet
             var bullet = new BulletState
             {
                 Position = new float2(0f, 0f),
-                Faction = 0,
+                Faction = BulletFaction.Player,
                 Damage = 1,
             };
             bulletSet.Register(200000, bullet);
@@ -236,7 +236,7 @@ namespace Action002.Tests.Bullet
                 Velocity = new float2(0f, -1f),
                 ScoreValue = 10f,
                 Polarity = (byte)Polarity.White,
-                Faction = 1,
+                Faction = BulletFaction.Enemy,
                 Damage = 1,
             };
             bulletSet.Register(100000, bullet);
@@ -259,7 +259,7 @@ namespace Action002.Tests.Bullet
             {
                 Position = new float2(0f, 0f),
                 Polarity = (byte)Polarity.Black,
-                Faction = 1,
+                Faction = BulletFaction.Enemy,
                 Damage = 1,
             };
             bulletSet.Register(100000, bullet);
@@ -282,7 +282,7 @@ namespace Action002.Tests.Bullet
             {
                 Position = new float2(100f, 100f),
                 Polarity = (byte)Polarity.White,
-                Faction = 1,
+                Faction = BulletFaction.Enemy,
                 Damage = 1,
             };
             bulletSet.Register(100000, bullet);
@@ -306,7 +306,7 @@ namespace Action002.Tests.Bullet
             {
                 Position = new float2(5f, 5f),
                 Polarity = (byte)Polarity.White,
-                Faction = 1,
+                Faction = BulletFaction.Enemy,
             };
             bulletSet.Register(100000, bullet);
 
@@ -327,8 +327,8 @@ namespace Action002.Tests.Bullet
             enemySet.Register(1, enemy1);
             enemySet.Register(2, enemy2);
 
-            var bullet1 = new BulletState { Position = new float2(1f, 0f), Faction = 0, Damage = 1 };
-            var bullet2 = new BulletState { Position = new float2(5f, 0f), Faction = 0, Damage = 1 };
+            var bullet1 = new BulletState { Position = new float2(1f, 0f), Faction = BulletFaction.Player, Damage = 1 };
+            var bullet2 = new BulletState { Position = new float2(5f, 0f), Faction = BulletFaction.Player, Damage = 1 };
             bulletSet.Register(200000, bullet1);
             bulletSet.Register(200001, bullet2);
 

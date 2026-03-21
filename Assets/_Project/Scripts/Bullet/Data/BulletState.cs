@@ -8,7 +8,7 @@ namespace Action002.Bullet.Data
         public float2 Velocity;
         public float ScoreValue;
         public byte Polarity;
-        public byte Faction;   // 0 = Player, 1 = Enemy
+        public BulletFaction Faction;
         public int Damage;
     }
 }
