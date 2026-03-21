@@ -244,9 +244,7 @@ namespace Action002.Player.Systems
         private void UpdateVisual()
         {
             if (spriteRenderer == null) return;
-            spriteRenderer.color = state.CurrentPolarity == Polarity.White
-                ? new Color(0.878f, 0.878f, 1f)
-                : new Color(0.15f, 0.15f, 0.25f);
+            spriteRenderer.color = PolarityColors.GetForeground(state.CurrentPolarity);
         }
 
         private float2 ClampPositionToViewport(float2 position)

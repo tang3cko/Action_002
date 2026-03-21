@@ -43,7 +43,7 @@ namespace Action002.UI
                 return;
             }
 
-            startButton.clicked += OnStartButtonClicked;
+            startButton.RegisterCallback<PointerUpEvent>(OnStartButtonPointerUp);
 
             if (onGamePhaseChanged != null)
                 onGamePhaseChanged.OnEventRaised += HandleGamePhaseChanged;
@@ -54,7 +54,7 @@ namespace Action002.UI
         private void OnDisable()
         {
             if (startButton != null)
-                startButton.clicked -= OnStartButtonClicked;
+                startButton.UnregisterCallback<PointerUpEvent>(OnStartButtonPointerUp);
 
             if (onGamePhaseChanged != null)
                 onGamePhaseChanged.OnEventRaised -= HandleGamePhaseChanged;
@@ -80,21 +80,11 @@ namespace Action002.UI
                 titleScreenRoot.style.display = DisplayStyle.None;
         }
 
-        private void OnStartButtonClicked()
+        private void OnStartButtonPointerUp(PointerUpEvent evt)
         {
-            if (startButton != null)
-            {
-                Vector2 transitionOrigin = GetStartButtonScreenPosition();
-                onTitleStartTransitionOriginSelected?.RaiseEvent(transitionOrigin);
-            }
-
+            Vector2 screenPosition = new Vector2(evt.position.x, Screen.height - evt.position.y);
+            onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
-        }
-
-        private Vector2 GetStartButtonScreenPosition()
-        {
-            Vector2 buttonCenter = startButton.worldBound.center;
-            return new Vector2(buttonCenter.x, Screen.height - buttonCenter.y);
         }
 
 #if UNITY_EDITOR

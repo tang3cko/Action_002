@@ -19,8 +19,8 @@ namespace Action002.Visual
         [SerializeField] private float transitionDuration = 0.4f;
         [SerializeField] private float maxScale = 60f;
 
-        private static readonly Color WhitePolarityBg = new Color(0.102f, 0.102f, 0.180f, 1f); // #1A1A2E
-        private static readonly Color BlackPolarityBg = new Color(0.941f, 0.933f, 0.902f, 1f); // #F0EEE6
+        private static Color WhitePolarityBg => PolarityColors.WhiteBackground;
+        private static Color BlackPolarityBg => PolarityColors.BlackBackground;
 
         private SpriteRenderer transitionSprite;
         private Coroutine transitionCoroutine;
