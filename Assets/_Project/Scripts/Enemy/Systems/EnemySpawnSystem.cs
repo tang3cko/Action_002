@@ -21,11 +21,28 @@ namespace Action002.Enemy.Systems
         private float spawnTimer;
         private float elapsedTime;
         private int nextId = 1;
-        private Unity.Mathematics.Random rng;
+        private int totalSpawned;
+        private Unity.Mathematics.Random spawnRng;
+        private Unity.Mathematics.Random polarityRng;
+
+        // Triangle wave budget state
+        private Polarity currentPolarity;
+        private float budgetRemaining;
+        private const float BudgetMin = 2f;
+        private const float BudgetMax = 8f;
+        private const float PeriodStart = 20f;
+        private const float PeriodEnd = 8f;
+        private const float CostShooter = 1f;
+        private const float CostNWay = 2f;
+        private const float CostRing = 3f;
 
         private void Start()
         {
-            rng = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
+            uint ticks = (uint)System.DateTime.Now.Ticks;
+            spawnRng = new Unity.Mathematics.Random(ticks == 0 ? 1 : ticks);
+            polarityRng = new Unity.Mathematics.Random((ticks ^ 0x9E3779B9) == 0 ? 1 : ticks ^ 0x9E3779B9);
+            currentPolarity = polarityRng.NextFloat() < 0.5f ? Polarity.White : Polarity.Black;
+            budgetRemaining = GetTriangleBudget(0);
         }
 
         public void ProcessSpawning()
@@ -45,14 +62,30 @@ namespace Action002.Enemy.Systems
 
         private void SpawnEnemy()
         {
-            float angle = rng.NextFloat(0f, math.PI * 2f);
-            float2 spawnPos = SpawnCalculator.GetSpawnPosition(new float2(playerPositionVar.Value.x, playerPositionVar.Value.y), gameConfig.SpawnRadius, angle);
-            Polarity polarity = SpawnCalculator.GetRandomPolarity(rng.NextFloat());
+            float angle = spawnRng.NextFloat(0f, math.PI * 2f);
+            float2 spawnPos = SpawnCalculator.GetSpawnPosition(
+                new float2(playerPositionVar.Value.x, playerPositionVar.Value.y),
+                gameConfig.SpawnRadius, angle);
 
-            var typeId = SpawnWaveCalculator.SelectType(elapsedTime, rng.NextFloat());
+            var typeId = SpawnWaveCalculator.SelectType(elapsedTime, spawnRng.NextFloat());
             var spec = EnemyTypeTable.Get(typeId);
 
-            float speedVariance = rng.NextFloat(0.8f, 1.2f);
+            // Triangle wave budget: consume cost, switch polarity when exhausted
+            float cost = GetTypeCost(typeId);
+            budgetRemaining -= cost;
+
+            Polarity polarity = currentPolarity;
+
+            if (budgetRemaining <= 0f)
+            {
+                currentPolarity = currentPolarity == Polarity.White ? Polarity.Black : Polarity.White;
+                float currentBudget = GetTriangleBudget(totalSpawned);
+                float minCost = math.min(CostShooter, math.min(CostNWay, CostRing));
+                float variance = (math.floor(polarityRng.NextFloat() * 3f) - 1f) * minCost;
+                budgetRemaining = math.max(minCost, currentBudget + variance);
+            }
+
+            float speedVariance = spawnRng.NextFloat(0.8f, 1.2f);
 
             var state = new EnemyState
             {
@@ -64,7 +97,25 @@ namespace Action002.Enemy.Systems
             };
 
             int id = nextId++;
+            totalSpawned++;
             enemySet.Register(id, state);
+        }
+
+        private static float GetTypeCost(EnemyTypeId typeId) => typeId switch
+        {
+            EnemyTypeId.NWay => CostNWay,
+            EnemyTypeId.Ring => CostRing,
+            _ => CostShooter,
+        };
+
+        private float GetTriangleBudget(int index)
+        {
+            float t = totalSpawned > 0 ? (float)index / 100f : 0f; // normalize over ~100 spawns
+            t = math.clamp(t, 0f, 1f);
+            float period = PeriodStart + (PeriodEnd - PeriodStart) * t;
+            float phase = (index % period) / period;
+            float tri = phase < 0.5f ? phase * 2f : 2f - phase * 2f;
+            return math.round(BudgetMin + tri * (BudgetMax - BudgetMin));
         }
 
         public void ResetForNewRun()
@@ -72,7 +123,12 @@ namespace Action002.Enemy.Systems
             spawnTimer = 0f;
             elapsedTime = 0f;
             nextId = 1;
-            rng = new Unity.Mathematics.Random((uint)System.DateTime.Now.Ticks);
+            totalSpawned = 0;
+            uint ticks = (uint)System.DateTime.Now.Ticks;
+            spawnRng = new Unity.Mathematics.Random(ticks == 0 ? 1 : ticks);
+            polarityRng = new Unity.Mathematics.Random((ticks ^ 0x9E3779B9) == 0 ? 1 : ticks ^ 0x9E3779B9);
+            currentPolarity = polarityRng.NextFloat() < 0.5f ? Polarity.White : Polarity.Black;
+            budgetRemaining = GetTriangleBudget(0);
         }
 
 #if UNITY_EDITOR
