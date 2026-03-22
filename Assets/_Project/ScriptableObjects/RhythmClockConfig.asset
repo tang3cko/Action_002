@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ac7f9b8cbc284ec6812e7f54cd80cdf, type: 3}
   m_Name: RhythmClockConfig
   m_EditorClassIdentifier: Action002::Action002.Audio.Data.RhythmClockConfigSO
-  bpm: 180
+  bpm: 120
   startOffset: 0

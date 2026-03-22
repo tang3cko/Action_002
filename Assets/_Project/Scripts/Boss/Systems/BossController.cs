@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Mathematics;
+using Action002.Audio.Systems;
 using Action002.Boss.Data;
 using Action002.Boss.Logic;
 using Action002.Boss.Rendering;
@@ -13,6 +14,9 @@ namespace Action002.Boss.Systems
     {
         [Header("Config")]
         [SerializeField] private BossConfigSO bossConfig;
+
+        [Header("Systems")]
+        [SerializeField] private RhythmClockSystem rhythmClock;
 
         private BossRenderer bossRenderer;
 
@@ -97,6 +101,7 @@ namespace Action002.Boss.Systems
 
             ai = new BossAI(
                 this,
+                rhythmClock,
                 phase1HpPerGuardian: bossConfig.Phase1HpPerGuardian,
                 phase2HpMagatama: bossConfig.Phase2HpMagatama,
                 phase1ShootCooldown: bossConfig.Phase1ShootCooldown,
@@ -240,6 +245,7 @@ namespace Action002.Boss.Systems
         private void OnValidate()
         {
             if (bossConfig == null) Debug.LogWarning($"[{GetType().Name}] bossConfig not assigned on {gameObject.name}.", this);
+            if (rhythmClock == null) Debug.LogWarning($"[{GetType().Name}] rhythmClock not assigned on {gameObject.name}.", this);
             if (bulletSet == null) Debug.LogWarning($"[{GetType().Name}] bulletSet not assigned on {gameObject.name}.", this);
             if (onBossPhaseRequested == null) Debug.LogWarning($"[{GetType().Name}] onBossPhaseRequested not assigned on {gameObject.name}.", this);
             if (onBossDefeated == null) Debug.LogWarning($"[{GetType().Name}] onBossDefeated not assigned on {gameObject.name}.", this);

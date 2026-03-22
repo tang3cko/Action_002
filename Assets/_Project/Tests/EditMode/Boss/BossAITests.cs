@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Unity.Mathematics;
+using Action002.Audio.Systems;
 using Action002.Boss.Data;
 using Action002.Boss.Logic;
 
@@ -9,7 +10,47 @@ namespace Action002.Tests.Boss
     public class BossAITests
     {
         private MockBossActions mock;
+        private MockRhythmClock mockClock;
         private BossAI ai;
+
+        private class MockRhythmClock : IRhythmClock
+        {
+            public int HalfBeatIndex;
+            public bool Playing = true;
+
+            public bool StartClock() { Playing = true; return true; }
+            public void StopClock() { Playing = false; }
+            public void ProcessClock() { }
+            public void ResetForNewRun() { HalfBeatIndex = 0; Playing = false; }
+
+            public bool ShouldFireOnDownbeat(ref int lastConsumedIndex)
+            {
+                if (!Playing) return false;
+                if (HalfBeatIndex <= lastConsumedIndex) return false;
+                if (HalfBeatIndex % 2 != 0) return false;
+                lastConsumedIndex = HalfBeatIndex;
+                return true;
+            }
+
+            public bool ShouldFireOnOffbeat(ref int lastConsumedIndex)
+            {
+                if (!Playing) return false;
+                if (HalfBeatIndex <= lastConsumedIndex) return false;
+                if (HalfBeatIndex % 2 == 0) return false;
+                lastConsumedIndex = HalfBeatIndex;
+                return true;
+            }
+
+            public void AdvanceToDownbeat()
+            {
+                HalfBeatIndex += (HalfBeatIndex % 2 == 0) ? 2 : 1;
+            }
+
+            public void AdvanceToOffbeat()
+            {
+                HalfBeatIndex += (HalfBeatIndex % 2 != 0) ? 2 : 1;
+            }
+        }
 
         private class MockBossActions : IBossAIActions
         {
@@ -58,6 +99,7 @@ namespace Action002.Tests.Boss
 
         private BossAI CreateAI(
             IBossAIActions actions,
+            IRhythmClock clock = null,
             int guardianHp = 10, int magatamaHp = 20,
             float phase1ShootCooldown = 0.5f, float phase2ShootCooldown = 0.15f,
             float simultaneousThreshold = 5f,
@@ -68,6 +110,7 @@ namespace Action002.Tests.Boss
         {
             return new BossAI(
                 actions,
+                clock ?? mockClock,
                 phase1HpPerGuardian: guardianHp,
                 phase2HpMagatama: magatamaHp,
                 phase1ShootCooldown: phase1ShootCooldown,
@@ -91,6 +134,7 @@ namespace Action002.Tests.Boss
         public void SetUp()
         {
             mock = new MockBossActions();
+            mockClock = new MockRhythmClock();
             ai = CreateAI(mock);
         }
 
@@ -137,7 +181,8 @@ namespace Action002.Tests.Boss
             Assert.That(ai.CurrentPhase, Is.EqualTo(BossPhaseId.Phase1));
             int bulletsBeforePhase1Tick = mock.FiredBullets.Count;
 
-            // Tick 2: Phase1 runs attacks
+            // Tick 2: Phase1 runs attacks (with downbeat available)
+            mockClock.AdvanceToDownbeat();
             ai.Tick(0.6f);
             Assert.That(mock.FiredBullets.Count, Is.GreaterThan(bulletsBeforePhase1Tick));
         }
@@ -145,14 +190,29 @@ namespace Action002.Tests.Boss
         // --- Phase1 Attack ---
 
         [Test]
-        public void Phase1_FiresBulletsAfterCooldown()
+        public void Phase1_FiresBulletsOnDownbeat()
         {
             ai = CreateAI(mock, introDuration: 0f);
             ai.Begin(float2.zero);
             ai.Tick(0.1f); // Intro → Phase1
-            ai.Tick(0.6f); // Phase1 fires
+
+            mockClock.AdvanceToDownbeat();
+            ai.Tick(0.6f); // Phase1 fires on downbeat
 
             Assert.That(mock.FiredBullets.Count, Is.GreaterThan(0));
+        }
+
+        [Test]
+        public void Phase1_DoesNotFireWithoutDownbeat()
+        {
+            ai = CreateAI(mock, introDuration: 0f);
+            ai.Begin(float2.zero);
+            ai.Tick(0.1f); // Intro → Phase1
+
+            // No clock advance — no downbeat available
+            ai.Tick(0.6f);
+
+            Assert.That(mock.FiredBullets.Count, Is.EqualTo(0));
         }
 
         // --- Phase1 → Merge ---
@@ -235,13 +295,27 @@ namespace Action002.Tests.Boss
         // --- Phase2 ---
 
         [Test]
-        public void Phase2_FiresSpiralBullets()
+        public void Phase2_FiresBulletsOnOffbeat()
         {
             GoToPhase2();
             int before = mock.FiredBullets.Count;
+
+            mockClock.AdvanceToOffbeat();
             ai.Tick(0.2f);
 
             Assert.That(mock.FiredBullets.Count, Is.GreaterThan(before));
+        }
+
+        [Test]
+        public void Phase2_DoesNotFireWithoutOffbeat()
+        {
+            GoToPhase2();
+            int before = mock.FiredBullets.Count;
+
+            // No clock advance
+            ai.Tick(0.2f);
+
+            Assert.That(mock.FiredBullets.Count, Is.EqualTo(before));
         }
 
         [Test]

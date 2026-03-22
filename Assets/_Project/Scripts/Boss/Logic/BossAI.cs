@@ -1,3 +1,4 @@
+using Action002.Audio.Systems;
 using Action002.Boss.Data;
 using Unity.Mathematics;
 
@@ -6,6 +7,7 @@ namespace Action002.Boss.Logic
     public class BossAI
     {
         private readonly IBossAIActions actions;
+        private readonly IRhythmClock rhythmClock;
 
         private readonly int phase1HpPerGuardian;
         private readonly int phase2HpMagatama;
@@ -27,7 +29,8 @@ namespace Action002.Boss.Logic
 
         private BossEntityState[] entities;
         private float phaseTimer;
-        private float shootTimer;
+        private float lastFireTime;
+        private int lastConsumedHalfBeatIndex;
         private float forcedSwitchTimer;
         private float warningTimer;
         private bool isWarningActive;
@@ -41,6 +44,7 @@ namespace Action002.Boss.Logic
 
         public BossAI(
             IBossAIActions actions,
+            IRhythmClock rhythmClock,
             int phase1HpPerGuardian, int phase2HpMagatama,
             float phase1ShootCooldown, float phase2ShootCooldown,
             float phase1SimultaneousThreshold,
@@ -53,6 +57,7 @@ namespace Action002.Boss.Logic
             float magatamaRotationSpeed)
         {
             this.actions = actions;
+            this.rhythmClock = rhythmClock;
             this.phase1HpPerGuardian = phase1HpPerGuardian;
             this.phase2HpMagatama = phase2HpMagatama;
             this.phase1ShootCooldown = phase1ShootCooldown;
@@ -84,7 +89,8 @@ namespace Action002.Boss.Logic
             isWarningActive = false;
             magatamaAngle = 0f;
             phaseTimer = 0f;
-            shootTimer = 0f;
+            lastFireTime = -9999f;
+            lastConsumedHalfBeatIndex = -1;
             forcedSwitchTimer = 0f;
             warningTimer = 0f;
             entities[(int)BossEntityId.Magatama] = default;
@@ -187,10 +193,13 @@ namespace Action002.Boss.Logic
 
         private void TickPhase1Attack(float deltaTime)
         {
-            shootTimer -= deltaTime;
-            if (shootTimer > 0f) return;
+            if (!rhythmClock.ShouldFireOnDownbeat(ref lastConsumedHalfBeatIndex))
+                return;
 
-            shootTimer = phase1ShootCooldown;
+            if (phaseTimer - lastFireTime < phase1ShootCooldown)
+                return;
+
+            lastFireTime = phaseTimer;
             bool simultaneous = phaseTimer >= phase1SimultaneousThreshold;
 
             var wg = entities[(int)BossEntityId.WhiteGuardian];
@@ -282,10 +291,13 @@ namespace Action002.Boss.Logic
 
         private void TickPhase2Attack(float deltaTime)
         {
-            shootTimer -= deltaTime;
-            if (shootTimer > 0f) return;
+            if (!rhythmClock.ShouldFireOnOffbeat(ref lastConsumedHalfBeatIndex))
+                return;
 
-            shootTimer = phase2ShootCooldown;
+            if (phaseTimer - lastFireTime < phase2ShootCooldown)
+                return;
+
+            lastFireTime = phaseTimer;
 
             var mag = entities[(int)BossEntityId.Magatama];
             actions.FireBullets(BossEntityId.Magatama, mag.Position.x, mag.Position.y, 0, 1);
@@ -323,7 +335,7 @@ namespace Action002.Boss.Logic
         {
             CurrentPhase = phase;
             phaseTimer = 0f;
-            shootTimer = 0f;
+            lastFireTime = -9999f;
 
             if (phase == BossPhaseId.Phase1)
                 forcedSwitchTimer = phase1ForcedSwitchInterval;

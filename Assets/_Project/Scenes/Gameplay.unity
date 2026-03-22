@@ -246,6 +246,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Boss.Systems.BossController
   bossConfig: {fileID: 11400000, guid: f18d0b40687a947d28ee3d30c26c85e5, type: 2}
+  rhythmClock: {fileID: 445281356}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   onBossPhaseRequested: {fileID: 11400000, guid: 2e4072e1130c549dea4f6af253ec2b9d, type: 2}
   onBossDefeated: {fileID: 11400000, guid: ccf7dd7037c874cb7bf85cfd023f02a0, type: 2}
