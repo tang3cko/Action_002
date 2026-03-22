@@ -114,5 +114,75 @@ namespace Action002.Bullet.Logic
             }
             return count;
         }
+
+        /// <summary>
+        /// 旋回弾パターン。baseAngle は呼び出し元が管理する累積発射角。
+        /// ArcDegrees を「1発射あたりの角度オフセット」として使用する。
+        /// </summary>
+        public static int CalculateSpiral(
+            Span<BulletState> buffer,
+            in ShotPatternSpec pattern,
+            float2 origin,
+            float baseAngle,
+            byte polarity,
+            float scoreValue)
+        {
+            int count = math.min(pattern.Count, buffer.Length);
+            if (count <= 0) return 0;
+
+            float angleStep = count > 1 ? (math.PI * 2f) / count : 0f;
+
+            for (int i = 0; i < count; i++)
+            {
+                float angle = baseAngle + angleStep * i;
+                buffer[i] = new BulletState
+                {
+                    Position = origin,
+                    Velocity = new float2(math.cos(angle), math.sin(angle)) * pattern.BulletSpeed,
+                    ScoreValue = scoreValue,
+                    Polarity = polarity,
+                    Faction = BulletFaction.Enemy,
+                    Damage = 1,
+                };
+            }
+            return count;
+        }
+
+        /// <summary>
+        /// 全方位ランダム弾パターン。Ring ベースだが各弾の角度と速度にランダムオフセットを加える。
+        /// ArcDegrees を「角度ジッター範囲（度）」として使用する。
+        /// </summary>
+        public static int CalculateRandomSpread(
+            Span<BulletState> buffer,
+            in ShotPatternSpec pattern,
+            float2 origin,
+            ref Unity.Mathematics.Random rng,
+            byte polarity,
+            float scoreValue)
+        {
+            int count = math.min(pattern.Count, buffer.Length);
+            if (count <= 0) return 0;
+
+            float angleStep = (math.PI * 2f) / count;
+            float jitterRad = math.radians(pattern.ArcDegrees);
+
+            for (int i = 0; i < count; i++)
+            {
+                float baseAngle = angleStep * i;
+                float angleJitter = rng.NextFloat(-jitterRad, jitterRad);
+                float speedJitter = rng.NextFloat(0.8f, 1.2f);
+                float angle = baseAngle + angleJitter;
+                buffer[i] = new BulletState
+                {
+                    Position = origin,
+                    Velocity = new float2(math.cos(angle), math.sin(angle)) * pattern.BulletSpeed * speedJitter,
+                    ScoreValue = scoreValue,
+                    Polarity = polarity,
+                    Faction = BulletFaction.Enemy,
+                    Damage = 1,
+                };
+            }
+            return count;
+        }
     }
 }

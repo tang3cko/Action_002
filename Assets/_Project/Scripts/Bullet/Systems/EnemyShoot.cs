@@ -21,6 +21,8 @@ namespace Action002.Bullet.Systems
         private int lastConsumedHalfBeatIndex = -1;
         private int nextBulletId = 100000;
         private readonly Dictionary<int, float> lastShotTimes = new Dictionary<int, float>(256);
+        private readonly Dictionary<int, float> spiralAngles = new Dictionary<int, float>(64);
+        private readonly Dictionary<int, Unity.Mathematics.Random> shotRngs = new Dictionary<int, Unity.Mathematics.Random>(64);
 
         public EnemyShoot(
             IRhythmClock rhythmClock,
@@ -66,7 +68,34 @@ namespace Action002.Bullet.Systems
                 if (spec.ShotPattern.Count > remaining) continue;
 
                 Span<BulletState> buf = stackalloc BulletState[spec.ShotPattern.Count];
-                int written = ShotPatternCalculator.Calculate(buf, spec.ShotPattern, enemy.Position, playerPos, enemy.Polarity, spec.ScoreValue);
+                int written;
+
+                switch (spec.ShotPattern.Kind)
+                {
+                    case Data.ShotPatternKind.Spiral:
+                    {
+                        if (!spiralAngles.TryGetValue(enemyId, out float currentAngle))
+                            currentAngle = 0f;
+
+                        written = ShotPatternCalculator.CalculateSpiral(buf, spec.ShotPattern, enemy.Position, currentAngle, enemy.Polarity, spec.ScoreValue);
+                        spiralAngles[enemyId] = currentAngle + math.radians(spec.ShotPattern.ArcDegrees);
+                        break;
+                    }
+                    case Data.ShotPatternKind.RandomSpread:
+                    {
+                        if (!shotRngs.TryGetValue(enemyId, out var rng))
+                        {
+                            rng = new Unity.Mathematics.Random((uint)(enemyId * 7919 + 1));
+                        }
+
+                        written = ShotPatternCalculator.CalculateRandomSpread(buf, spec.ShotPattern, enemy.Position, ref rng, enemy.Polarity, spec.ScoreValue);
+                        shotRngs[enemyId] = rng;
+                        break;
+                    }
+                    default:
+                        written = ShotPatternCalculator.Calculate(buf, spec.ShotPattern, enemy.Position, playerPos, enemy.Polarity, spec.ScoreValue);
+                        break;
+                }
 
                 if (written == 0) continue;
 
@@ -85,6 +114,8 @@ namespace Action002.Bullet.Systems
             lastConsumedHalfBeatIndex = -1;
             nextBulletId = 100000;
             lastShotTimes.Clear();
+            spiralAngles.Clear();
+            shotRngs.Clear();
         }
     }
 }

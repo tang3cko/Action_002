@@ -5,6 +5,7 @@ using Action002.Audio.Systems;
 using Action002.Bullet.Data;
 using Action002.Bullet.Systems;
 using Action002.Enemy.Data;
+using Action002.Enemy.Logic;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Tests.Bullet
@@ -251,6 +252,88 @@ namespace Action002.Tests.Bullet
             shooter.ProcessShooting(0f);
 
             Assert.That(bulletSet.Count, Is.EqualTo(0), "Should skip shooting when distance to player is near zero");
+        }
+
+        // ── Spiral / RandomSpread pattern tests ──
+
+        [Test]
+        public void ProcessShooting_SpiralPattern_FiresBullets()
+        {
+            stubClock.ShouldFireOffbeatResult = true;
+            stubClock.CurrentHalfBeatIndex = 1;
+            playerPositionVar.Value = Vector2.zero;
+
+            // NWay タイプは Spiral パターンを使う
+            var enemy = new EnemyState
+            {
+                Position = new float2(0f, 10f),
+                Hp = 1,
+                Polarity = 0,
+                TypeId = EnemyTypeId.NWay,
+            };
+            enemySet.Register(1, enemy);
+
+            shooter.ProcessShooting(0f);
+
+            var spiralSpec = EnemyTypeTable.Get(EnemyTypeId.NWay);
+            Assert.That(bulletSet.Count, Is.EqualTo(spiralSpec.ShotPattern.Count),
+                "Spiral pattern should fire the correct number of bullets");
+        }
+
+        [Test]
+        public void ProcessShooting_SpiralPattern_SecondShotHasDifferentAngles()
+        {
+            stubClock.ShouldFireOffbeatResult = true;
+            playerPositionVar.Value = Vector2.zero;
+
+            var enemy = new EnemyState
+            {
+                Position = new float2(0f, 10f),
+                Hp = 1,
+                Polarity = 0,
+                TypeId = EnemyTypeId.NWay,
+            };
+            enemySet.Register(1, enemy);
+
+            // 1回目の発射
+            stubClock.CurrentHalfBeatIndex = 1;
+            shooter.ProcessShooting(0f);
+            var firstBullets = bulletSet.Data;
+            float2 firstVelocity = firstBullets[0].Velocity;
+
+            // クールダウンを超えてから2回目
+            stubClock.CurrentHalfBeatIndex = 2;
+            shooter.ProcessShooting(10f);
+            var allBullets = bulletSet.Data;
+            int spiralCount = EnemyTypeTable.Get(EnemyTypeId.NWay).ShotPattern.Count;
+            float2 secondVelocity = allBullets[spiralCount].Velocity;
+
+            Assert.That(firstVelocity.x, Is.Not.EqualTo(secondVelocity.x).Within(0.01f),
+                "Spiral should rotate angle between shots");
+        }
+
+        [Test]
+        public void ProcessShooting_RandomSpreadPattern_FiresBullets()
+        {
+            stubClock.ShouldFireOffbeatResult = true;
+            stubClock.CurrentHalfBeatIndex = 1;
+            playerPositionVar.Value = Vector2.zero;
+
+            // Ring タイプは RandomSpread パターンを使う
+            var enemy = new EnemyState
+            {
+                Position = new float2(0f, 10f),
+                Hp = 3,
+                Polarity = 0,
+                TypeId = EnemyTypeId.Ring,
+            };
+            enemySet.Register(1, enemy);
+
+            shooter.ProcessShooting(0f);
+
+            var spreadSpec = EnemyTypeTable.Get(EnemyTypeId.Ring);
+            Assert.That(bulletSet.Count, Is.EqualTo(spreadSpec.ShotPattern.Count),
+                "RandomSpread pattern should fire the correct number of bullets");
         }
 
         // ── ResetForNewRun ──

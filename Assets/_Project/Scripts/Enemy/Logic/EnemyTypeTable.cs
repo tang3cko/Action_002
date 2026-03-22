@@ -13,7 +13,9 @@ namespace Action002.Enemy.Logic
             collisionRadius: 0.5f,
             shootCooldown: 1.0f,
             shotPattern: new ShotPatternSpec(ShotPatternKind.Aimed, 1, 0f, 3f),
-            scoreValue: 50f
+            scoreValue: 50f,
+            movement: MovementPattern.Chase,
+            budgetCost: 1f
         );
 
         static readonly EnemyTypeSpec NWaySpec = new EnemyTypeSpec(
@@ -22,8 +24,11 @@ namespace Action002.Enemy.Logic
             visualScale: 1.0f,
             collisionRadius: 0.6f,
             shootCooldown: 1.5f,
-            shotPattern: new ShotPatternSpec(ShotPatternKind.NWay, 3, 30f, 2.5f),
-            scoreValue: 80f
+            shotPattern: new ShotPatternSpec(ShotPatternKind.Spiral, 3, 15f, 2.5f),
+            scoreValue: 80f,
+            movement: MovementPattern.KeepDistance,
+            keepDistance: 8f,
+            budgetCost: 2f
         );
 
         static readonly EnemyTypeSpec RingSpec = new EnemyTypeSpec(
@@ -32,8 +37,12 @@ namespace Action002.Enemy.Logic
             visualScale: 1.4f,
             collisionRadius: 1.0f,
             shootCooldown: 2.0f,
-            shotPattern: new ShotPatternSpec(ShotPatternKind.Ring, 8, 0f, 2f),
-            scoreValue: 150f
+            shotPattern: new ShotPatternSpec(ShotPatternKind.RandomSpread, 8, 20f, 2f),
+            scoreValue: 150f,
+            movement: MovementPattern.Anchor,
+            arrivalThreshold: 0.5f,
+            maxConcurrent: 2,
+            budgetCost: 3f
         );
 
         public static EnemyTypeSpec Get(EnemyTypeId id) => id switch

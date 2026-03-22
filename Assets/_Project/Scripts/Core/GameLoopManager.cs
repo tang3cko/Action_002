@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using System.Collections.Generic;
@@ -49,6 +50,7 @@ namespace Action002.Core
         private List<int> sameContactIds = new List<int>(64);
         private EnemyContactSessionTracker contactTracker = new EnemyContactSessionTracker();
         private bool isRunning;
+        private NativeArray<MovementSpec> movementSpecs;
 
         // --- Unity Lifecycle ---
 
@@ -60,6 +62,20 @@ namespace Action002.Core
 
             enemyOrchestrator = new ReactiveEntitySetOrchestrator<EnemyState>(enemySet);
             bulletOrchestrator = new ReactiveEntitySetOrchestrator<BulletState>(bulletSet);
+
+            // EnemyTypeId の値の数だけ MovementSpec を構築
+            int typeCount = System.Enum.GetValues(typeof(EnemyTypeId)).Length;
+            movementSpecs = new NativeArray<MovementSpec>(typeCount, Allocator.Persistent);
+            for (int i = 0; i < typeCount; i++)
+            {
+                var spec = EnemyTypeTable.Get((EnemyTypeId)i);
+                movementSpecs[i] = new MovementSpec
+                {
+                    Pattern = spec.Movement,
+                    KeepDistance = spec.KeepDistance,
+                    ArrivalThreshold = spec.ArrivalThreshold,
+                };
+            }
         }
 
         private void Update()
@@ -123,6 +139,9 @@ namespace Action002.Core
             enemyOrchestrator = null;
             bulletOrchestrator?.Dispose();
             bulletOrchestrator = null;
+
+            if (movementSpecs.IsCreated)
+                movementSpecs.Dispose();
         }
 
         // --- Public Methods ---
@@ -215,6 +234,7 @@ namespace Action002.Core
                 Dst = dst,
                 PlayerPos = new float2(playerPositionVar.Value.x, playerPositionVar.Value.y),
                 DeltaTime = Time.deltaTime,
+                TypeSpecs = movementSpecs,
             };
 
             var handle = job.Schedule(enemySet.Count, 64);

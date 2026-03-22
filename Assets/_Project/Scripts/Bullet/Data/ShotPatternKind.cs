@@ -5,5 +5,7 @@ namespace Action002.Bullet.Data
         Aimed = 0,
         NWay = 1,
         Ring = 2,
+        Spiral = 3,
+        RandomSpread = 4,
     }
 }
