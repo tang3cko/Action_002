@@ -17,15 +17,15 @@ namespace Action002.Tests.Enemy
                 new float2(0f, 1f),
                 0f);
 
-            Assert.That(angle, Is.EqualTo(270f));
+            Assert.That(angle, Is.EqualTo(180f));
         }
 
         [Test]
-        public void CalculateShooterAngle_PlayerToRight_Returns180()
+        public void CalculateShooterAngle_PlayerToRight_Returns90()
         {
             float angle = EnemyRotationCalculator.CalculateShooterAngle(float2.zero, new float2(1f, 0f));
 
-            Assert.That(angle, Is.EqualTo(180f));
+            Assert.That(angle, Is.EqualTo(90f));
         }
 
         [Test]
