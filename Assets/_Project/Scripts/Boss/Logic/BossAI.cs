@@ -90,7 +90,7 @@ namespace Action002.Boss.Logic
             magatamaAngle = 0f;
             phaseTimer = 0f;
             lastFireTime = -9999f;
-            lastConsumedHalfBeatIndex = -1;
+            lastConsumedHalfBeatIndex = 0;
             forcedSwitchTimer = 0f;
             warningTimer = 0f;
             entities[(int)BossEntityId.Magatama] = default;

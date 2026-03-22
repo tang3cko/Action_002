@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Mathematics;
 using Action002.Bullet.Data;
 using Action002.Bullet.Logic;
@@ -6,7 +7,6 @@ using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Player.Logic;
 using Tang3cko.ReactiveSO;
-using System.Collections.Generic;
 
 namespace Action002.Bullet.Systems
 {
@@ -20,6 +20,7 @@ namespace Action002.Bullet.Systems
         private readonly IntEventChannelSO onEnemyKilled;
         private readonly FloatEventChannelSO onComboIncremented;
         private readonly IntEventChannelSO onKillScoreAdded;
+        private readonly EnemyDeathBufferSO deathBuffer;
         private readonly float absorbRadius;
         private readonly float damageRadius;
         private readonly float bulletHitRadius;
@@ -39,6 +40,7 @@ namespace Action002.Bullet.Systems
             IntEventChannelSO onEnemyKilled,
             FloatEventChannelSO onComboIncremented,
             IntEventChannelSO onKillScoreAdded,
+            EnemyDeathBufferSO deathBuffer,
             float absorbRadius = 1.0f,
             float damageRadius = 0.5f,
             float bulletHitRadius = 0.5f,
@@ -52,6 +54,7 @@ namespace Action002.Bullet.Systems
             this.onEnemyKilled = onEnemyKilled;
             this.onComboIncremented = onComboIncremented;
             this.onKillScoreAdded = onKillScoreAdded;
+            this.deathBuffer = deathBuffer;
             this.absorbRadius = absorbRadius;
             this.damageRadius = damageRadius;
             this.bulletHitRadius = bulletHitRadius;
@@ -71,8 +74,9 @@ namespace Action002.Bullet.Systems
             despawnQueue.Clear();
             enemyDespawnQueue.Clear();
             enemyKillSet.Clear();
-            if (despawnQueue.Capacity < bulletSet.Count)
-                despawnQueue.Capacity = bulletSet.Count;
+            EnsureCapacity(despawnQueue, bulletSet.Count);
+            if (enemySet != null)
+                EnsureCapacity(enemyDespawnQueue, enemySet.Count);
 
             var data = bulletSet.Data;
             var ids = bulletSet.EntityIds;
@@ -153,14 +157,13 @@ namespace Action002.Bullet.Systems
 
                     int remainingHp = BulletCollisionCalculator.CalculateRemainingHp(enemy.Hp, bullet.Damage);
                     enemy.Hp = remainingHp;
-                    // Use SetData API to properly notify change listeners
-                    // instead of directly mutating the backing array.
                     enemySet.SetData(enemyId, enemy);
 
                     if (BulletCollisionCalculator.IsEnemyKilled(remainingHp))
                     {
                         enemyKillSet.Add(enemyId);
                         enemyDespawnQueue.Add(enemyId);
+                        deathBuffer?.Add(enemy.Position, enemy.Polarity, enemy.TypeId);
                         onKillScoreAdded?.RaiseEvent(killScore);
                         onEnemyKilled?.RaiseEvent(enemy.Polarity);
                     }
@@ -168,6 +171,12 @@ namespace Action002.Bullet.Systems
                     break;
                 }
             }
+        }
+
+        private static void EnsureCapacity(List<int> list, int count)
+        {
+            if (list.Capacity < count)
+                list.Capacity = count;
         }
     }
 }

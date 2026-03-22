@@ -19,6 +19,7 @@ namespace Action002.Tests.Bullet
         private IntEventChannelSO onEnemyKilled;
         private FloatEventChannelSO onComboIncremented;
         private IntEventChannelSO onKillScoreAdded;
+        private EnemyDeathBufferSO deathBuffer;
         private BulletCollision collision;
 
         [SetUp]
@@ -32,6 +33,7 @@ namespace Action002.Tests.Bullet
             onEnemyKilled = ScriptableObject.CreateInstance<IntEventChannelSO>();
             onComboIncremented = ScriptableObject.CreateInstance<FloatEventChannelSO>();
             onKillScoreAdded = ScriptableObject.CreateInstance<IntEventChannelSO>();
+            deathBuffer = ScriptableObject.CreateInstance<EnemyDeathBufferSO>();
 
             playerPositionVar.Value = Vector2.zero;
             playerPolarityVar.Value = (int)Polarity.White;
@@ -45,6 +47,7 @@ namespace Action002.Tests.Bullet
                 onEnemyKilled,
                 onComboIncremented,
                 onKillScoreAdded,
+                deathBuffer,
                 absorbRadius: 1.0f,
                 damageRadius: 0.5f,
                 bulletHitRadius: 0.5f,
@@ -62,6 +65,7 @@ namespace Action002.Tests.Bullet
             Object.DestroyImmediate(onEnemyKilled);
             Object.DestroyImmediate(onComboIncremented);
             Object.DestroyImmediate(onKillScoreAdded);
+            Object.DestroyImmediate(deathBuffer);
         }
 
         // ── ProcessCollisions - No bullets ──
@@ -194,6 +198,37 @@ namespace Action002.Tests.Bullet
             collision.ProcessCollisions();
 
             Assert.That(scoreAdded, Is.EqualTo(50));
+        }
+
+        [Test]
+        public void ProcessCollisions_PlayerBulletKillsEnemy_AddsDeathParticle()
+        {
+            var bullet = new BulletState
+            {
+                Position = new float2(5f, 5f),
+                Faction = BulletFaction.Player,
+                Damage = 1,
+            };
+            bulletSet.Register(200000, bullet);
+
+            var enemy = new EnemyState
+            {
+                Position = new float2(5f, 5f),
+                Hp = 1,
+                Polarity = (byte)Polarity.Black,
+                TypeId = EnemyTypeId.Ring,
+            };
+            enemySet.Register(1, enemy);
+
+            collision.ProcessCollisions();
+
+            Assert.That(deathBuffer.Count, Is.EqualTo(1));
+
+            EnemyDeathParticle particle = deathBuffer.GetParticle(0);
+            Assert.That(particle.Position.x, Is.EqualTo(enemy.Position.x));
+            Assert.That(particle.Position.y, Is.EqualTo(enemy.Position.y));
+            Assert.That(particle.Polarity, Is.EqualTo(enemy.Polarity));
+            Assert.That(particle.TypeId, Is.EqualTo(enemy.TypeId));
         }
 
         [Test]

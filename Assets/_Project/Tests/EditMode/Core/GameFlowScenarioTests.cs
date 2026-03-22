@@ -428,6 +428,10 @@ namespace Action002.Tests.Core
             public void CommitRunResult()
             {
             }
+
+            public void SubmitOnlineScores()
+            {
+            }
         }
 
         /// <summary>

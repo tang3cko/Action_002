@@ -3,7 +3,9 @@
     "rootNamespace": "Action002.Tests",
     "references": [
         "Action002",
+        "Action002.Online",
         "Tang3cko.ReactiveSO",
+        "UniTask",
         "Unity.Mathematics"
     ],
     "includePlatforms": [

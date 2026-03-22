@@ -25,6 +25,9 @@ namespace Action002.Bullet.Systems
         [SerializeField] private FloatEventChannelSO onComboIncremented;
         [SerializeField] private IntEventChannelSO onKillScoreAdded;
 
+        [Header("Dependencies")]
+        [SerializeField] private EnemyDeathBufferSO deathBuffer;
+
         [Header("Settings")]
         [SerializeField] private float absorbRadius = 1.0f;
         [SerializeField] private float damageRadius = 0.5f;
@@ -32,6 +35,25 @@ namespace Action002.Bullet.Systems
         [SerializeField] private int killScore = 50;
 
         private BulletCollision logic;
+
+        private void Awake()
+        {
+            logic = new BulletCollision(
+                bulletSet,
+                enemySet,
+                playerPositionVar,
+                playerPolarityVar,
+                onPlayerDamaged,
+                onEnemyKilled,
+                onComboIncremented,
+                onKillScoreAdded,
+                deathBuffer,
+                absorbRadius,
+                damageRadius,
+                bulletHitRadius,
+                killScore
+            );
+        }
 
         private void OnEnable()
         {
@@ -47,6 +69,8 @@ namespace Action002.Bullet.Systems
 
         private void HandleBossHitTargetChanged(GameObject go)
         {
+            if (logic == null) return;
+
             if (go != null)
             {
                 var target = go.GetComponent<IBossHitTarget>();
@@ -58,31 +82,15 @@ namespace Action002.Bullet.Systems
             }
         }
 
-        private void Awake()
-        {
-            logic = new BulletCollision(
-                bulletSet,
-                enemySet,
-                playerPositionVar,
-                playerPolarityVar,
-                onPlayerDamaged,
-                onEnemyKilled,
-                onComboIncremented,
-                onKillScoreAdded,
-                absorbRadius,
-                damageRadius,
-                bulletHitRadius,
-                killScore
-            );
-        }
-
         public void SetBossHitTarget(IBossHitTarget target)
         {
+            if (logic == null) return;
             logic.SetBossHitTarget(target);
         }
 
         public void ProcessCollisions()
         {
+            if (logic == null) return;
             logic.ProcessCollisions();
         }
 
@@ -98,6 +106,7 @@ namespace Action002.Bullet.Systems
             if (onComboIncremented == null) Debug.LogWarning($"[{GetType().Name}] onComboIncremented not assigned on {gameObject.name}.", this);
             if (onKillScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onKillScoreAdded not assigned on {gameObject.name}.", this);
             if (onBossHitTargetChanged == null) Debug.LogWarning($"[{GetType().Name}] onBossHitTargetChanged not assigned on {gameObject.name}.", this);
+            if (deathBuffer == null) Debug.LogWarning($"[{GetType().Name}] deathBuffer not assigned on {gameObject.name}.", this);
         }
 #endif
     }

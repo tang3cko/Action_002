@@ -1,4 +1,5 @@
 using UnityEngine;
+using Action002.Core.Events;
 using Action002.Core.Save;
 using Action002.Visual;
 using Tang3cko.ReactiveSO;
@@ -27,6 +28,7 @@ namespace Action002.Core.Flow
         [Header("Events (publish)")]
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
         [SerializeField] private VoidEventChannelSO onBossPhaseRequested;
+        [SerializeField] private ScoreSubmitRequestedEventChannelSO onScoreSubmitRequested;
 
         [Header("Variables (read)")]
         [SerializeField] private Vector2VariableSO playerPositionVar;
@@ -41,6 +43,8 @@ namespace Action002.Core.Flow
 
         private GameFlowLogic logic;
         private SaveDataService saveDataService;
+        private int lastRunScore;
+        private int lastRunCombo;
 
         private GameFlowLogic Logic => logic ?? (logic = new GameFlowLogic(this));
 
@@ -241,12 +245,17 @@ namespace Action002.Core.Flow
 
         void IGameFlowActions.CommitRunResult()
         {
-            int finalScore = scoreVar != null ? scoreVar.Value : 0;
-            int maxCombo = maxComboVar != null ? maxComboVar.Value : 0;
+            lastRunScore = scoreVar != null ? scoreVar.Value : 0;
+            lastRunCombo = maxComboVar != null ? maxComboVar.Value : 0;
             int killCount = runKillCountVar != null ? runKillCountVar.Value : 0;
             int absorptionCount = runAbsorptionCountVar != null ? runAbsorptionCountVar.Value : 0;
 
-            SaveService.ApplyRunResult(finalScore, maxCombo, killCount, absorptionCount);
+            SaveService.ApplyRunResult(lastRunScore, lastRunCombo, killCount, absorptionCount);
+        }
+
+        void IGameFlowActions.SubmitOnlineScores()
+        {
+            onScoreSubmitRequested?.RaiseEvent(new ScoreSubmitRequest(lastRunScore, lastRunCombo));
         }
 
 #if UNITY_EDITOR
@@ -267,6 +276,7 @@ namespace Action002.Core.Flow
             if (onSceneLoadCompleted == null) Debug.LogWarning($"[{GetType().Name}] onSceneLoadCompleted not assigned on {gameObject.name}.", this);
             if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
             if (onBossPhaseRequested == null) Debug.LogWarning($"[{GetType().Name}] onBossPhaseRequested not assigned on {gameObject.name}.", this);
+            if (onScoreSubmitRequested == null) Debug.LogWarning($"[{GetType().Name}] onScoreSubmitRequested not assigned on {gameObject.name}.", this);
             if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
             if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
             if (maxComboVar == null) Debug.LogWarning($"[{GetType().Name}] maxComboVar not assigned on {gameObject.name}.", this);

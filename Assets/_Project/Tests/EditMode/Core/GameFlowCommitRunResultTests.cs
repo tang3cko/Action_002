@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using NUnit.Framework;
 using Action002.Core.Flow;
 
@@ -63,6 +64,58 @@ namespace Action002.Tests.Core
             logic.HandleBossDefeated();
 
             Assert.AreEqual(1, spy.CommitRunResultCallCount);
+        }
+
+        #endregion
+
+        #region SubmitOnlineScores called once
+
+        [Test]
+        public void HandleGameOver_ShouldCallSubmitOnlineScores()
+        {
+            logic.HandleGameOver();
+
+            Assert.AreEqual(1, spy.SubmitOnlineScoresCallCount);
+        }
+
+        [Test]
+        public void HandleBossDefeated_ShouldCallSubmitOnlineScores()
+        {
+            logic.HandleBossDefeated();
+
+            Assert.AreEqual(1, spy.SubmitOnlineScoresCallCount);
+        }
+
+        [Test]
+        public void HandleGameOver_CalledTwice_ShouldCallSubmitOnlineScoresOnce()
+        {
+            logic.HandleGameOver();
+            logic.HandleGameOver();
+
+            Assert.AreEqual(1, spy.SubmitOnlineScoresCallCount);
+        }
+
+        [Test]
+        public void SubmitOnlineScores_ShouldBeCalledAfterCommitRunResult()
+        {
+            var callOrder = new List<string>();
+            var orderedSpy = new OrderedSpyGameFlowActions(callOrder);
+            var orderedLogic = new GameFlowLogic(orderedSpy);
+            orderedLogic.Initialize();
+
+            orderedLogic.HandleGameOver();
+
+            int commitIdx = callOrder.IndexOf("CommitRunResult");
+            int submitIdx = callOrder.IndexOf("SubmitOnlineScores");
+            Assert.GreaterOrEqual(commitIdx, 0, "CommitRunResult should have been called");
+            Assert.GreaterOrEqual(submitIdx, 0, "SubmitOnlineScores should have been called");
+            Assert.Less(commitIdx, submitIdx, "CommitRunResult should be called before SubmitOnlineScores");
+        }
+
+        [Test]
+        public void Initialize_ShouldNotCallSubmitOnlineScores()
+        {
+            Assert.AreEqual(0, spy.SubmitOnlineScoresCallCount);
         }
 
         #endregion
@@ -137,6 +190,7 @@ namespace Action002.Tests.Core
         private class SpyGameFlowActions : IGameFlowActions
         {
             public int CommitRunResultCallCount;
+            public int SubmitOnlineScoresCallCount;
 
             public void LoadScene(string sceneName) { }
             public void CloseTransition() { }
@@ -149,6 +203,30 @@ namespace Action002.Tests.Core
             public void SetResultTypeVariable(int resultType) { }
             public void SaveTutorialCompleted() { }
             public void CommitRunResult() => CommitRunResultCallCount++;
+            public void SubmitOnlineScores() => SubmitOnlineScoresCallCount++;
+        }
+
+        private class OrderedSpyGameFlowActions : IGameFlowActions
+        {
+            private readonly List<string> callOrder;
+
+            public OrderedSpyGameFlowActions(List<string> callOrder)
+            {
+                this.callOrder = callOrder;
+            }
+
+            public void LoadScene(string sceneName) { }
+            public void CloseTransition() { }
+            public void CloseTransitionWithOrigin(float screenX, float screenY) { }
+            public void ConvergeTransitionToPlayer() { }
+            public void ClearTransitionImmediate() { }
+            public void RaiseBossPhaseRequested() { }
+            public void RaiseGamePhaseChanged(int phase) { }
+            public void SetGamePhaseVariable(int phase) { }
+            public void SetResultTypeVariable(int resultType) { }
+            public void SaveTutorialCompleted() { }
+            public void CommitRunResult() => callOrder.Add("CommitRunResult");
+            public void SubmitOnlineScores() => callOrder.Add("SubmitOnlineScores");
         }
     }
 }

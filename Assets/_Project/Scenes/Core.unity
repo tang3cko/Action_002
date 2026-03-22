@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 519420031}
   - component: {fileID: 519420029}
   - component: {fileID: 519420030}
+  - component: {fileID: 519420033}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -256,6 +257,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &519420033
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 519420028}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1aa92d26beb1d447285ef92aebd4d25f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Visual.CameraShake
+  onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
+  duration: 0.15
+  magnitude: 0.1
 --- !u!1 &709527817
 GameObject:
   m_ObjectHideFlags: 0
@@ -301,6 +317,7 @@ MonoBehaviour:
   onSceneLoadCompleted: {fileID: 11400000, guid: 055e89871e66045bfb0ac74105190716, type: 2}
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
   onBossPhaseRequested: {fileID: 11400000, guid: 2e4072e1130c549dea4f6af253ec2b9d, type: 2}
+  onScoreSubmitRequested: {fileID: 11400000, guid: 25f6e052b8018469898a8e849877404b, type: 2}
   playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   maxComboVar: {fileID: 11400000, guid: c82f4c7ba71294932bf1bb5db841fc25, type: 2}

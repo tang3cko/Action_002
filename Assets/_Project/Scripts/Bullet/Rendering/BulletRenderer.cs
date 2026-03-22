@@ -17,7 +17,7 @@ namespace Action002.Bullet.Rendering
         [SerializeField] private BulletVisualConfigSO visualConfig;
 
         [Header("Outline")]
-        [SerializeField] private float outlineScale = 1.4f;
+        [SerializeField] private float outlineThickness = 0.1f;
 
         private const int BATCH_SIZE = 1023;
 
@@ -34,7 +34,7 @@ namespace Action002.Bullet.Rendering
         private int[] outlineCounts;
         private int factionCount;
 
-        private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_MainTex");
+        private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_BaseMap");
         private static readonly int COLOR_ID = Shader.PropertyToID("_BaseColor");
 
         private void Start()
@@ -124,7 +124,7 @@ namespace Action002.Bullet.Rendering
                     var outMatrix = Matrix4x4.TRS(
                         new Vector3(state.Position.x, state.Position.y, policy.OutlineZ),
                         Quaternion.identity,
-                        Vector3.one * (size * outlineScale)
+                        Vector3.one * (size + outlineThickness)
                     );
 
                     outlineBatches[slot][outlineCounts[slot]++] = outMatrix;

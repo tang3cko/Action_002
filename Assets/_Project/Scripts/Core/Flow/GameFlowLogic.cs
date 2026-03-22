@@ -18,6 +18,7 @@ namespace Action002.Core.Flow
         void SetResultTypeVariable(int resultType);
         void SaveTutorialCompleted();
         void CommitRunResult();
+        void SubmitOnlineScores();
     }
 
     /// <summary>
@@ -61,6 +62,7 @@ namespace Action002.Core.Flow
             {
                 resultCommitted = true;
                 actions.CommitRunResult();
+                actions.SubmitOnlineScores();
             }
             PendingPhase = GamePhase.Result;
             PendingResultType = GameResultType.GameOver;
@@ -105,6 +107,7 @@ namespace Action002.Core.Flow
             {
                 resultCommitted = true;
                 actions.CommitRunResult();
+                actions.SubmitOnlineScores();
             }
             PendingPhase = GamePhase.Result;
             PendingResultType = GameResultType.Clear;

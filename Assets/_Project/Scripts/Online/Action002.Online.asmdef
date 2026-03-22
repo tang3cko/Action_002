@@ -1,13 +1,11 @@
 {
-    "name": "Action002",
-    "rootNamespace": "Action002",
+    "name": "Action002.Online",
+    "rootNamespace": "Action002.Online",
     "references": [
+        "Action002",
         "Tang3cko.ReactiveSO",
-        "Unity.InputSystem",
-        "Unity.Mathematics",
-        "Unity.Collections",
-        "Unity.Burst",
-        "LitMotion"
+        "UniTask",
+        "Unityroom.Client"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

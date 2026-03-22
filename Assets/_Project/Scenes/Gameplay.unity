@@ -200,6 +200,54 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &277618763
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 277618765}
+  - component: {fileID: 277618764}
+  m_Layer: 0
+  m_Name: EnemyDeathEffectRenderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &277618764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277618763}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 874994116b2e843598a87503e987c063, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Enemy.Rendering.EnemyDeathEffectRenderer
+  deathBuffer: {fileID: 11400000, guid: 54f6c2fefc4014338971fab426caae83, type: 2}
+  quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  baseMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
+  visualConfig: {fileID: 11400000, guid: 6bcea781202334e92b389914098ff582, type: 2}
+--- !u!4 &277618765
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 277618763}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &328178209
 GameObject:
   m_ObjectHideFlags: 0
@@ -618,6 +666,7 @@ MonoBehaviour:
   onEnemyKilled: {fileID: 11400000, guid: 6e56ddcdb27984d40a318c62117b693d, type: 2}
   onComboIncremented: {fileID: 11400000, guid: a5bb057ca18a6422eabc07343d974ab9, type: 2}
   onKillScoreAdded: {fileID: 11400000, guid: 6c7724dd95b7b47c190a7b15620e023f, type: 2}
+  deathBuffer: {fileID: 11400000, guid: 54f6c2fefc4014338971fab426caae83, type: 2}
   absorbRadius: 1
   damageRadius: 0.5
   bulletHitRadius: 0.5
@@ -1126,6 +1175,52 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1532438264
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1532438266}
+  - component: {fileID: 1532438265}
+  m_Layer: 0
+  m_Name: ScoreSubmissionService
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1532438265
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1532438264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cf9ba719a352433c8d3c7aae6f2d46a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002.Online::Action002.Online.ScoreSubmissionService
+  hmacKey: Zp7WMRAJyZZYtBoIez/bIqJ0MYIteNXKX0FYZBSoloaIwtDK7g9+pH2vSgiTamUA2HicmfaSFxCamSc22yCGwg==
+  onScoreSubmitRequested: {fileID: 11400000, guid: 25f6e052b8018469898a8e849877404b, type: 2}
+--- !u!4 &1532438266
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1532438264}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1560037484
 GameObject:
   m_ObjectHideFlags: 0
@@ -1174,6 +1269,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Enemy.Rendering.EnemyRenderer
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   baseMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
   visualConfig: {fileID: 11400000, guid: 6bcea781202334e92b389914098ff582, type: 2}
@@ -1455,3 +1551,5 @@ SceneRoots:
   - {fileID: 904695634}
   - {fileID: 333072510}
   - {fileID: 328178212}
+  - {fileID: 277618765}
+  - {fileID: 1532438266}

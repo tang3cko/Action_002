@@ -1,26 +1,30 @@
 using UnityEngine;
+using Unity.Mathematics;
 using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Visual;
+using Tang3cko.ReactiveSO;
 
 namespace Action002.Enemy.Rendering
 {
     public class EnemyRenderer : MonoBehaviour
     {
-        [Header("Sets")]
-        [SerializeField] private EnemyStateSetSO enemySet;
+        private const int BATCH_SIZE = 1023;
+        private const float OUTLINE_Z = 0.06f;
+        private const float BODY_Z = 0.04f;
 
-        [Header("Rendering")]
+        private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_BaseMap");
+        private static readonly int COLOR_ID = Shader.PropertyToID("_BaseColor");
+
+        [Header("Dependencies")]
+        [SerializeField] private EnemyStateSetSO enemySet;
+        [SerializeField] private Vector2VariableSO playerPositionVar;
         [SerializeField] private Mesh quadMesh;
         [SerializeField] private Material baseMaterial;
-
-        [Header("Visual Config")]
         [SerializeField] private EnemyVisualConfigSO visualConfig;
 
-        [Header("Outline")]
-        [SerializeField] private float outlineScale = 1.3f;
-
-        private const int BATCH_SIZE = 1023;
+        [Header("Settings")]
+        [SerializeField] private float outlineThickness = 0.24f;
 
         private Material bodyMaterial;
         private Material outlineMaterial;
@@ -28,17 +32,14 @@ namespace Action002.Enemy.Rendering
         private MaterialPropertyBlock bodyBlock;
         private MaterialPropertyBlock outlineBlock;
 
-        // Per EnemyTypeId × Polarity batch arrays
+        // Per EnemyTypeId x Polarity batch arrays
         private Matrix4x4[][] bodyBatches;
         private Matrix4x4[][] outlineBatches;
         private int[] bodyCounts;
         private int[] outlineCounts;
         private int typeCount;
 
-        private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_MainTex");
-        private static readonly int COLOR_ID = Shader.PropertyToID("_BaseColor");
-
-        private void Start()
+        private void Awake()
         {
             fallbackTexture = DiamondTextureGenerator.Create(64);
 
@@ -55,17 +56,13 @@ namespace Action002.Enemy.Rendering
             bodyBlock = new MaterialPropertyBlock();
             outlineBlock = new MaterialPropertyBlock();
 
-            var typeValues = System.Enum.GetValues(typeof(EnemyTypeId));
-            int maxTypeIndex = 0;
-            foreach (EnemyTypeId id in typeValues)
-                if ((int)id > maxTypeIndex) maxTypeIndex = (int)id;
-            typeCount = maxTypeIndex + 1;
-            // 2 polarities per type
-            int slotCount = typeCount * 2;
+            typeCount = GetTypeCount();
+            int slotCount = GetSlotCount();
             bodyBatches = new Matrix4x4[slotCount][];
             outlineBatches = new Matrix4x4[slotCount][];
             bodyCounts = new int[slotCount];
             outlineCounts = new int[slotCount];
+
             for (int i = 0; i < slotCount; i++)
             {
                 bodyBatches[i] = new Matrix4x4[BATCH_SIZE];
@@ -88,33 +85,31 @@ namespace Action002.Enemy.Rendering
             if (enemySet == null || enemySet.Count == 0) return;
             if (bodyMaterial == null || outlineMaterial == null || quadMesh == null) return;
 
-            int slotCount = typeCount * 2;
-            for (int i = 0; i < slotCount; i++)
-            {
-                bodyCounts[i] = 0;
-                outlineCounts[i] = 0;
-            }
+            ResetBatchCounts();
 
             var data = enemySet.Data;
+            float2 playerPos = GetPlayerPosition();
+            float time = Time.time;
 
             for (int i = 0; i < data.Length; i++)
             {
                 var state = data[i];
-                int typeIndex = (int)state.TypeId;
-                int polarityBit = state.Polarity == 0 ? 0 : 1;
-                int slot = typeIndex * 2 + polarityBit;
+                int slot = GetSlot(state.TypeId, state.Polarity);
 
                 float size = EnemyTypeTable.Get(state.TypeId).VisualScale;
-                float outlineSizeValue = size * outlineScale;
+                float outlineSizeValue = size + outlineThickness;
+
+                float angle = EnemyRotationCalculator.CalculateAngle(state.TypeId, state.Position, playerPos, time);
+                var rotation = Quaternion.Euler(0f, 0f, angle);
 
                 var bodyMatrix = Matrix4x4.TRS(
-                    new Vector3(state.Position.x, state.Position.y, 0.04f),
-                    Quaternion.identity,
+                    new Vector3(state.Position.x, state.Position.y, BODY_Z),
+                    rotation,
                     Vector3.one * size
                 );
                 var outMatrix = Matrix4x4.TRS(
-                    new Vector3(state.Position.x, state.Position.y, 0.06f),
-                    Quaternion.identity,
+                    new Vector3(state.Position.x, state.Position.y, OUTLINE_Z),
+                    rotation,
                     Vector3.one * outlineSizeValue
                 );
 
@@ -133,19 +128,7 @@ namespace Action002.Enemy.Rendering
                 }
             }
 
-            // Draw outlines first (behind bodies)
-            for (int slot = 0; slot < slotCount; slot++)
-            {
-                if (outlineCounts[slot] > 0)
-                    FlushOutline(slot);
-            }
-
-            // Draw bodies on top
-            for (int slot = 0; slot < slotCount; slot++)
-            {
-                if (bodyCounts[slot] > 0)
-                    FlushBody(slot);
-            }
+            FlushRemainingBatches();
         }
 
         private void OnDestroy()
@@ -179,6 +162,75 @@ namespace Action002.Enemy.Rendering
             Graphics.DrawMeshInstanced(quadMesh, 0, outlineMaterial, outlineBatches[slot], outlineCounts[slot], outlineBlock);
         }
 
+        private void ResetBatchCounts()
+        {
+            int slotCount = GetSlotCount();
+            for (int i = 0; i < slotCount; i++)
+            {
+                bodyCounts[i] = 0;
+                outlineCounts[i] = 0;
+            }
+        }
+
+        private void FlushRemainingBatches()
+        {
+            int slotCount = GetSlotCount();
+
+            for (int slot = 0; slot < slotCount; slot++)
+            {
+                if (outlineCounts[slot] > 0)
+                {
+                    FlushOutline(slot);
+                }
+            }
+
+            for (int slot = 0; slot < slotCount; slot++)
+            {
+                if (bodyCounts[slot] > 0)
+                {
+                    FlushBody(slot);
+                }
+            }
+        }
+
+        private float2 GetPlayerPosition()
+        {
+            if (playerPositionVar == null)
+            {
+                return float2.zero;
+            }
+
+            Vector2 playerPosition = playerPositionVar.Value;
+            return new float2(playerPosition.x, playerPosition.y);
+        }
+
+        private int GetSlot(EnemyTypeId typeId, byte polarity)
+        {
+            int polarityBit = polarity == 0 ? 0 : 1;
+            return ((int)typeId * 2) + polarityBit;
+        }
+
+        private int GetSlotCount()
+        {
+            return typeCount * 2;
+        }
+
+        private static int GetTypeCount()
+        {
+            var typeValues = System.Enum.GetValues(typeof(EnemyTypeId));
+            int maxTypeIndex = 0;
+
+            foreach (EnemyTypeId typeId in typeValues)
+            {
+                if ((int)typeId > maxTypeIndex)
+                {
+                    maxTypeIndex = (int)typeId;
+                }
+            }
+
+            return maxTypeIndex + 1;
+        }
+
         private Texture2D GetTextureForType(EnemyTypeId typeId)
         {
             if (visualConfig != null)
@@ -193,6 +245,7 @@ namespace Action002.Enemy.Rendering
         private void OnValidate()
         {
             if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
+            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
             if (quadMesh == null) Debug.LogWarning($"[{GetType().Name}] quadMesh not assigned on {gameObject.name}.", this);
             if (baseMaterial == null) Debug.LogWarning($"[{GetType().Name}] baseMaterial not assigned on {gameObject.name}.", this);
             if (visualConfig == null) Debug.LogWarning($"[{GetType().Name}] visualConfig not assigned on {gameObject.name}.", this);

@@ -11,6 +11,13 @@
       },
       "hash": "a174f0ace85831bc6790d497d2d683a64fc513dd"
     },
+    "com.cysharp.unitask": {
+      "version": "https://github.com/Cysharp/UniTask.git?path=src/UniTask/Assets/Plugins/UniTask",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "a9e27c03d411d2fca01cc7410c24c97cd77cb539"
+    },
     "com.tang3cko.scenes-in-build-editor": {
       "version": "https://github.com/tang3cko/ScenesInBuildEditor.git?path=Packages/com.tang3cko.scenes-in-build-editor",
       "depth": 0,
@@ -373,6 +380,13 @@
         "com.unity.modules.jsonserialize": "1.0.0"
       },
       "url": "https://packages.unity.com"
+    },
+    "com.unityroom.client": {
+      "version": "https://github.com/unityroom/unityroom-sdk.git?path=src/Unityroom.Client/Assets/Unityroom.Client",
+      "depth": 0,
+      "source": "git",
+      "dependencies": {},
+      "hash": "5e3b8e55d675c8990161f8885593c2af3f0ec99c"
     },
     "com.unity.modules.accessibility": {
       "version": "1.0.0",
