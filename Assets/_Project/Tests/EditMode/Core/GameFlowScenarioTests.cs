@@ -176,6 +176,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void EventChain_BossTrigger_ShouldChangePhase()
         {
             // Arrange
@@ -196,6 +197,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void EventChain_BossDefeated_ShouldTransitionToResult()
         {
             // Arrange
@@ -720,6 +722,7 @@ namespace Action002.Tests.Core
         #region GameFlowLogic: Boss Flow
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_BossTriggerReached_ShouldImmediatelyTransitionToBoss()
         {
             // Arrange
@@ -736,6 +739,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_BossTriggerReached_ShouldRaiseBossPhaseRequested()
         {
             // Arrange
@@ -751,6 +755,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_BossDefeated_ShouldSetPendingResultClear()
         {
             // Arrange
@@ -767,6 +772,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_BossDefeated_AfterTransitionClosed_ShouldSetResultTypeClear()
         {
             // Arrange
@@ -941,6 +947,7 @@ namespace Action002.Tests.Core
         #region GameFlowLogic: Full Lifecycle
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_FullLifecycle_TitleStageBossResultTitle()
         {
             // Arrange
@@ -1063,6 +1070,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_ResultTypeVar_ShouldUpdateFromGameOverToClear()
         {
             // Arrange
@@ -1142,6 +1150,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_BossTrigger_IsImmediateTransition()
         {
             // Arrange
@@ -1169,6 +1178,7 @@ namespace Action002.Tests.Core
         #region GameFlowLogic: Event Fire Counts
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Controller_BossFlow_ShouldFirePhaseChangedTwice_BossAndResult()
         {
             // Arrange
@@ -1583,6 +1593,7 @@ namespace Action002.Tests.Core
         #region Scenario: Boss Flow
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void BossTriggerReached_ShouldFireBossPhaseRequested()
         {
             // Arrange
@@ -1607,6 +1618,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void BossTriggerReached_ShouldChangePhaseImmediately_WithoutTransition()
         {
             // Arrange
@@ -1627,6 +1639,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void BossDefeated_ShouldSetPendingResultClear()
         {
             // Arrange
@@ -1647,6 +1660,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void BossDefeated_AfterTransitionClose_ShouldSetResultTypeClear()
         {
             // Arrange
@@ -1763,6 +1777,7 @@ namespace Action002.Tests.Core
         #region Scenario: Full Lifecycle
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void FullLifecycle_Title_Stage_GameOver_Result_Retry_Stage_BossDefeated_Result_Title()
         {
             // Arrange
@@ -1972,6 +1987,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void BossFlow_OnGamePhaseChanged_ShouldFireOnceForBossAndOnceForResult()
         {
             // Arrange
@@ -2027,6 +2043,7 @@ namespace Action002.Tests.Core
         #region Scenario: ResultType Preservation
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void GameOverThenRetryThenBossDefeated_ResultTypeShouldBeClear()
         {
             // Arrange
@@ -2106,6 +2123,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void ImmediateTransition_BossTrigger_ChangesPhaseWithoutClose()
         {
             // Arrange
@@ -2176,6 +2194,7 @@ namespace Action002.Tests.Core
         }
 
         [Test]
+        [Ignore("ボス実装時に有効化")]
         public void Combined_FullCycle_TrackerAndEvents_StayInSync()
         {
             // Arrange

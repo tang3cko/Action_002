@@ -17,7 +17,7 @@
     </ui:VisualElement>
 
     <ui:VisualElement name="TitleScreen" class="title-screen" style="display: none;">
-        <ui:Label name="TitleLabel" text="INVEST" class="title-screen__label" />
+        <ui:Label name="TitleLabel" text="INVEST" class="title-screen__title" />
         <ui:Button name="TitleStartButton" text="START" class="title-screen__button" />
     </ui:VisualElement>
 

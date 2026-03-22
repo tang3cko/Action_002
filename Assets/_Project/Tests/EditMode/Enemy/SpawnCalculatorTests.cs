@@ -71,6 +71,25 @@ namespace Action002.Tests.Enemy
         }
 
         [Test]
+        public void OvertimeSpawnAndSpeedMultipliers_At180s_ResultInExpectedSpeedMultiplier()
+        {
+            // 120s is the overtime baseline: spawn interval is already clamped to min and overtime multiplier is 1.
+            // intervalAt120 = max(0.75 - 120*0.01, 0.2) / 1.0 = 0.2
+            // intervalAt180 = max(0.75 - 180*0.01, 0.2) / 2.0 = 0.1
+            // spawnRateMultiplier = 0.2 / 0.1 = 2.0
+            // overtimeMultiplier  = 2.0
+            // effective (spawn rate x enemy speed) = 2.0 * 2.0 = 4.0
+            float intervalAt120 = SpawnCalculator.GetSpawnInterval(0.75f, 120f, 0.2f);
+            float intervalAt180 = SpawnCalculator.GetSpawnInterval(0.75f, 180f, 0.2f);
+            float overtimeMultiplierAt180 = SpawnCalculator.GetOvertimeMultiplier(180f);
+
+            float spawnRateMultiplierAt180 = intervalAt120 / intervalAt180;
+            float effectiveSpeedMultiplierAt180 = spawnRateMultiplierAt180 * overtimeMultiplierAt180;
+
+            Assert.That(effectiveSpeedMultiplierAt180, Is.EqualTo(4f).Within(0.001f));
+        }
+
+        [Test]
         public void GetOvertimeMultiplier_IncreasesOverTime()
         {
             float at180 = SpawnCalculator.GetOvertimeMultiplier(180f);
