@@ -114,29 +114,84 @@ namespace Action002.Tests.Player
         }
 
         [Test]
-        public void ApplyLevelUp_Level6Plus_BulletCountCappedAt4_MoveSpeedIncrements()
+        public void ApplyLevelUp_Level5To6_BulletCountIs5()
         {
             var state = PlayerGrowthCalculator.CreateDefault();
             for (int i = 0; i < 6; i++)
                 state = PlayerGrowthCalculator.ApplyLevelUp(state);
 
             Assert.That(state.Level, Is.EqualTo(6));
-            Assert.That(state.BulletCount, Is.EqualTo(4));
-            // MoveSpeed: 1.0 + 0.10 (lv2) + 0.05 (lv6) = 1.15
-            Assert.That(state.MoveSpeedMultiplier, Is.EqualTo(1.15f).Within(0.001f));
+            Assert.That(state.BulletCount, Is.EqualTo(5));
+            // MoveSpeed only increased at Lv2: 1.0 + 0.10 = 1.10
+            Assert.That(state.MoveSpeedMultiplier, Is.EqualTo(1.10f).Within(0.001f));
         }
 
         [Test]
-        public void ApplyLevelUp_Level7_MoveSpeedIncrementsFurther()
+        public void ApplyLevelUp_Level6To7_BulletSpeedIncreasedAgain()
         {
             var state = PlayerGrowthCalculator.CreateDefault();
             for (int i = 0; i < 7; i++)
                 state = PlayerGrowthCalculator.ApplyLevelUp(state);
 
             Assert.That(state.Level, Is.EqualTo(7));
-            Assert.That(state.BulletCount, Is.EqualTo(4));
-            // MoveSpeed: 1.0 + 0.10 (lv2) + 0.05 (lv6) + 0.05 (lv7) = 1.20
-            Assert.That(state.MoveSpeedMultiplier, Is.EqualTo(1.20f).Within(0.001f));
+            Assert.That(state.BulletCount, Is.EqualTo(5));
+            // BulletSpeed: 1.0 + 0.15 (lv4) + 0.15 (lv7) = 1.30
+            Assert.That(state.BulletSpeedMultiplier, Is.EqualTo(1.30f).Within(0.001f));
+        }
+
+        [Test]
+        public void ApplyLevelUp_Level7To8_BulletCountIs6()
+        {
+            var state = PlayerGrowthCalculator.CreateDefault();
+            for (int i = 0; i < 8; i++)
+                state = PlayerGrowthCalculator.ApplyLevelUp(state);
+
+            Assert.That(state.Level, Is.EqualTo(8));
+            Assert.That(state.BulletCount, Is.EqualTo(6));
+        }
+
+        [Test]
+        public void ApplyLevelUp_Level8To9_BulletCountIs7()
+        {
+            var state = PlayerGrowthCalculator.CreateDefault();
+            for (int i = 0; i < 9; i++)
+                state = PlayerGrowthCalculator.ApplyLevelUp(state);
+
+            Assert.That(state.Level, Is.EqualTo(9));
+            Assert.That(state.BulletCount, Is.EqualTo(7));
+        }
+
+        [Test]
+        public void ApplyLevelUp_Level9To10_BulletCountIs8_Max()
+        {
+            var state = PlayerGrowthCalculator.CreateDefault();
+            for (int i = 0; i < 10; i++)
+                state = PlayerGrowthCalculator.ApplyLevelUp(state);
+
+            Assert.That(state.Level, Is.EqualTo(10));
+            Assert.That(state.BulletCount, Is.EqualTo(8));
+        }
+
+        [Test]
+        public void ApplyLevelUp_Level11Plus_Capped_NoFurtherGrowth()
+        {
+            var state = PlayerGrowthCalculator.CreateDefault();
+            for (int i = 0; i < 10; i++)
+                state = PlayerGrowthCalculator.ApplyLevelUp(state);
+
+            // Capture state at Lv10
+            int bulletCountAtLv10 = state.BulletCount;
+            float moveSpeedAtLv10 = state.MoveSpeedMultiplier;
+            float bulletSpeedAtLv10 = state.BulletSpeedMultiplier;
+
+            // Apply more level ups (Lv11, 12, 13)
+            for (int i = 0; i < 3; i++)
+                state = PlayerGrowthCalculator.ApplyLevelUp(state);
+
+            Assert.That(state.Level, Is.EqualTo(13));
+            Assert.That(state.BulletCount, Is.EqualTo(bulletCountAtLv10));
+            Assert.That(state.MoveSpeedMultiplier, Is.EqualTo(moveSpeedAtLv10).Within(0.001f));
+            Assert.That(state.BulletSpeedMultiplier, Is.EqualTo(bulletSpeedAtLv10).Within(0.001f));
         }
     }
 }
