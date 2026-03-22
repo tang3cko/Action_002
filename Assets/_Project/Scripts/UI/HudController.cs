@@ -38,7 +38,6 @@ namespace Action002.UI
         private Label comboLabel;
         private Label levelLabel;
         private VisualElement gaugeFill;
-        private VisualElement gaugeTrack;
 
         private void Awake()
         {
@@ -84,10 +83,6 @@ namespace Action002.UI
             levelLabel = root.Q<Label>("LevelLabel");
             if (levelLabel == null)
                 Debug.LogError("[HudController] Label 'LevelLabel' not found in UIDocument.", this);
-
-            gaugeTrack = root.Q<VisualElement>("GaugeTrack");
-            if (gaugeTrack == null)
-                Debug.LogError("[HudController] VisualElement 'GaugeTrack' not found in UIDocument.", this);
 
             gaugeFill = root.Q<VisualElement>("GaugeFill");
             if (gaugeFill == null)

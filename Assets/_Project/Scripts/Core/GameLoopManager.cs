@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using Action002.Bullet.Data;
 using Action002.Bullet.Logic;
 using Action002.Bullet.Systems;
+using Action002.Core.Flow;
 using Action002.Enemy.Data;
 using Action002.Enemy.Logic;
 using Action002.Enemy.Systems;
@@ -37,6 +38,9 @@ namespace Action002.Core
         [SerializeField] private EnemySpawnSystem enemySpawn;
         [SerializeField] private EnemyShootSystem enemyShoot;
 
+        [Header("Events (subscribe)")]
+        [SerializeField] private IntEventChannelSO onGamePhaseChanged;
+
         [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onPlayerDamaged;
         [SerializeField] private IntEventChannelSO onScoreAdded;
@@ -50,6 +54,7 @@ namespace Action002.Core
         private List<int> sameContactIds = new List<int>(64);
         private EnemyContactSessionTracker contactTracker = new EnemyContactSessionTracker();
         private bool isRunning;
+        private bool isBossPhase;
         private NativeArray<MovementSpec> movementSpecs;
 
         // --- Unity Lifecycle ---
@@ -76,6 +81,9 @@ namespace Action002.Core
                     ArrivalThreshold = spec.ArrivalThreshold,
                 };
             }
+
+            if (onGamePhaseChanged != null)
+                onGamePhaseChanged.OnEventRaised += HandleGamePhaseChanged;
         }
 
         private void Update()
@@ -114,8 +122,9 @@ namespace Action002.Core
 
             ProcessEnemyContacts();
 
-            // Stop spawning if player is dead (HP set by PlayerController via VariableSO)
+            // Stop spawning if player is dead or boss phase active
             if (playerHpVar != null && playerHpVar.Value <= 0) return;
+            if (isBossPhase) return;
 
             if (enemySpawn != null)
                 enemySpawn.ProcessSpawning();
@@ -125,6 +134,9 @@ namespace Action002.Core
 
         private void OnDestroy()
         {
+            if (onGamePhaseChanged != null)
+                onGamePhaseChanged.OnEventRaised -= HandleGamePhaseChanged;
+
             if (hasPendingEnemyJob)
             {
                 enemyOrchestrator?.CompleteAndApply();
@@ -149,6 +161,46 @@ namespace Action002.Core
         public void SetRunning(bool running)
         {
             isRunning = running;
+        }
+
+        private void HandleGamePhaseChanged(int phase)
+        {
+            if ((GamePhase)phase == GamePhase.Boss)
+            {
+                isBossPhase = true;
+                ClearForBossPhase();
+            }
+            else
+            {
+                isBossPhase = false;
+            }
+        }
+
+        private void ClearForBossPhase()
+        {
+            if (enemySet != null)
+            {
+                var ids = enemySet.EntityIds;
+                var idList = new List<int>(enemySet.Count);
+                for (int i = 0; i < ids.Length; i++)
+                    idList.Add(ids[i]);
+                foreach (var id in idList)
+                    enemySet.Unregister(id);
+            }
+
+            if (bulletSet != null)
+            {
+                var data = bulletSet.Data;
+                var ids = bulletSet.EntityIds;
+                var bulletDespawnList = new List<int>(bulletSet.Count);
+                for (int i = 0; i < data.Length; i++)
+                {
+                    if (data[i].Faction == BulletFaction.Enemy)
+                        bulletDespawnList.Add(ids[i]);
+                }
+                foreach (var id in bulletDespawnList)
+                    bulletSet.Unregister(id);
+            }
         }
 
         public void StopAndCleanup()

@@ -20,7 +20,7 @@ namespace Action002.Enemy.Rendering
         [Header("Outline")]
         [SerializeField] private float outlineScale = 1.3f;
 
-        private const int BatchSize = 1023;
+        private const int BATCH_SIZE = 1023;
 
         private Material bodyMaterial;
         private Material outlineMaterial;
@@ -35,8 +35,8 @@ namespace Action002.Enemy.Rendering
         private int[] outlineCounts;
         private int typeCount;
 
-        private static readonly int MainTexId = Shader.PropertyToID("_MainTex");
-        private static readonly int ColorId = Shader.PropertyToID("_BaseColor");
+        private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_MainTex");
+        private static readonly int COLOR_ID = Shader.PropertyToID("_BaseColor");
 
         private void Start()
         {
@@ -68,16 +68,9 @@ namespace Action002.Enemy.Rendering
             outlineCounts = new int[slotCount];
             for (int i = 0; i < slotCount; i++)
             {
-                bodyBatches[i] = new Matrix4x4[BatchSize];
-                outlineBatches[i] = new Matrix4x4[BatchSize];
+                bodyBatches[i] = new Matrix4x4[BATCH_SIZE];
+                outlineBatches[i] = new Matrix4x4[BATCH_SIZE];
             }
-        }
-
-        private void OnDestroy()
-        {
-            if (fallbackTexture != null) Destroy(fallbackTexture);
-            if (bodyMaterial != null) Destroy(bodyMaterial);
-            if (outlineMaterial != null) Destroy(outlineMaterial);
         }
 
         private static void SetupMaterialAlphaClip(Material mat, Texture2D tex)
@@ -126,14 +119,14 @@ namespace Action002.Enemy.Rendering
                 );
 
                 bodyBatches[slot][bodyCounts[slot]++] = bodyMatrix;
-                if (bodyCounts[slot] == BatchSize)
+                if (bodyCounts[slot] == BATCH_SIZE)
                 {
                     FlushBody(slot);
                     bodyCounts[slot] = 0;
                 }
 
                 outlineBatches[slot][outlineCounts[slot]++] = outMatrix;
-                if (outlineCounts[slot] == BatchSize)
+                if (outlineCounts[slot] == BATCH_SIZE)
                 {
                     FlushOutline(slot);
                     outlineCounts[slot] = 0;
@@ -155,14 +148,21 @@ namespace Action002.Enemy.Rendering
             }
         }
 
+        private void OnDestroy()
+        {
+            if (fallbackTexture != null) Destroy(fallbackTexture);
+            if (bodyMaterial != null) Destroy(bodyMaterial);
+            if (outlineMaterial != null) Destroy(outlineMaterial);
+        }
+
         private void FlushBody(int slot)
         {
             int typeIndex = slot / 2;
             int polarityBit = slot % 2;
 
             Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
-            bodyBlock.SetTexture(MainTexId, tex);
-            bodyBlock.SetColor(ColorId, PolarityColors.GetForeground(polarityBit));
+            bodyBlock.SetTexture(MAIN_TEX_ID, tex);
+            bodyBlock.SetColor(COLOR_ID, PolarityColors.GetForeground(polarityBit));
 
             Graphics.DrawMeshInstanced(quadMesh, 0, bodyMaterial, bodyBatches[slot], bodyCounts[slot], bodyBlock);
         }
@@ -173,8 +173,8 @@ namespace Action002.Enemy.Rendering
             int polarityBit = slot % 2;
 
             Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
-            outlineBlock.SetTexture(MainTexId, tex);
-            outlineBlock.SetColor(ColorId, PolarityColors.GetBackground(polarityBit));
+            outlineBlock.SetTexture(MAIN_TEX_ID, tex);
+            outlineBlock.SetColor(COLOR_ID, PolarityColors.GetBackground(polarityBit));
 
             Graphics.DrawMeshInstanced(quadMesh, 0, outlineMaterial, outlineBatches[slot], outlineCounts[slot], outlineBlock);
         }

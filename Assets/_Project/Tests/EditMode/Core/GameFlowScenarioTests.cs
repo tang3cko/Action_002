@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Reflection;
 using NUnit.Framework;
 using UnityEngine;
 using Action002.Core.Flow;
@@ -8,9 +7,6 @@ using Action002.Enemy.Data;
 using Action002.Visual;
 using Tang3cko.ReactiveSO;
 using Unity.Mathematics;
-using UnityEngine.TestTools;
-
-// Note: System.Reflection is still used by non-Controller tests (SetField/GetField for SO wiring).
 
 namespace Action002.Tests.Core
 {
@@ -40,25 +36,6 @@ namespace Action002.Tests.Core
             return so;
         }
 
-        /// <summary>
-        /// Sets a private serialized field on a ScriptableObject via reflection.
-        /// </summary>
-        private static void SetField(object target, string fieldName, object value)
-        {
-            var type = target.GetType();
-            while (type != null)
-            {
-                var field = type.GetField(fieldName, BindingFlags.Instance | BindingFlags.NonPublic);
-                if (field != null)
-                {
-                    field.SetValue(target, value);
-                    return;
-                }
-                type = type.BaseType;
-            }
-            Assert.Fail($"Field '{fieldName}' not found on {target.GetType().Name} or its base types.");
-        }
-
         #region Phase Change Events
 
         [Test]
@@ -69,111 +46,12 @@ namespace Action002.Tests.Core
             var gamePhaseVar = CreateSO<IntVariableSO>();
             gamePhaseVar.Value = (int)GamePhase.Title;
 
-            bool valueChanged = false;
-            var onValueChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onValueChanged);
-            onValueChanged.OnEventRaised += _ => valueChanged = true;
-
             // Act - fire the title start event (no controller to handle it)
             onTitleStartSelected.RaiseEvent();
 
             // Assert - gamePhaseVar should NOT have changed to Stage
-            Assert.That(valueChanged, Is.False,
+            Assert.That(gamePhaseVar.Value, Is.EqualTo((int)GamePhase.Title),
                 "Phase should not change immediately on title start; transition must complete first.");
-            Assert.That(gamePhaseVar.Value, Is.EqualTo((int)GamePhase.Title));
-        }
-
-        [Test]
-        public void GamePhaseChanged_ToTitle_ShouldFireEvent()
-        {
-            // Arrange
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-
-            int receivedPhase = -1;
-            onGamePhaseChanged.OnEventRaised += value => receivedPhase = value;
-
-            // Act
-            gamePhaseVar.Value = (int)GamePhase.Title;
-
-            // Assert
-            Assert.That(receivedPhase, Is.EqualTo((int)GamePhase.Title));
-        }
-
-        [Test]
-        public void GamePhaseChanged_ToStage_ShouldFireEvent()
-        {
-            // Arrange
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-
-            int receivedPhase = -1;
-            onGamePhaseChanged.OnEventRaised += value => receivedPhase = value;
-
-            // Act
-            gamePhaseVar.Value = (int)GamePhase.Stage;
-
-            // Assert
-            Assert.That(receivedPhase, Is.EqualTo((int)GamePhase.Stage));
-        }
-
-        [Test]
-        public void GamePhaseChanged_ToResult_ShouldFireEvent()
-        {
-            // Arrange
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-
-            int receivedPhase = -1;
-            onGamePhaseChanged.OnEventRaised += value => receivedPhase = value;
-
-            // Act
-            gamePhaseVar.Value = (int)GamePhase.Result;
-
-            // Assert
-            Assert.That(receivedPhase, Is.EqualTo((int)GamePhase.Result));
-        }
-
-        [Test]
-        public void GamePhaseChanged_ToBoss_ShouldFireEvent()
-        {
-            // Arrange
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-
-            int receivedPhase = -1;
-            onGamePhaseChanged.OnEventRaised += value => receivedPhase = value;
-
-            // Act
-            gamePhaseVar.Value = (int)GamePhase.Boss;
-
-            // Assert
-            Assert.That(receivedPhase, Is.EqualTo((int)GamePhase.Boss));
-        }
-
-        [Test]
-        public void GamePhaseChanged_SameValue_ShouldNotFireEvent()
-        {
-            // Arrange
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-
-            gamePhaseVar.Value = (int)GamePhase.Title;
-
-            int fireCount = 0;
-            onGamePhaseChanged.OnEventRaised += _ => fireCount++;
-
-            // Act - set to the same value again
-            gamePhaseVar.Value = (int)GamePhase.Title;
-
-            // Assert
-            Assert.That(fireCount, Is.EqualTo(0),
-                "VariableSO should not fire event when value does not change.");
         }
 
         #endregion
@@ -215,47 +93,7 @@ namespace Action002.Tests.Core
 
         #endregion
 
-        #region Variable Reset
-
-        [Test]
-        public void PlayerHpVar_ResetToInitial_ShouldRestoreMaxHp()
-        {
-            // Arrange
-            var playerHpVar = CreateSO<IntVariableSO>();
-            SetField(playerHpVar, "initialValue", 5);
-            playerHpVar.Value = 5; // sync to initial
-            playerHpVar.Value = 2; // simulate damage
-
-            // Act
-            playerHpVar.ResetToInitial();
-
-            // Assert
-            Assert.That(playerHpVar.Value, Is.EqualTo(5));
-        }
-
-        [Test]
-        public void PlayerHpVar_ResetToInitial_ShouldFireValueChangedEvent()
-        {
-            // Arrange
-            var playerHpVar = CreateSO<IntVariableSO>();
-            var onValueChanged = CreateSO<IntEventChannelSO>();
-            SetField(playerHpVar, "onValueChanged", onValueChanged);
-            SetField(playerHpVar, "initialValue", 5);
-
-            playerHpVar.Value = 5;
-            playerHpVar.Value = 2;
-
-            int receivedValue = -1;
-            onValueChanged.OnEventRaised += v => receivedValue = v;
-
-            // Act
-            playerHpVar.ResetToInitial();
-
-            // Assert
-            Assert.That(receivedValue, Is.EqualTo(5));
-        }
-
-        #endregion
+        // Variable Reset region removed: was testing ReactiveSO internals (ResetToInitial, onValueChanged)
 
         #region Entity Set
 
@@ -425,21 +263,6 @@ namespace Action002.Tests.Core
             Assert.That(scoreVar.Value, Is.EqualTo(400));
         }
 
-        [Test]
-        public void ScoreVar_ResetToInitial_ShouldClearScore()
-        {
-            // Arrange
-            var scoreVar = CreateSO<IntVariableSO>();
-            SetField(scoreVar, "initialValue", 0);
-            scoreVar.Value = 500;
-
-            // Act
-            scoreVar.ResetToInitial();
-
-            // Assert
-            Assert.That(scoreVar.Value, Is.EqualTo(0));
-        }
-
         #endregion
 
         #region Combo
@@ -503,105 +326,9 @@ namespace Action002.Tests.Core
             Assert.That(spinGaugeVar.Value, Is.EqualTo(0.5f));
         }
 
-        [Test]
-        public void SpinGauge_ResetToInitial_ShouldRestoreZero()
-        {
-            // Arrange
-            var spinGaugeVar = CreateSO<FloatVariableSO>();
-            SetField(spinGaugeVar, "initialValue", 0f);
-            spinGaugeVar.Value = 0.75f;
-
-            // Act
-            spinGaugeVar.ResetToInitial();
-
-            // Assert
-            Assert.That(spinGaugeVar.Value, Is.EqualTo(0f));
-        }
-
-        [Test]
-        public void SpinGauge_ValueChanged_ShouldFireEvent()
-        {
-            // Arrange
-            var spinGaugeVar = CreateSO<FloatVariableSO>();
-            var onGaugeChanged = CreateSO<FloatEventChannelSO>();
-            SetField(spinGaugeVar, "onValueChanged", onGaugeChanged);
-
-            float receivedValue = -1f;
-            onGaugeChanged.OnEventRaised += v => receivedValue = v;
-
-            // Act
-            spinGaugeVar.Value = 0.8f;
-
-            // Assert
-            Assert.That(receivedValue, Is.EqualTo(0.8f));
-        }
-
         #endregion
 
-        #region Multi-Variable Coordination
-
-        [Test]
-        public void PhaseTransition_ShouldResetPlayerHpAndScore()
-        {
-            // Arrange
-            var playerHpVar = CreateSO<IntVariableSO>();
-            var scoreVar = CreateSO<IntVariableSO>();
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-            SetField(playerHpVar, "initialValue", 5);
-            SetField(scoreVar, "initialValue", 0);
-
-            playerHpVar.Value = 5;
-            playerHpVar.Value = 2;
-            scoreVar.Value = 300;
-
-            // Simulate: phase change to Stage resets variables
-            onGamePhaseChanged.OnEventRaised += phase =>
-            {
-                if (phase == (int)GamePhase.Stage)
-                {
-                    playerHpVar.ResetToInitial();
-                    scoreVar.ResetToInitial();
-                }
-            };
-
-            // Act
-            gamePhaseVar.Value = (int)GamePhase.Stage;
-
-            // Assert
-            Assert.That(playerHpVar.Value, Is.EqualTo(5));
-            Assert.That(scoreVar.Value, Is.EqualTo(0));
-        }
-
-        [Test]
-        public void FullGameCycle_Title_Stage_Result_Title()
-        {
-            // Arrange
-            var gamePhaseVar = CreateSO<IntVariableSO>();
-            var onGamePhaseChanged = CreateSO<IntEventChannelSO>();
-            SetField(gamePhaseVar, "onValueChanged", onGamePhaseChanged);
-
-            var phaseHistory = new List<int>();
-            onGamePhaseChanged.OnEventRaised += phase => phaseHistory.Add(phase);
-
-            // Act - simulate full game cycle
-            gamePhaseVar.Value = (int)GamePhase.Title;
-            gamePhaseVar.Value = (int)GamePhase.Stage;
-            gamePhaseVar.Value = (int)GamePhase.Boss;
-            gamePhaseVar.Value = (int)GamePhase.Result;
-            gamePhaseVar.Value = (int)GamePhase.Title;
-
-            // Assert
-            Assert.That(phaseHistory.Count, Is.EqualTo(5));
-            Assert.That(phaseHistory[0], Is.EqualTo((int)GamePhase.Title));
-            Assert.That(phaseHistory[1], Is.EqualTo((int)GamePhase.Stage));
-            Assert.That(phaseHistory[2], Is.EqualTo((int)GamePhase.Boss));
-            Assert.That(phaseHistory[3], Is.EqualTo((int)GamePhase.Result));
-            Assert.That(phaseHistory[4], Is.EqualTo((int)GamePhase.Title));
-        }
-
-        #endregion
+        // Multi-Variable Coordination region removed: was testing ReactiveSO event wiring internals
 
         // =====================================================================
         // GameFlowLogic Tests — Pure C# (Humble Object pattern)
@@ -2338,18 +2065,14 @@ namespace Action002.Tests.Core
 
             state.TransitionTo(GamePhase.Title);
 
-            var onResultTypeChanged = CreateSO<IntEventChannelSO>();
-            SetField(state.ResultTypeVar, "onValueChanged", onResultTypeChanged);
-
-            int resultTypeFireCount = 0;
-            onResultTypeChanged.OnEventRaised += _ => resultTypeFireCount++;
+            int initialResultType = state.ResultTypeVar.Value;
 
             // Act - Title -> Stage (resultTypeVar should NOT be written)
             ch.onTitleStartSelected.RaiseEvent();
             ch.onScreenTransitionClosed.RaiseEvent();
 
             // Assert
-            Assert.That(resultTypeFireCount, Is.EqualTo(0),
+            Assert.That(state.ResultTypeVar.Value, Is.EqualTo(initialResultType),
                 "resultTypeVar should not be written during Title -> Stage transition.");
         }
 

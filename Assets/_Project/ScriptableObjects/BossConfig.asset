@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 90d7196f1a75d458da3549eef144a158, type: 3}
+  m_Name: BossConfig
+  m_EditorClassIdentifier: Action002::Action002.Boss.Systems.BossConfigSO
+  phase1HpPerGuardian: 50
+  phase1ShootCooldown: 1.5
+  phase1SimultaneousThreshold: 15
+  phase1ForcedSwitchInterval: 8
+  phase1KillScore: 500
+  guardianCollisionRadius: 1
+  whiteGuardianOffset:
+    x: -3
+    y: 3
+  blackGuardianOffset:
+    x: 3
+    y: 3
+  phase2HpMagatama: 80
+  phase2ShootCooldown: 0.8
+  phase2ForcedSwitchInterval: 4
+  phase2KillScore: 1000
+  magatamaCollisionRadius: 1.5
+  magatamaRotationSpeed: 0.5
+  introDuration: 2
+  mergeDuration: 1.5
+  forcedSwitchWarningDuration: 2

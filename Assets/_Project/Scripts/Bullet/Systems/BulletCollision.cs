@@ -24,6 +24,7 @@ namespace Action002.Bullet.Systems
         private readonly float damageRadius;
         private readonly float bulletHitRadius;
         private readonly int killScore;
+        private IBossHitTarget bossHitTarget;
 
         private readonly List<int> despawnQueue = new List<int>(256);
         private readonly List<int> enemyDespawnQueue = new List<int>(64);
@@ -57,6 +58,11 @@ namespace Action002.Bullet.Systems
             this.killScore = killScore;
         }
 
+        public void SetBossHitTarget(IBossHitTarget target)
+        {
+            bossHitTarget = target;
+        }
+
         public void ProcessCollisions()
         {
             if (bulletSet == null || bulletSet.Count == 0) return;
@@ -79,7 +85,8 @@ namespace Action002.Bullet.Systems
 
                 if (BulletCollisionCalculator.IsPlayerBullet(bullet.Faction))
                 {
-                    ProcessPlayerBulletVsEnemies(bullet, ids[i]);
+                    if (!ProcessPlayerBulletVsBoss(bullet, ids[i]))
+                        ProcessPlayerBulletVsEnemies(bullet, ids[i]);
                 }
                 else
                 {
@@ -106,6 +113,18 @@ namespace Action002.Bullet.Systems
                 foreach (var id in enemyDespawnQueue)
                     enemySet.Unregister(id);
             }
+        }
+
+        private bool ProcessPlayerBulletVsBoss(BulletState bullet, int bulletId)
+        {
+            if (bossHitTarget == null || !bossHitTarget.IsActive) return false;
+
+            if (bossHitTarget.TryHitAny(bullet.Position.x, bullet.Position.y, bulletHitRadius, bullet.Damage))
+            {
+                despawnQueue.Add(bulletId);
+                return true;
+            }
+            return false;
         }
 
         private void ProcessPlayerBulletVsEnemies(BulletState bullet, int bulletId)

@@ -8,6 +8,9 @@ namespace Action002.Boss.Systems
         [Header("Config")]
         [SerializeField] private float bossTriggerTime = 120f;
 
+        [Header("Variables")]
+        [SerializeField] private IntVariableSO gamePhaseVar;
+
         [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onBossTriggerReached;
         [SerializeField] private VoidEventChannelSO onBossDefeated;
@@ -17,6 +20,14 @@ namespace Action002.Boss.Systems
         private bool isMonitoring = false;
 
         // ── Unity Lifecycle ─────────────────────────────
+
+        private void Start()
+        {
+            if (gamePhaseVar != null && gamePhaseVar.Value == (int)Action002.Core.Flow.GamePhase.Stage)
+            {
+                StartMonitoring();
+            }
+        }
 
         private void Update()
         {
@@ -75,6 +86,7 @@ namespace Action002.Boss.Systems
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            if (gamePhaseVar == null) Debug.LogWarning($"[{GetType().Name}] gamePhaseVar not assigned on {gameObject.name}.", this);
             if (onBossTriggerReached == null) Debug.LogWarning($"[{GetType().Name}] onBossTriggerReached not assigned on {gameObject.name}.", this);
             if (onBossDefeated == null) Debug.LogWarning($"[{GetType().Name}] onBossDefeated not assigned on {gameObject.name}.", this);
         }

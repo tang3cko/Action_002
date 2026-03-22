@@ -16,6 +16,9 @@ namespace Action002.Bullet.Systems
         [SerializeField] private Vector2VariableSO playerPositionVar;
         [SerializeField] private IntVariableSO playerPolarityVar;
 
+        [Header("Events (subscribe)")]
+        [SerializeField] private GameObjectEventChannelSO onBossHitTargetChanged;
+
         [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onPlayerDamaged;
         [SerializeField] private IntEventChannelSO onEnemyKilled;
@@ -29,6 +32,31 @@ namespace Action002.Bullet.Systems
         [SerializeField] private int killScore = 50;
 
         private BulletCollision logic;
+
+        private void OnEnable()
+        {
+            if (onBossHitTargetChanged != null)
+                onBossHitTargetChanged.OnEventRaised += HandleBossHitTargetChanged;
+        }
+
+        private void OnDisable()
+        {
+            if (onBossHitTargetChanged != null)
+                onBossHitTargetChanged.OnEventRaised -= HandleBossHitTargetChanged;
+        }
+
+        private void HandleBossHitTargetChanged(GameObject go)
+        {
+            if (go != null)
+            {
+                var target = go.GetComponent<IBossHitTarget>();
+                logic.SetBossHitTarget(target);
+            }
+            else
+            {
+                logic.SetBossHitTarget(null);
+            }
+        }
 
         private void Awake()
         {
@@ -48,6 +76,11 @@ namespace Action002.Bullet.Systems
             );
         }
 
+        public void SetBossHitTarget(IBossHitTarget target)
+        {
+            logic.SetBossHitTarget(target);
+        }
+
         public void ProcessCollisions()
         {
             logic.ProcessCollisions();
@@ -64,6 +97,7 @@ namespace Action002.Bullet.Systems
             if (onEnemyKilled == null) Debug.LogWarning($"[{GetType().Name}] onEnemyKilled not assigned on {gameObject.name}.", this);
             if (onComboIncremented == null) Debug.LogWarning($"[{GetType().Name}] onComboIncremented not assigned on {gameObject.name}.", this);
             if (onKillScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onKillScoreAdded not assigned on {gameObject.name}.", this);
+            if (onBossHitTargetChanged == null) Debug.LogWarning($"[{GetType().Name}] onBossHitTargetChanged not assigned on {gameObject.name}.", this);
         }
 #endif
     }

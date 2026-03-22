@@ -37,6 +37,7 @@ namespace Action002.Player.Systems
         [SerializeField] private FloatEventChannelSO onComboIncremented;
         [SerializeField] private IntEventChannelSO onKillScoreAdded;
         [SerializeField] private IntEventChannelSO onScoreAdded;
+        [SerializeField] private VoidEventChannelSO onForcedPolaritySwitch;
 
         [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onGameOver;
@@ -51,6 +52,7 @@ namespace Action002.Player.Systems
         private Texture2D generatedTexture;
         private PlayerGrowthCoordinator growthCoordinator;
         private float moveSpeedMultiplier = 1f;
+        private bool forcedSwitchPending;
 
         private void Awake()
         {
@@ -73,6 +75,8 @@ namespace Action002.Player.Systems
                 onKillScoreAdded.OnEventRaised += HandleAddKillScore;
             if (onScoreAdded != null)
                 onScoreAdded.OnEventRaised += HandleAddScore;
+            if (onForcedPolaritySwitch != null)
+                onForcedPolaritySwitch.OnEventRaised += HandleForcedPolaritySwitch;
         }
 
         private void Start()
@@ -141,17 +145,11 @@ namespace Action002.Player.Systems
                 hasGameOverFired = true;
                 onGameOver?.RaiseEvent();
             }
-        }
 
-        private void OnDestroy()
-        {
-            if (spriteRenderer != null && spriteRenderer.sprite != null && generatedTexture != null)
+            if (forcedSwitchPending)
             {
-                var sprite = spriteRenderer.sprite;
-                spriteRenderer.sprite = null;
-                Destroy(sprite);
-                Destroy(generatedTexture);
-                generatedTexture = null;
+                forcedSwitchPending = false;
+                HandleSwitchPolarity();
             }
         }
 
@@ -170,6 +168,20 @@ namespace Action002.Player.Systems
                 onKillScoreAdded.OnEventRaised -= HandleAddKillScore;
             if (onScoreAdded != null)
                 onScoreAdded.OnEventRaised -= HandleAddScore;
+            if (onForcedPolaritySwitch != null)
+                onForcedPolaritySwitch.OnEventRaised -= HandleForcedPolaritySwitch;
+        }
+
+        private void OnDestroy()
+        {
+            if (spriteRenderer != null && spriteRenderer.sprite != null && generatedTexture != null)
+            {
+                var sprite = spriteRenderer.sprite;
+                spriteRenderer.sprite = null;
+                Destroy(sprite);
+                Destroy(generatedTexture);
+                generatedTexture = null;
+            }
         }
 
         public void ResetForNewRun()
@@ -184,6 +196,7 @@ namespace Action002.Player.Systems
                 ComboMultiplier = 1f,
             };
             hasGameOverFired = false;
+            forcedSwitchPending = false;
             moveInput = Vector2.zero;
             transform.position = Vector3.zero;
 
@@ -213,6 +226,11 @@ namespace Action002.Player.Systems
             UpdateVisual();
             if (playerPolarityVar != null)
                 playerPolarityVar.Value = (int)state.CurrentPolarity;
+        }
+
+        private void HandleForcedPolaritySwitch()
+        {
+            forcedSwitchPending = true;
         }
 
         // --- Event Handlers ---

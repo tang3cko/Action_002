@@ -83,6 +83,11 @@ namespace Action002.Core.Flow
                 onSceneLoadCompleted.OnEventRaised += HandleSceneLoadCompleted;
         }
 
+        private void Start()
+        {
+            Logic.Initialize();
+        }
+
         private void OnDisable()
         {
             if (onGameOver != null)
@@ -107,11 +112,6 @@ namespace Action002.Core.Flow
                 onScreenTransitionOpened.OnEventRaised -= HandleTransitionOpened;
             if (onSceneLoadCompleted != null)
                 onSceneLoadCompleted.OnEventRaised -= HandleSceneLoadCompleted;
-        }
-
-        private void Start()
-        {
-            Logic.Initialize();
         }
 
         // --- Event Handlers (delegate to logic) ---

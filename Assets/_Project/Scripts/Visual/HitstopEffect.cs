@@ -18,11 +18,11 @@ namespace Action002.Visual
         [SerializeField] private float scalePulseAmount = 1.3f;
         [SerializeField] private float scalePulseDuration = 0.15f;
 
-        private Coroutine _hitstopCoroutine;
-        private Coroutine _scaleCoroutine;
-        private float _previousTimeScale = 1f;
-        private Vector3 _baseScale = Vector3.one;
-        private bool _baseScaleCaptured;
+        private Coroutine hitstopCoroutine;
+        private Coroutine scaleCoroutine;
+        private float previousTimeScale = 1f;
+        private Vector3 baseScale = Vector3.one;
+        private bool baseScaleCaptured;
 
         private void OnEnable()
         {
@@ -42,30 +42,30 @@ namespace Action002.Visual
         private void HandlePolarityChanged(int polarity)
         {
             // Restore timeScale before starting new hitstop to avoid capturing mid-hitstop value
-            if (_hitstopCoroutine != null)
+            if (hitstopCoroutine != null)
             {
-                StopCoroutine(_hitstopCoroutine);
-                Time.timeScale = _previousTimeScale;
+                StopCoroutine(hitstopCoroutine);
+                Time.timeScale = previousTimeScale;
             }
-            _hitstopCoroutine = StartCoroutine(HitstopCoroutine());
+            hitstopCoroutine = StartCoroutine(HitstopCoroutine());
 
             if (playerTransform != null)
             {
-                if (!_baseScaleCaptured)
+                if (!baseScaleCaptured)
                 {
-                    _baseScale = playerTransform.localScale;
-                    _baseScaleCaptured = true;
+                    baseScale = playerTransform.localScale;
+                    baseScaleCaptured = true;
                 }
 
-                if (_scaleCoroutine != null)
-                    StopCoroutine(_scaleCoroutine);
-                _scaleCoroutine = StartCoroutine(ScalePulseCoroutine());
+                if (scaleCoroutine != null)
+                    StopCoroutine(scaleCoroutine);
+                scaleCoroutine = StartCoroutine(ScalePulseCoroutine());
             }
         }
 
         private IEnumerator HitstopCoroutine()
         {
-            _previousTimeScale = Time.timeScale;
+            previousTimeScale = Time.timeScale;
             Time.timeScale = hitstopTimeScale;
             float elapsed = 0f;
             while (elapsed < hitstopDuration)
@@ -73,13 +73,13 @@ namespace Action002.Visual
                 elapsed += Time.unscaledDeltaTime;
                 yield return null;
             }
-            Time.timeScale = _previousTimeScale;
-            _hitstopCoroutine = null;
+            Time.timeScale = previousTimeScale;
+            hitstopCoroutine = null;
         }
 
         private IEnumerator ScalePulseCoroutine()
         {
-            Vector3 pulsedScale = _baseScale * scalePulseAmount;
+            Vector3 pulsedScale = baseScale * scalePulseAmount;
 
             float elapsed = 0f;
             while (elapsed < scalePulseDuration)
@@ -87,34 +87,34 @@ namespace Action002.Visual
                 elapsed += Time.unscaledDeltaTime;
                 float t = Mathf.Clamp01(elapsed / scalePulseDuration);
                 float eased = 1f - (1f - t) * (1f - t);
-                playerTransform.localScale = Vector3.Lerp(pulsedScale, _baseScale, eased);
+                playerTransform.localScale = Vector3.Lerp(pulsedScale, baseScale, eased);
                 yield return null;
             }
 
-            playerTransform.localScale = _baseScale;
-            _scaleCoroutine = null;
+            playerTransform.localScale = baseScale;
+            scaleCoroutine = null;
         }
 
         private void RestoreTimeScale()
         {
-            if (_hitstopCoroutine != null)
+            if (hitstopCoroutine != null)
             {
-                StopCoroutine(_hitstopCoroutine);
-                Time.timeScale = _previousTimeScale;
-                _hitstopCoroutine = null;
+                StopCoroutine(hitstopCoroutine);
+                Time.timeScale = previousTimeScale;
+                hitstopCoroutine = null;
             }
         }
 
         private void RestorePlayerScale()
         {
-            if (_scaleCoroutine != null)
+            if (scaleCoroutine != null)
             {
-                StopCoroutine(_scaleCoroutine);
-                _scaleCoroutine = null;
+                StopCoroutine(scaleCoroutine);
+                scaleCoroutine = null;
             }
 
-            if (playerTransform != null && _baseScaleCaptured)
-                playerTransform.localScale = _baseScale;
+            if (playerTransform != null && baseScaleCaptured)
+                playerTransform.localScale = baseScale;
         }
 
 #if UNITY_EDITOR
