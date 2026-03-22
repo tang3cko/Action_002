@@ -151,7 +151,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.UI.TitleScreenController
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
-  onTitleStartTransitionOriginSelected: {fileID: 11400000, guid: 1b0d1e6fd9d84c729d5c6b765cf720f1, type: 2}
+  onTitleStartTransitionOriginSelected: {fileID: 11400000, guid: ca61bce310cb54af29646c28e5f9c5f4, type: 2}
   onTitleStartSelected: {fileID: 11400000, guid: 5afc79a92cbf5428a85c5c4bedafe828, type: 2}
 --- !u!114 &1595687986
 MonoBehaviour:

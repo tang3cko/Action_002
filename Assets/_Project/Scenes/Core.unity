@@ -323,12 +323,12 @@ MonoBehaviour:
   screenTransitionController: {fileID: 1108283334}
   onGameOver: {fileID: 11400000, guid: accbfe13ebf0247238041e67bcf14dee, type: 2}
   onTutorialCompleted: {fileID: 11400000, guid: fec74a1993024474eae0db3f35730a14, type: 2}
-  onTitleStartTransitionOriginSelected: {fileID: 11400000, guid: 1b0d1e6fd9d84c729d5c6b765cf720f1, type: 2}
+  onTitleStartTransitionOriginSelected: {fileID: 11400000, guid: ca61bce310cb54af29646c28e5f9c5f4, type: 2}
   onTitleStartSelected: {fileID: 11400000, guid: 5afc79a92cbf5428a85c5c4bedafe828, type: 2}
   onBossTriggerReached: {fileID: 11400000, guid: 3c31d02434dd242bfa0c5fc97f1293c3, type: 2}
   onBossDefeated: {fileID: 11400000, guid: ccf7dd7037c874cb7bf85cfd023f02a0, type: 2}
-  onResultRetrySelected: {fileID: 11400000, guid: 506d1d88b71ce4d1e8ad6e3a193ce7c2, type: 2}
-  onResultBackToTitleSelected: {fileID: 11400000, guid: ade1becd1ffa14ae69c34835155ba122, type: 2}
+  onResultRetrySelected: {fileID: 11400000, guid: e0f4e8fcd17a54313a8fa9e748f1f174, type: 2}
+  onResultBackToTitleSelected: {fileID: 11400000, guid: 2778899e881e3429f9789249eda89e53, type: 2}
   onScreenTransitionClosed: {fileID: 11400000, guid: fed1eb13b6acf41e88a0580b24505e90, type: 2}
   onScreenTransitionOpened: {fileID: 11400000, guid: 22a611530c750410c96c953e03be50b6, type: 2}
   onSceneLoadCompleted: {fileID: 11400000, guid: 055e89871e66045bfb0ac74105190716, type: 2}

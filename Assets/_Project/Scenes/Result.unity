@@ -152,8 +152,8 @@ MonoBehaviour:
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   resultTypeVar: {fileID: 11400000, guid: 9680e4cf7c4e9475db2fd483c857a816, type: 2}
-  onResultRetrySelected: {fileID: 11400000, guid: 506d1d88b71ce4d1e8ad6e3a193ce7c2, type: 2}
-  onResultBackToTitleSelected: {fileID: 11400000, guid: ade1becd1ffa14ae69c34835155ba122, type: 2}
+  onResultRetrySelected: {fileID: 11400000, guid: e0f4e8fcd17a54313a8fa9e748f1f174, type: 2}
+  onResultBackToTitleSelected: {fileID: 11400000, guid: 2778899e881e3429f9789249eda89e53, type: 2}
 --- !u!114 &836160629
 MonoBehaviour:
   m_ObjectHideFlags: 0
