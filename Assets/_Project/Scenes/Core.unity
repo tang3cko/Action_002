@@ -287,7 +287,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Core.Flow.GameFlowController
   sceneLoader: {fileID: 709527822}
-  firstPlayFlagRepository: {fileID: 11400000, guid: 522cf4cb6b0dc4972b0569cf42eaac9a, type: 2}
+  saveDataRepository: {fileID: 11400000, guid: 43de60b3e649c458793669d3f52031c3, type: 2}
   screenTransitionController: {fileID: 1108283334}
   onGameOver: {fileID: 11400000, guid: accbfe13ebf0247238041e67bcf14dee, type: 2}
   onTutorialCompleted: {fileID: 11400000, guid: fec74a1993024474eae0db3f35730a14, type: 2}
@@ -303,6 +303,10 @@ MonoBehaviour:
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
   onBossPhaseRequested: {fileID: 11400000, guid: 2e4072e1130c549dea4f6af253ec2b9d, type: 2}
   playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
+  scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
+  maxComboVar: {fileID: 11400000, guid: c82f4c7ba71294932bf1bb5db841fc25, type: 2}
+  runKillCountVar: {fileID: 11400000, guid: cdaa30a23e6f243a49bd2e9471f04362, type: 2}
+  runAbsorptionCountVar: {fileID: 11400000, guid: 2ee4bd461d20344798e04e281bd3bc8d, type: 2}
   gamePhaseVar: {fileID: 11400000, guid: 5629dd0aba6044ee3be0a3debc079476, type: 2}
   resultTypeVar: {fileID: 11400000, guid: 9680e4cf7c4e9475db2fd483c857a816, type: 2}
 --- !u!4 &709527821

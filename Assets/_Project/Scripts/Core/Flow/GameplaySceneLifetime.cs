@@ -27,6 +27,9 @@ namespace Action002.Core.Flow
         [SerializeField] private FloatVariableSO spinGaugeVar;
         [SerializeField] private Vector2VariableSO playerPositionVar;
         [SerializeField] private IntVariableSO playerPolarityVar;
+        [SerializeField] private IntVariableSO maxComboVar;
+        [SerializeField] private IntVariableSO runKillCountVar;
+        [SerializeField] private IntVariableSO runAbsorptionCountVar;
 
         private void Awake()
         {
@@ -39,6 +42,9 @@ namespace Action002.Core.Flow
             if (spinGaugeVar != null) spinGaugeVar.ResetToInitial();
             if (playerPositionVar != null) playerPositionVar.ResetToInitial();
             if (playerPolarityVar != null) playerPolarityVar.ResetToInitial();
+            if (maxComboVar != null) maxComboVar.ResetToInitial();
+            if (runKillCountVar != null) runKillCountVar.ResetToInitial();
+            if (runAbsorptionCountVar != null) runAbsorptionCountVar.ResetToInitial();
         }
 
         private void Start()
@@ -110,6 +116,9 @@ namespace Action002.Core.Flow
             if (spinGaugeVar == null) Debug.LogWarning($"[{GetType().Name}] spinGaugeVar not assigned on {gameObject.name}.", this);
             if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
             if (playerPolarityVar == null) Debug.LogWarning($"[{GetType().Name}] playerPolarityVar not assigned on {gameObject.name}.", this);
+            if (maxComboVar == null) Debug.LogWarning($"[{GetType().Name}] maxComboVar not assigned on {gameObject.name}.", this);
+            if (runKillCountVar == null) Debug.LogWarning($"[{GetType().Name}] runKillCountVar not assigned on {gameObject.name}.", this);
+            if (runAbsorptionCountVar == null) Debug.LogWarning($"[{GetType().Name}] runAbsorptionCountVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }

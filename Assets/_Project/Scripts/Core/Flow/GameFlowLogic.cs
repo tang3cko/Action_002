@@ -17,6 +17,7 @@ namespace Action002.Core.Flow
         void SetGamePhaseVariable(int phase);
         void SetResultTypeVariable(int resultType);
         void SaveTutorialCompleted();
+        void CommitRunResult();
     }
 
     /// <summary>
@@ -33,6 +34,7 @@ namespace Action002.Core.Flow
         private float pendingOriginX;
         private float pendingOriginY;
         private bool hasPendingTransitionOrigin;
+        private bool resultCommitted;
 
         private readonly IGameFlowActions actions;
 
@@ -55,6 +57,11 @@ namespace Action002.Core.Flow
 
         public void HandleGameOver()
         {
+            if (!resultCommitted)
+            {
+                resultCommitted = true;
+                actions.CommitRunResult();
+            }
             PendingPhase = GamePhase.Result;
             PendingResultType = GameResultType.GameOver;
             actions.ConvergeTransitionToPlayer();
@@ -94,6 +101,11 @@ namespace Action002.Core.Flow
 
         public void HandleBossDefeated()
         {
+            if (!resultCommitted)
+            {
+                resultCommitted = true;
+                actions.CommitRunResult();
+            }
             PendingPhase = GamePhase.Result;
             PendingResultType = GameResultType.Clear;
             actions.CloseTransition();
@@ -101,12 +113,14 @@ namespace Action002.Core.Flow
 
         public void HandleResultRetrySelected()
         {
+            resultCommitted = false;
             PendingPhase = GamePhase.Stage;
             actions.CloseTransition();
         }
 
         public void HandleResultBackToTitleSelected()
         {
+            resultCommitted = false;
             PendingPhase = GamePhase.Title;
             actions.CloseTransition();
         }

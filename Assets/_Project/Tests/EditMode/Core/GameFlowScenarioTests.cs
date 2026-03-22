@@ -697,6 +697,10 @@ namespace Action002.Tests.Core
             {
                 SaveTutorialCompletedCallCount++;
             }
+
+            public void CommitRunResult()
+            {
+            }
         }
 
         /// <summary>

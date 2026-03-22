@@ -9,7 +9,6 @@ namespace Action002.Core.Flow
     {
         [Header("Dependencies")]
         [SerializeField] private SceneLoader sceneLoader;
-        [SerializeField] private FirstPlayFlagRepository firstPlayFlagRepository;
         [SerializeField] private ScreenTransitionController screenTransitionController;
 
         [Header("Events (subscribe)")]
@@ -31,14 +30,32 @@ namespace Action002.Core.Flow
 
         [Header("Variables (read)")]
         [SerializeField] private Vector2VariableSO playerPositionVar;
+        [SerializeField] private IntVariableSO scoreVar;
+        [SerializeField] private IntVariableSO maxComboVar;
+        [SerializeField] private IntVariableSO runKillCountVar;
+        [SerializeField] private IntVariableSO runAbsorptionCountVar;
 
         [Header("Variables (write)")]
         [SerializeField] private IntVariableSO gamePhaseVar;
         [SerializeField] private IntVariableSO resultTypeVar;
 
         private GameFlowLogic logic;
+        private SaveDataService saveDataService;
 
         private GameFlowLogic Logic => logic ?? (logic = new GameFlowLogic(this));
+
+        private SaveDataService SaveService =>
+            saveDataService ?? (saveDataService = CreateSaveDataService());
+
+        public void InjectSaveDataService(SaveDataService service)
+        {
+            saveDataService = service;
+        }
+
+        private static SaveDataService CreateSaveDataService()
+        {
+            return new SaveDataService(new PlayerPrefsSaveDataRepository());
+        }
 
         private void OnEnable()
         {
@@ -219,21 +236,23 @@ namespace Action002.Core.Flow
 
         void IGameFlowActions.SaveTutorialCompleted()
         {
-            if (firstPlayFlagRepository != null)
-            {
-                firstPlayFlagRepository.SaveTutorialCompleted();
-            }
-            else
-            {
-                Debug.LogWarning($"[{GetType().Name}] firstPlayFlagRepository not assigned on {gameObject.name}. Tutorial completion was not persisted.", this);
-            }
+            SaveService.MarkTutorialCompleted();
+        }
+
+        void IGameFlowActions.CommitRunResult()
+        {
+            int finalScore = scoreVar != null ? scoreVar.Value : 0;
+            int maxCombo = maxComboVar != null ? maxComboVar.Value : 0;
+            int killCount = runKillCountVar != null ? runKillCountVar.Value : 0;
+            int absorptionCount = runAbsorptionCountVar != null ? runAbsorptionCountVar.Value : 0;
+
+            SaveService.ApplyRunResult(finalScore, maxCombo, killCount, absorptionCount);
         }
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             if (sceneLoader == null) Debug.LogWarning($"[{GetType().Name}] sceneLoader not assigned on {gameObject.name}.", this);
-            if (firstPlayFlagRepository == null) Debug.LogWarning($"[{GetType().Name}] firstPlayFlagRepository not assigned on {gameObject.name}.", this);
             if (screenTransitionController == null) Debug.LogWarning($"[{GetType().Name}] screenTransitionController not assigned on {gameObject.name}.", this);
             if (onGameOver == null) Debug.LogWarning($"[{GetType().Name}] onGameOver not assigned on {gameObject.name}.", this);
             if (onTutorialCompleted == null) Debug.LogWarning($"[{GetType().Name}] onTutorialCompleted not assigned on {gameObject.name}.", this);
@@ -249,6 +268,10 @@ namespace Action002.Core.Flow
             if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
             if (onBossPhaseRequested == null) Debug.LogWarning($"[{GetType().Name}] onBossPhaseRequested not assigned on {gameObject.name}.", this);
             if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
+            if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
+            if (maxComboVar == null) Debug.LogWarning($"[{GetType().Name}] maxComboVar not assigned on {gameObject.name}.", this);
+            if (runKillCountVar == null) Debug.LogWarning($"[{GetType().Name}] runKillCountVar not assigned on {gameObject.name}.", this);
+            if (runAbsorptionCountVar == null) Debug.LogWarning($"[{GetType().Name}] runAbsorptionCountVar not assigned on {gameObject.name}.", this);
             if (gamePhaseVar == null) Debug.LogWarning($"[{GetType().Name}] gamePhaseVar not assigned on {gameObject.name}.", this);
             if (resultTypeVar == null) Debug.LogWarning($"[{GetType().Name}] resultTypeVar not assigned on {gameObject.name}.", this);
         }
