@@ -16,7 +16,7 @@ namespace Action002.Tests.Boss
         private class MockRhythmClock : IRhythmClock
         {
             public int HalfBeatIndex;
-            public bool Playing = true;
+            public bool Playing = false;
 
             public bool StartClock() { Playing = true; return true; }
             public void StopClock() { Playing = false; }
@@ -135,6 +135,7 @@ namespace Action002.Tests.Boss
         {
             mock = new MockBossActions();
             mockClock = new MockRhythmClock();
+            mockClock.Playing = true;
             ai = CreateAI(mock);
         }
 
@@ -210,6 +211,19 @@ namespace Action002.Tests.Boss
             ai.Tick(0.1f); // Intro → Phase1
 
             // No clock advance — no downbeat available
+            ai.Tick(0.6f);
+
+            Assert.That(mock.FiredBullets.Count, Is.EqualTo(0));
+        }
+
+        [Test]
+        public void Phase1_DoesNotFireOnOffbeat()
+        {
+            ai = CreateAI(mock, introDuration: 0f);
+            ai.Begin(float2.zero);
+            ai.Tick(0.1f); // Intro → Phase1
+
+            mockClock.AdvanceToOffbeat(); // offbeatを進める
             ai.Tick(0.6f);
 
             Assert.That(mock.FiredBullets.Count, Is.EqualTo(0));
@@ -313,6 +327,18 @@ namespace Action002.Tests.Boss
             int before = mock.FiredBullets.Count;
 
             // No clock advance
+            ai.Tick(0.2f);
+
+            Assert.That(mock.FiredBullets.Count, Is.EqualTo(before));
+        }
+
+        [Test]
+        public void Phase2_DoesNotFireOnDownbeat()
+        {
+            GoToPhase2();
+            int before = mock.FiredBullets.Count;
+
+            mockClock.AdvanceToDownbeat(); // downbeatを進める
             ai.Tick(0.2f);
 
             Assert.That(mock.FiredBullets.Count, Is.EqualTo(before));

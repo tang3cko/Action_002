@@ -99,6 +99,12 @@ namespace Action002.Boss.Systems
                 return;
             }
 
+            if (rhythmClock == null)
+            {
+                Debug.LogError($"[{GetType().Name}] rhythmClock not assigned. Cannot start boss phase.", this);
+                return;
+            }
+
             ai = new BossAI(
                 this,
                 rhythmClock,
