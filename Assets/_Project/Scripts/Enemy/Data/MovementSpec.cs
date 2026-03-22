@@ -8,5 +8,6 @@ namespace Action002.Enemy.Data
         public MovementPattern Pattern;
         public float KeepDistance;
         public float ArrivalThreshold;
+        public float RotationSpeed;
     }
 }

@@ -1,34 +1,18 @@
 using UnityEngine;
 using Action002.Core;
-using Tang3cko.ReactiveSO;
 
 namespace Action002.Visual
 {
-    /// <summary>
-    /// Generates a fullscreen quad and drives the TitleBackground shader
-    /// with polarity-aware yin-yang colour split.
-    /// </summary>
     public class TitleBackgroundController : MonoBehaviour
     {
-        // ── Fields ──────────────────────────────────────────
-
         [Header("Shader")]
         [SerializeField] private Shader waveShader;
-
-        [Header("References")]
-        [SerializeField] private Camera targetCamera;
-        [SerializeField] private IntVariableSO polarityVar;
 
         [Header("Settings")]
         [SerializeField] private float speed = 0.04f;
         [SerializeField] private float scale = 3.0f;
-        [SerializeField] private float distortion = 1.0f;
-        [SerializeField] private float boundaryWidth = 0.15f;
-        [SerializeField] private float tendrilStrength = 0.6f;
 
-        [Header("Events")]
-        [SerializeField] private IntEventChannelSO onPolarityChanged;
-
+        private Camera targetCamera;
         private Material titleMaterial;
         private GameObject quadObject;
         private float cachedAspect;
@@ -38,21 +22,12 @@ namespace Action002.Visual
         private float cachedNearClip;
         private bool cachedOrthographic;
 
-        // ── Shader Property IDs ─────────────────────────────
-
         private static readonly int DARK_COLOR_ID = Shader.PropertyToID("_DarkColor");
         private static readonly int LIGHT_COLOR_ID = Shader.PropertyToID("_LightColor");
         private static readonly int SPEED_ID = Shader.PropertyToID("_Speed");
         private static readonly int SCALE_ID = Shader.PropertyToID("_Scale");
-        private static readonly int DISTORTION_ID = Shader.PropertyToID("_Distortion");
-        private static readonly int BOUNDARY_WIDTH_ID = Shader.PropertyToID("_BoundaryWidth");
-        private static readonly int TENDRIL_STRENGTH_ID = Shader.PropertyToID("_TendrilStrength");
-
-        // ── Constants ───────────────────────────────────────
 
         private const float QUAD_DEPTH_MARGIN = 1f;
-
-        // ── Unity Lifecycle ─────────────────────────────────
 
         private void Awake()
         {
@@ -62,23 +37,16 @@ namespace Action002.Visual
                 return;
             }
 
+            targetCamera = Camera.main;
             if (targetCamera == null)
             {
-                Debug.LogError($"[{GetType().Name}] targetCamera is null on {gameObject.name}.", this);
+                Debug.LogError($"[{GetType().Name}] Main Camera not found.", this);
                 return;
             }
 
             CreateMaterial();
             CreateQuad();
-
-            int initialPolarity = polarityVar != null ? polarityVar.Value : (int)Polarity.White;
-            ApplyPolarityColors(initialPolarity);
-        }
-
-        private void OnEnable()
-        {
-            if (onPolarityChanged != null)
-                onPolarityChanged.OnEventRaised += HandlePolarityChanged;
+            ApplyColors();
         }
 
         private void LateUpdate()
@@ -108,12 +76,6 @@ namespace Action002.Visual
             UpdateQuadScale();
         }
 
-        private void OnDisable()
-        {
-            if (onPolarityChanged != null)
-                onPolarityChanged.OnEventRaised -= HandlePolarityChanged;
-        }
-
         private void OnDestroy()
         {
             if (quadObject != null)
@@ -123,16 +85,11 @@ namespace Action002.Visual
                 Destroy(titleMaterial);
         }
 
-        // ── Private Methods ─────────────────────────────────
-
         private void CreateMaterial()
         {
             titleMaterial = new Material(waveShader);
             titleMaterial.SetFloat(SPEED_ID, speed);
             titleMaterial.SetFloat(SCALE_ID, scale);
-            titleMaterial.SetFloat(DISTORTION_ID, distortion);
-            titleMaterial.SetFloat(BOUNDARY_WIDTH_ID, boundaryWidth);
-            titleMaterial.SetFloat(TENDRIL_STRENGTH_ID, tendrilStrength);
         }
 
         private void CreateQuad()
@@ -193,54 +150,22 @@ namespace Action002.Visual
             return far - Mathf.Max(margin, Mathf.Epsilon);
         }
 
-        private void HandlePolarityChanged(int polarity)
-        {
-            ApplyPolarityColors(polarity);
-        }
-
-        private void ApplyPolarityColors(int polarity)
+        private void ApplyColors()
         {
             if (titleMaterial == null) return;
 
-            // White polarity: dark on left, light on right (default layout).
-            // Black polarity: swap so light is on left, dark on right.
-            Color darkColor;
-            Color lightColor;
-
-            if (polarity == (int)Polarity.White)
-            {
-                darkColor = PolarityColors.WhiteBackground;
-                lightColor = PolarityColors.BlackBackground;
-            }
-            else
-            {
-                darkColor = PolarityColors.BlackBackground;
-                lightColor = PolarityColors.WhiteBackground;
-            }
-
-            titleMaterial.SetColor(DARK_COLOR_ID, darkColor);
-            titleMaterial.SetColor(LIGHT_COLOR_ID, lightColor);
+            titleMaterial.SetColor(DARK_COLOR_ID, PolarityColors.WhiteBackground);
+            titleMaterial.SetColor(LIGHT_COLOR_ID, PolarityColors.BlackBackground);
         }
-
-        // ── Editor Only ─────────────────────────────────────
 
 #if UNITY_EDITOR
         private void OnValidate()
         {
             if (waveShader == null)
                 Debug.LogWarning($"[{GetType().Name}] waveShader not assigned on {gameObject.name}.", this);
-            if (targetCamera == null)
-                Debug.LogWarning($"[{GetType().Name}] targetCamera not assigned on {gameObject.name}.", this);
-            if (polarityVar == null)
-                Debug.LogWarning($"[{GetType().Name}] polarityVar not assigned on {gameObject.name}.", this);
-            if (onPolarityChanged == null)
-                Debug.LogWarning($"[{GetType().Name}] onPolarityChanged not assigned on {gameObject.name}.", this);
 
             speed = Mathf.Max(0f, speed);
             scale = Mathf.Max(0.01f, scale);
-            distortion = Mathf.Max(0f, distortion);
-            boundaryWidth = Mathf.Max(0.01f, boundaryWidth);
-            tendrilStrength = Mathf.Clamp(tendrilStrength, 0f, 2f);
         }
 #endif
     }

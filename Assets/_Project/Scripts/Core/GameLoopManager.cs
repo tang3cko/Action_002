@@ -79,6 +79,7 @@ namespace Action002.Core
                     Pattern = spec.Movement,
                     KeepDistance = spec.KeepDistance,
                     ArrivalThreshold = spec.ArrivalThreshold,
+                    RotationSpeed = EnemyRotationCalculator.GetRotationSpeed((EnemyTypeId)i),
                 };
             }
 

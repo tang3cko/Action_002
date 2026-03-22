@@ -22,7 +22,7 @@ Shader "Action002/BackgroundWave"
         Pass
         {
             Name "BackgroundWave"
-            Tags { "LightMode" = "UniversalForward" }
+            Tags { "LightMode" = "Universal2D" }
 
             ZWrite Off
             Cull Off

@@ -34,6 +34,12 @@ namespace Action002.Enemy.Logic
                     break;
             }
 
+            if (spec.RotationSpeed > 0f)
+            {
+                float direction = state.Velocity.x >= 0f ? -1f : 1f;
+                state.RotationAngle += direction * spec.RotationSpeed * DeltaTime;
+            }
+
             Dst[index] = state;
         }
 

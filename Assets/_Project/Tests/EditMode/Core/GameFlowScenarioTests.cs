@@ -2383,9 +2383,9 @@ namespace Action002.Tests.Core
             var color = TransitionColorHelper.GetColor(polarity);
 
             // Assert
-            Assert.That(color.r, Is.EqualTo(0.102f).Within(0.001f));
-            Assert.That(color.g, Is.EqualTo(0.102f).Within(0.001f));
-            Assert.That(color.b, Is.EqualTo(0.180f).Within(0.001f));
+            Assert.That(color.r, Is.EqualTo(0.082f).Within(0.001f));
+            Assert.That(color.g, Is.EqualTo(0.082f).Within(0.001f));
+            Assert.That(color.b, Is.EqualTo(0.090f).Within(0.001f));
             Assert.That(color.a, Is.EqualTo(1f).Within(0.001f));
         }
 

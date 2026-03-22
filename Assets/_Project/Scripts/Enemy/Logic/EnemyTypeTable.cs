@@ -9,7 +9,7 @@ namespace Action002.Enemy.Logic
         static readonly EnemyTypeSpec ShooterSpec = new EnemyTypeSpec(
             hp: 1,
             speedMultiplier: 1.0f,
-            visualScale: 0.8f,
+            visualScale: 1.6f,
             collisionRadius: 0.5f,
             shootCooldown: 1.0f,
             shotPattern: new ShotPatternSpec(ShotPatternKind.Aimed, 1, 0f, 3f),
@@ -21,7 +21,7 @@ namespace Action002.Enemy.Logic
         static readonly EnemyTypeSpec NWaySpec = new EnemyTypeSpec(
             hp: 1,
             speedMultiplier: 0.8f,
-            visualScale: 1.0f,
+            visualScale: 2.0f,
             collisionRadius: 0.6f,
             shootCooldown: 1.5f,
             shotPattern: new ShotPatternSpec(ShotPatternKind.Spiral, 3, 15f, 2.5f),
@@ -34,7 +34,7 @@ namespace Action002.Enemy.Logic
         static readonly EnemyTypeSpec RingSpec = new EnemyTypeSpec(
             hp: 3,
             speedMultiplier: 0.5f,
-            visualScale: 1.4f,
+            visualScale: 2.8f,
             collisionRadius: 1.0f,
             shootCooldown: 2.0f,
             shotPattern: new ShotPatternSpec(ShotPatternKind.Ring, 8, 0f, 2f),
@@ -46,7 +46,7 @@ namespace Action002.Enemy.Logic
         static readonly EnemyTypeSpec AnchorSpec = new EnemyTypeSpec(
             hp: 15,
             speedMultiplier: 0.6f,
-            visualScale: 1.8f,
+            visualScale: 3.6f,
             collisionRadius: 1.2f,
             shootCooldown: 0.3f,
             shotPattern: new ShotPatternSpec(ShotPatternKind.Spiral, 24, 12f, 2.5f),

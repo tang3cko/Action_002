@@ -107,7 +107,7 @@ namespace Action002.Enemy.Rendering
                     outlineSizeValue = EnemySpawnCalculator.CalculateScale(spawnElapsed, outlineSizeValue);
                 }
 
-                float angle = EnemyRotationCalculator.CalculateAngle(state.TypeId, state.Position, playerPos, time);
+                float angle = EnemyRotationCalculator.CalculateAngle(state.TypeId, state.Position, playerPos, state.RotationAngle);
                 var rotation = Quaternion.Euler(0f, 0f, angle);
 
                 var bodyMatrix = Matrix4x4.TRS(

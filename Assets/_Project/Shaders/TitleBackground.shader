@@ -6,9 +6,6 @@ Shader "Action002/TitleBackground"
         _LightColor ("Light Color", Color) = (0.941, 0.933, 0.902, 1)
         _Speed ("Speed", Float) = 0.04
         _Scale ("Scale", Float) = 3.0
-        _Distortion ("Distortion", Float) = 1.0
-        _BoundaryWidth ("Boundary Width", Float) = 0.15
-        _TendrilStrength ("Tendril Strength", Float) = 0.6
     }
 
     SubShader
@@ -23,7 +20,7 @@ Shader "Action002/TitleBackground"
         Pass
         {
             Name "TitleBackground"
-            Tags { "LightMode" = "UniversalForward" }
+            Tags { "LightMode" = "Universal2D" }
 
             ZWrite Off
             Cull Off
@@ -52,9 +49,6 @@ Shader "Action002/TitleBackground"
                 float4 _LightColor;
                 float _Speed;
                 float _Scale;
-                float _Distortion;
-                float _BoundaryWidth;
-                float _TendrilStrength;
             CBUFFER_END
 
             float hash(float2 p)
@@ -105,7 +99,10 @@ Shader "Action002/TitleBackground"
 
             float4 frag(Varyings input) : SV_Target
             {
-                float2 uv = input.uv;
+                float2 rawUv = input.uv;
+                float2 uv = rawUv;
+                uv.x *= _ScreenParams.x / _ScreenParams.y;
+
                 float t = _Time.y * _Speed;
                 float2 p = uv * _Scale;
 
@@ -126,8 +123,8 @@ Shader "Action002/TitleBackground"
 
                 float f = fbm(p + r * 1.5 + s * 0.8);
 
-                // Yin-yang split boundary with warping
-                float boundary = uv.x + (q.x - 0.5) * 0.4 + (r.y - 0.5) * 0.3;
+                // Yin-yang split boundary with warping (use raw UV for boundary)
+                float boundary = rawUv.x + (q.x - 0.5) * 0.4 + (r.y - 0.5) * 0.3;
 
                 // Swirl pattern intensity
                 float swirl = f * f * 4.0;
@@ -137,7 +134,7 @@ Shader "Action002/TitleBackground"
                 // Dark side: base color with subtle lighter swirls
                 float3 darkBase = _DarkColor.rgb;
                 float3 darkSwirl = lerp(darkBase, darkBase * 1.8, swirl * 0.3);
-                darkSwirl = lerp(darkSwirl, float3(0.12, 0.12, 0.15), flow * 0.2);
+                darkSwirl = lerp(darkSwirl, float3(0.15, 0.15, 0.25), flow * 0.2);
                 darkSwirl = lerp(darkSwirl, darkBase * 0.6, detail * 0.15);
 
                 // Light side: base color with subtle darker swirls
@@ -147,7 +144,7 @@ Shader "Action002/TitleBackground"
                 lightSwirl = lerp(lightSwirl, lightBase * 0.9, detail * 0.15);
 
                 // Boundary zone with ink bleeding
-                float bw = _BoundaryWidth + (f - 0.5) * 0.1;
+                float bw = max(0.15 + (f - 0.5) * 0.1, 0.001);
                 float boundaryMix = smoothstep(-bw, bw, boundary - 0.5);
 
                 // Ink tendrils at the boundary
@@ -160,14 +157,13 @@ Shader "Action002/TitleBackground"
                 float3 col = lerp(darkSwirl, lightSwirl, boundaryMix);
 
                 // Add ink bleeding tendrils
-                col = lerp(col, darkBase * 0.8,
-                    darkTendrils * _TendrilStrength * (1.0 - boundaryMix));
-                col = lerp(col, lightBase * 1.1,
-                    darkTendrils * (_TendrilStrength * 0.5) * boundaryMix);
+                col = lerp(col, darkBase * 0.8, darkTendrils * 0.6 * (1.0 - boundaryMix));
+                col = lerp(col, lightBase * 1.1, darkTendrils * 0.3 * boundaryMix);
 
-                // Simplified vortex highlight near boundary
+                // Vortex highlight near boundary
+                float vortex = fbm(p * 6.0 + s * 4.0 + float2(t * 0.3, -t * 0.2));
                 float vortexMask = exp(-pow((boundary - 0.5) * 4.0, 2.0));
-                col = lerp(col, lerp(darkBase, lightBase, f), vortexMask * 0.1);
+                col = lerp(col, lerp(darkBase, lightBase, vortex), vortexMask * 0.15);
 
                 return float4(col, 1.0);
             }
