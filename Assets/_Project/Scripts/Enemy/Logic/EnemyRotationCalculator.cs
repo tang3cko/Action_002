@@ -26,7 +26,7 @@ namespace Action002.Enemy.Logic
         {
             float2 dir = playerPos - enemyPos;
             if (math.lengthsq(dir) < 0.0001f) return 0f;
-            return math.degrees(math.atan2(dir.y, dir.x)) + 90f;
+            return math.degrees(math.atan2(dir.y, dir.x)) + 180f;
         }
 
         public static float GetRotationSpeed(EnemyTypeId typeId)
