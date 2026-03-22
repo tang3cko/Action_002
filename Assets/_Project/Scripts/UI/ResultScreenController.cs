@@ -6,8 +6,16 @@ using Tang3cko.ReactiveSO;
 namespace Action002.UI
 {
     [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(AudioSource))]
     public class ResultScreenController : MonoBehaviour
     {
+        [Header("Dependencies")]
+        [SerializeField] private AudioSource audioSource;
+
+        [Header("Settings")]
+        [SerializeField] private AudioClip clickClip;
+        [SerializeField, Range(0f, 1f)] private float clickVolume = 0.5f;
+
         [Header("Events (subscribe)")]
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
 
@@ -134,13 +142,21 @@ namespace Action002.UI
             resultScreenRoot.RemoveFromClassList("result-screen--clear");
         }
 
+        private void PlayClickSFX()
+        {
+            if (audioSource != null && clickClip != null)
+                audioSource.PlayOneShot(clickClip, clickVolume);
+        }
+
         private void OnRetryClicked()
         {
+            PlayClickSFX();
             onResultRetrySelected?.RaiseEvent();
         }
 
         private void OnTitleClicked()
         {
+            PlayClickSFX();
             onResultBackToTitleSelected?.RaiseEvent();
         }
 
@@ -153,6 +169,11 @@ namespace Action002.UI
             if (resultTypeVar == null) Debug.LogWarning($"[{GetType().Name}] resultTypeVar not assigned on {gameObject.name}.", this);
             if (onResultRetrySelected == null) Debug.LogWarning($"[{GetType().Name}] onResultRetrySelected not assigned on {gameObject.name}.", this);
             if (onResultBackToTitleSelected == null) Debug.LogWarning($"[{GetType().Name}] onResultBackToTitleSelected not assigned on {gameObject.name}.", this);
+
+            if (audioSource == null)
+                audioSource = GetComponent<AudioSource>();
+            if (audioSource == null) Debug.LogWarning($"[{GetType().Name}] audioSource not assigned on {gameObject.name}.", this);
+            if (clickClip == null) Debug.LogWarning($"[{GetType().Name}] clickClip not assigned on {gameObject.name}.", this);
         }
 #endif
     }

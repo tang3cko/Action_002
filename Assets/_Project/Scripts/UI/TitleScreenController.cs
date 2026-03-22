@@ -6,8 +6,16 @@ using Tang3cko.ReactiveSO;
 namespace Action002.UI
 {
     [RequireComponent(typeof(UIDocument))]
+    [RequireComponent(typeof(AudioSource))]
     public class TitleScreenController : MonoBehaviour
     {
+        [Header("Dependencies")]
+        [SerializeField] private AudioSource audioSource;
+
+        [Header("Settings")]
+        [SerializeField] private AudioClip clickClip;
+        [SerializeField, Range(0f, 1f)] private float clickVolume = 0.5f;
+
         [Header("Events (subscribe)")]
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
 
@@ -87,8 +95,15 @@ namespace Action002.UI
                 titleScreenRoot.style.display = DisplayStyle.None;
         }
 
+        private void PlayClickSFX()
+        {
+            if (audioSource != null && clickClip != null)
+                audioSource.PlayOneShot(clickClip, clickVolume);
+        }
+
         private void OnStartButtonPointerUp(PointerUpEvent evt)
         {
+            PlayClickSFX();
             float scale = uiDocument.rootVisualElement.scaledPixelsPerPoint;
             Vector2 screenPosition = new Vector2(
                 evt.position.x * scale,
@@ -99,6 +114,7 @@ namespace Action002.UI
 
         private void OnStartButtonSubmit(NavigationSubmitEvent evt)
         {
+            PlayClickSFX();
             Vector2 screenPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
@@ -111,6 +127,11 @@ namespace Action002.UI
             if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
             if (onTitleStartTransitionOriginSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartTransitionOriginSelected not assigned on {gameObject.name}.", this);
             if (onTitleStartSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartSelected not assigned on {gameObject.name}.", this);
+
+            if (audioSource == null)
+                audioSource = GetComponent<AudioSource>();
+            if (audioSource == null) Debug.LogWarning($"[{GetType().Name}] audioSource not assigned on {gameObject.name}.", this);
+            if (clickClip == null) Debug.LogWarning($"[{GetType().Name}] clickClip not assigned on {gameObject.name}.", this);
         }
 #endif
     }
