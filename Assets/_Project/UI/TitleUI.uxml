@@ -2,7 +2,7 @@
     <Style src="GameUI.uss" />
     <ui:VisualElement name="TitleScreen" class="title-screen">
         <ui:VisualElement class="title-screen__header">
-            <ui:Label name="TitleLabel" text="POLARITY" class="title-screen__title" />
+            <ui:Label name="TitleLabel" text="INVEST" class="title-screen__title" />
         </ui:VisualElement>
         <ui:VisualElement class="title-screen__bar" />
         <ui:Button name="TitleStartButton" text="START" class="title-screen__button" />
