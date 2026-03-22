@@ -23,17 +23,19 @@ namespace Action002.Boss.Systems
 
         private void Start()
         {
-            if (gamePhaseVar != null && gamePhaseVar.Value == (int)Action002.Core.Flow.GamePhase.Stage)
-            {
-                StartMonitoring();
-            }
+            // TODO: ボス実装時に復活
+            // if (gamePhaseVar != null && gamePhaseVar.Value == (int)Action002.Core.Flow.GamePhase.Stage)
+            // {
+            //     StartMonitoring();
+            // }
         }
 
         private void Update()
         {
-            if (!isMonitoring) return;
-
-            ProcessBossCheck(Time.deltaTime);
+            // TODO: ボス実装時に復活
+            // if (!isMonitoring) return;
+            //
+            // ProcessBossCheck(Time.deltaTime);
         }
 
         // ── Public Methods ──────────────────────────────

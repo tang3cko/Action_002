@@ -71,10 +71,11 @@ namespace Action002.Core.Flow
                 onTitleStartTransitionOriginSelected.OnEventRaised += HandleTitleStartTransitionOriginSelected;
             if (onTitleStartSelected != null)
                 onTitleStartSelected.OnEventRaised += HandleTitleStartSelected;
-            if (onBossTriggerReached != null)
-                onBossTriggerReached.OnEventRaised += HandleBossTriggerReached;
-            if (onBossDefeated != null)
-                onBossDefeated.OnEventRaised += HandleBossDefeated;
+            // TODO: ボス実装時に復活
+            // if (onBossTriggerReached != null)
+            //     onBossTriggerReached.OnEventRaised += HandleBossTriggerReached;
+            // if (onBossDefeated != null)
+            //     onBossDefeated.OnEventRaised += HandleBossDefeated;
             if (onResultRetrySelected != null)
                 onResultRetrySelected.OnEventRaised += HandleResultRetrySelected;
             if (onResultBackToTitleSelected != null)
@@ -102,10 +103,11 @@ namespace Action002.Core.Flow
                 onTitleStartTransitionOriginSelected.OnEventRaised -= HandleTitleStartTransitionOriginSelected;
             if (onTitleStartSelected != null)
                 onTitleStartSelected.OnEventRaised -= HandleTitleStartSelected;
-            if (onBossTriggerReached != null)
-                onBossTriggerReached.OnEventRaised -= HandleBossTriggerReached;
-            if (onBossDefeated != null)
-                onBossDefeated.OnEventRaised -= HandleBossDefeated;
+            // TODO: ボス実装時に復活
+            // if (onBossTriggerReached != null)
+            //     onBossTriggerReached.OnEventRaised -= HandleBossTriggerReached;
+            // if (onBossDefeated != null)
+            //     onBossDefeated.OnEventRaised -= HandleBossDefeated;
             if (onResultRetrySelected != null)
                 onResultRetrySelected.OnEventRaised -= HandleResultRetrySelected;
             if (onResultBackToTitleSelected != null)

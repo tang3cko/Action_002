@@ -20,6 +20,8 @@ namespace Action002.Player.Logic
             return spinGauge >= 1f;
         }
 
+        private const int MAX_BULLET_COUNT = 8;
+
         public static PlayerGrowthState ApplyLevelUp(PlayerGrowthState current)
         {
             current.Level++;
@@ -41,10 +43,24 @@ namespace Action002.Player.Logic
                 case 5:
                     current.BulletCount = 4;
                     break;
+                case 6:
+                    current.BulletCount = 5;
+                    break;
+                case 7:
+                    current.BulletSpeedMultiplier += 0.15f;
+                    break;
+                case 8:
+                    current.BulletCount = 6;
+                    break;
+                case 9:
+                    current.BulletCount = 7;
+                    break;
+                case 10:
+                    current.BulletCount = MAX_BULLET_COUNT;
+                    break;
                 default:
-                    // Level 6+: bullet count capped at 4, move speed +5%
-                    current.BulletCount = 4;
-                    current.MoveSpeedMultiplier += 0.05f;
+                    // Level 11+: capped — no further growth
+                    current.BulletCount = MAX_BULLET_COUNT;
                     break;
             }
 

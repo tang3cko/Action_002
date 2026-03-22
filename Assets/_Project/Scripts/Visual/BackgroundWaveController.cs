@@ -36,7 +36,8 @@ namespace Action002.Visual
         private static readonly int SPEED_ID = Shader.PropertyToID("_Speed");
         private static readonly int SCALE_ID = Shader.PropertyToID("_Scale");
 
-        private const float WAVE_COLOR_OFFSET = 0.5f;
+        private const float WAVE_COLOR_OFFSET_DARK_BG = 0.06f;
+        private const float WAVE_COLOR_OFFSET_LIGHT_BG = 0.12f;
         private const float QUAD_DEPTH_MARGIN = 1f;
 
         private void Awake()
@@ -193,12 +194,14 @@ namespace Action002.Visual
 
         private static Color CalculateWaveColor(Color baseColor, int polarity)
         {
-            float sign = polarity == (int)Polarity.White ? 1f : -1f;
+            float offset = polarity == (int)Polarity.White
+                ? WAVE_COLOR_OFFSET_DARK_BG
+                : WAVE_COLOR_OFFSET_LIGHT_BG;
 
             return new Color(
-                Mathf.Clamp01(baseColor.r + sign * WAVE_COLOR_OFFSET),
-                Mathf.Clamp01(baseColor.g + sign * WAVE_COLOR_OFFSET),
-                Mathf.Clamp01(baseColor.b + sign * WAVE_COLOR_OFFSET),
+                Mathf.Clamp01(baseColor.r - offset),
+                Mathf.Clamp01(baseColor.g - offset),
+                Mathf.Clamp01(baseColor.b - offset),
                 1f);
         }
 

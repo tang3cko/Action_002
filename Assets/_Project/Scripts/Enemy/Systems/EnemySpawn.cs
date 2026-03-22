@@ -94,7 +94,7 @@ namespace Action002.Enemy.Systems
             var state = new EnemyState
             {
                 Position = spawnPos,
-                Speed = 2f * speedVariance * spec.SpeedMultiplier * (1f + elapsedTime * 0.003f),
+                Speed = 2f * speedVariance * spec.SpeedMultiplier * (1f + elapsedTime * 0.003f) * SpawnCalculator.GetOvertimeMultiplier(elapsedTime),
                 Hp = spec.Hp,
                 Polarity = (byte)polarity,
                 TypeId = typeId,

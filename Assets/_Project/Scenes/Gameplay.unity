@@ -376,7 +376,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &328178210
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1605,7 +1605,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Visual.BackgroundWaveController
   waveShader: {fileID: 4800000, guid: 95a54485f8cea408fa5fae78637d923a, type: 3}
   polarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
-  waveIntensity: 0.3
+  waveIntensity: 0.1
   speed: 0.2
   scale: 2
   onPolarityChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}

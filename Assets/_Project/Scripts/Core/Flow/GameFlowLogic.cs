@@ -95,23 +95,25 @@ namespace Action002.Core.Flow
             ClearPendingTransitionOrigin();
         }
 
+        // TODO: ボス実装時に復活
         public void HandleBossTriggerReached()
         {
-            actions.RaiseBossPhaseRequested();
-            TransitionTo(GamePhase.Boss);
+            // actions.RaiseBossPhaseRequested();
+            // TransitionTo(GamePhase.Boss);
         }
 
+        // TODO: ボス実装時に復活
         public void HandleBossDefeated()
         {
-            if (!resultCommitted)
-            {
-                resultCommitted = true;
-                actions.CommitRunResult();
-                actions.SubmitOnlineScores();
-            }
-            PendingPhase = GamePhase.Result;
-            PendingResultType = GameResultType.Clear;
-            actions.CloseTransition();
+            // if (!resultCommitted)
+            // {
+            //     resultCommitted = true;
+            //     actions.CommitRunResult();
+            //     actions.SubmitOnlineScores();
+            // }
+            // PendingPhase = GamePhase.Result;
+            // PendingResultType = GameResultType.Clear;
+            // actions.CloseTransition();
         }
 
         public void HandleResultRetrySelected()
