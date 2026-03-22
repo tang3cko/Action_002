@@ -37,6 +37,7 @@ namespace Action002.Enemy.Rendering
         private Matrix4x4[][] outlineBatches;
         private int[] bodyCounts;
         private int[] outlineCounts;
+        private int slotCount;
         private int typeCount;
 
         private void Awake()
@@ -57,7 +58,7 @@ namespace Action002.Enemy.Rendering
             outlineBlock = new MaterialPropertyBlock();
 
             typeCount = GetTypeCount();
-            int slotCount = GetSlotCount();
+            slotCount = GetSlotCount();
             bodyBatches = new Matrix4x4[slotCount][];
             outlineBatches = new Matrix4x4[slotCount][];
             bodyCounts = new int[slotCount];
@@ -98,6 +99,13 @@ namespace Action002.Enemy.Rendering
 
                 float size = EnemyTypeTable.Get(state.TypeId).VisualScale;
                 float outlineSizeValue = size + outlineThickness;
+
+                float spawnElapsed = time - state.SpawnTime;
+                if (!EnemySpawnCalculator.IsComplete(spawnElapsed))
+                {
+                    size = EnemySpawnCalculator.CalculateScale(spawnElapsed, size);
+                    outlineSizeValue = EnemySpawnCalculator.CalculateScale(spawnElapsed, outlineSizeValue);
+                }
 
                 float angle = EnemyRotationCalculator.CalculateAngle(state.TypeId, state.Position, playerPos, time);
                 var rotation = Quaternion.Euler(0f, 0f, angle);
@@ -144,6 +152,7 @@ namespace Action002.Enemy.Rendering
             int polarityBit = slot % 2;
 
             Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
+            bodyBlock.Clear();
             bodyBlock.SetTexture(MAIN_TEX_ID, tex);
             bodyBlock.SetColor(COLOR_ID, PolarityColors.GetForeground(polarityBit));
 
@@ -156,6 +165,7 @@ namespace Action002.Enemy.Rendering
             int polarityBit = slot % 2;
 
             Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
+            outlineBlock.Clear();
             outlineBlock.SetTexture(MAIN_TEX_ID, tex);
             outlineBlock.SetColor(COLOR_ID, PolarityColors.GetBackground(polarityBit));
 
@@ -164,7 +174,6 @@ namespace Action002.Enemy.Rendering
 
         private void ResetBatchCounts()
         {
-            int slotCount = GetSlotCount();
             for (int i = 0; i < slotCount; i++)
             {
                 bodyCounts[i] = 0;
@@ -174,8 +183,6 @@ namespace Action002.Enemy.Rendering
 
         private void FlushRemainingBatches()
         {
-            int slotCount = GetSlotCount();
-
             for (int slot = 0; slot < slotCount; slot++)
             {
                 if (outlineCounts[slot] > 0)
@@ -244,11 +251,30 @@ namespace Action002.Enemy.Rendering
 #if UNITY_EDITOR
         private void OnValidate()
         {
-            if (enemySet == null) Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
-            if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
-            if (quadMesh == null) Debug.LogWarning($"[{GetType().Name}] quadMesh not assigned on {gameObject.name}.", this);
-            if (baseMaterial == null) Debug.LogWarning($"[{GetType().Name}] baseMaterial not assigned on {gameObject.name}.", this);
-            if (visualConfig == null) Debug.LogWarning($"[{GetType().Name}] visualConfig not assigned on {gameObject.name}.", this);
+            if (enemySet == null)
+            {
+                Debug.LogWarning($"[{GetType().Name}] enemySet not assigned on {gameObject.name}.", this);
+            }
+
+            if (playerPositionVar == null)
+            {
+                Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
+            }
+
+            if (quadMesh == null)
+            {
+                Debug.LogWarning($"[{GetType().Name}] quadMesh not assigned on {gameObject.name}.", this);
+            }
+
+            if (baseMaterial == null)
+            {
+                Debug.LogWarning($"[{GetType().Name}] baseMaterial not assigned on {gameObject.name}.", this);
+            }
+
+            if (visualConfig == null)
+            {
+                Debug.LogWarning($"[{GetType().Name}] visualConfig not assigned on {gameObject.name}.", this);
+            }
         }
 #endif
     }

@@ -11,6 +11,7 @@ namespace Action002.Audio.Systems
 
         [Header("Settings")]
         [SerializeField] private AudioClip switchClip;
+        [SerializeField, Range(0f, 1f)] private float volume = 0.15f;
 
         [Header("Event Channels")]
         [SerializeField] private IntEventChannelSO onPolarityChanged;
@@ -42,7 +43,7 @@ namespace Action002.Audio.Systems
                 return;
             }
 
-            audioSource.PlayOneShot(switchClip);
+            audioSource.PlayOneShot(switchClip, volume);
         }
 
 #if UNITY_EDITOR

@@ -41,6 +41,38 @@ namespace Action002.Tests.Enemy
             Object.DestroyImmediate(playerPositionVar);
         }
 
+        [Test]
+        public void Constructor_NullGameConfig_ThrowsArgumentNullException()
+        {
+            Assert.That(
+                () => new EnemySpawn(null, enemySet, playerPositionVar, rngSeed: 42),
+                Throws.TypeOf<System.ArgumentNullException>());
+        }
+
+        [Test]
+        public void SetWorldBounds_ReversedExtents_NormalizesBounds()
+        {
+            spawner.SetWorldBounds(new float4(10f, 10f, -10f, -10f));
+            spawner.SetActive(true);
+
+            for (int i = 0; i < 200; i++)
+            {
+                spawner.ProcessSpawning(0.5f);
+            }
+
+            var data = enemySet.Data;
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (data[i].TypeId != EnemyTypeId.Anchor)
+                {
+                    continue;
+                }
+
+                Assert.That(data[i].TargetPosition.x, Is.InRange(-10f, 10f));
+                Assert.That(data[i].TargetPosition.y, Is.InRange(-10f, 10f));
+            }
+        }
+
         // ── ProcessSpawning ──
 
         [Test]

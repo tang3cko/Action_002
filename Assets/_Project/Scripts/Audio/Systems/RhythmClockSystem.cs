@@ -10,6 +10,7 @@ namespace Action002.Audio.Systems
 
         [Header("Audio")]
         [SerializeField] private AudioSource bgmSource;
+        [SerializeField, Range(0f, 1f)] private float bgmVolume = 0.7f;
 
         private RhythmClock clock;
 
@@ -30,6 +31,7 @@ namespace Action002.Audio.Systems
             bool success = clock.StartClock();
             if (success && bgmSource != null)
             {
+                bgmSource.volume = bgmVolume;
                 double scheduledTime = AudioSettings.dspTime + (config != null ? config.StartOffset : 0.0);
                 bgmSource.PlayScheduled(scheduledTime);
             }

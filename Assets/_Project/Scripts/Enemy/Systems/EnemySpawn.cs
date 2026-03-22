@@ -1,3 +1,4 @@
+using UnityEngine;
 using Unity.Mathematics;
 using Action002.Core;
 using Action002.Enemy.Data;
@@ -25,15 +26,19 @@ namespace Action002.Enemy.Systems
             Vector2VariableSO playerPositionVar,
             uint rngSeed)
         {
-            this.gameConfig = gameConfig;
-            this.enemySet = enemySet;
-            this.playerPositionVar = playerPositionVar;
-            rng = new Unity.Mathematics.Random(rngSeed);
+            this.gameConfig = gameConfig ?? throw new System.ArgumentNullException(nameof(gameConfig));
+            this.enemySet = enemySet ?? throw new System.ArgumentNullException(nameof(enemySet));
+            this.playerPositionVar = playerPositionVar ?? throw new System.ArgumentNullException(nameof(playerPositionVar));
+            rng = new Unity.Mathematics.Random(rngSeed == 0 ? 1u : rngSeed);
         }
 
         public void SetWorldBounds(float4 bounds)
         {
-            worldBounds = bounds;
+            worldBounds = new float4(
+                math.min(bounds.x, bounds.z),
+                math.min(bounds.y, bounds.w),
+                math.max(bounds.x, bounds.z),
+                math.max(bounds.y, bounds.w));
         }
 
         public void SetActive(bool active)
@@ -61,7 +66,7 @@ namespace Action002.Enemy.Systems
             spawnTimer = 0f;
             elapsedTime = 0f;
             nextId = 1;
-            rng = new Unity.Mathematics.Random(newSeed);
+            rng = new Unity.Mathematics.Random(newSeed == 0 ? 1u : newSeed);
         }
 
         private void SpawnEnemy()
@@ -75,7 +80,6 @@ namespace Action002.Enemy.Systems
             var typeId = SpawnWaveCalculator.SelectType(elapsedTime, rng.NextFloat());
             var spec = EnemyTypeTable.Get(typeId);
 
-            // 同時出現制限チェック: 上限到達時は Chase 型にフォールバック
             if (spec.MaxConcurrent > 0 && CountActiveByType(typeId) >= spec.MaxConcurrent)
             {
                 typeId = EnemyTypeId.Shooter;
@@ -91,15 +95,14 @@ namespace Action002.Enemy.Systems
                 Hp = spec.Hp,
                 Polarity = (byte)polarity,
                 TypeId = typeId,
+                SpawnTime = Time.time,
             };
 
-            // Anchor 型は targetPosition を決定
             if (spec.Movement == MovementPattern.Anchor)
             {
                 state.TargetPosition = PickAnchorTarget();
             }
 
-            // KeepDistance 型は strafeSign を決定
             if (spec.Movement == MovementPattern.KeepDistance)
             {
                 state.StrafeSign = rng.NextFloat() < 0.5f ? (sbyte)1 : (sbyte)-1;
@@ -123,7 +126,6 @@ namespace Action002.Enemy.Systems
 
         private float2 PickAnchorTarget()
         {
-            // worldBounds の角付近からランダムに選択
             float minX = worldBounds.x;
             float minY = worldBounds.y;
             float maxX = worldBounds.z;
@@ -132,7 +134,6 @@ namespace Action002.Enemy.Systems
             float marginX = (maxX - minX) * 0.2f;
             float marginY = (maxY - minY) * 0.2f;
 
-            // 4つの角から1つ選択
             int corner = (int)math.floor(rng.NextFloat(0f, 4f));
             corner = math.clamp(corner, 0, 3);
 

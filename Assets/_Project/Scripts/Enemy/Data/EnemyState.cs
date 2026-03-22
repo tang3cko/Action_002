@@ -15,5 +15,6 @@ namespace Action002.Enemy.Data
         public float2 TargetPosition;
         /// <summary>KeepDistance 型の横移動方向（+1 or -1、スポーン時に決定）</summary>
         public sbyte StrafeSign;
+        public float SpawnTime;
     }
 }
