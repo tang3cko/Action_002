@@ -32,6 +32,9 @@ namespace Action002.Core
         [SerializeField] private float playerContactRadius = 0.3f;
         [SerializeField] private int contactScoreBonus = 10;
 
+        [Header("Seed")]
+        [SerializeField] private uint fixedRunSeed = 12345u;
+
         public float MoveSpeed => moveSpeed;
         public int MaxHp => maxHp;
         public float InvincibleDuration => invincibleDuration;
@@ -47,5 +50,6 @@ namespace Action002.Core
         public float KillGaugeRate => killGaugeRate;
         public float PlayerContactRadius => playerContactRadius;
         public int ContactScoreBonus => contactScoreBonus;
+        public uint FixedRunSeed => fixedRunSeed;
     }
 }

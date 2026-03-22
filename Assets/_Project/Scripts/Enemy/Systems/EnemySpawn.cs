@@ -16,7 +16,8 @@ namespace Action002.Enemy.Systems
         private float spawnTimer;
         private float elapsedTime;
         private int nextId = 1;
-        private Unity.Mathematics.Random rng;
+        private Unity.Mathematics.Random spawnRng;
+        private Unity.Mathematics.Random polarityRng;
         private bool isActive;
         private float4 worldBounds; // x=minX, y=minY, z=maxX, w=maxY
 
@@ -24,12 +25,13 @@ namespace Action002.Enemy.Systems
             GameConfigSO gameConfig,
             EnemyStateSetSO enemySet,
             Vector2VariableSO playerPositionVar,
-            uint rngSeed)
+            uint runSeed)
         {
             this.gameConfig = gameConfig ?? throw new System.ArgumentNullException(nameof(gameConfig));
             this.enemySet = enemySet ?? throw new System.ArgumentNullException(nameof(enemySet));
             this.playerPositionVar = playerPositionVar ?? throw new System.ArgumentNullException(nameof(playerPositionVar));
-            rng = new Unity.Mathematics.Random(rngSeed == 0 ? 1u : rngSeed);
+            spawnRng = new Unity.Mathematics.Random(SeedHelper.DeriveSpawnSeed(runSeed));
+            polarityRng = new Unity.Mathematics.Random(SeedHelper.DerivePolaritySeed(runSeed));
         }
 
         public void SetWorldBounds(float4 bounds)
@@ -61,23 +63,24 @@ namespace Action002.Enemy.Systems
             }
         }
 
-        public void ResetForNewRun(uint newSeed)
+        public void ResetForNewRun(uint runSeed)
         {
             spawnTimer = 0f;
             elapsedTime = 0f;
             nextId = 1;
-            rng = new Unity.Mathematics.Random(newSeed == 0 ? 1u : newSeed);
+            spawnRng = new Unity.Mathematics.Random(SeedHelper.DeriveSpawnSeed(runSeed));
+            polarityRng = new Unity.Mathematics.Random(SeedHelper.DerivePolaritySeed(runSeed));
         }
 
         private void SpawnEnemy()
         {
-            float angle = rng.NextFloat(0f, math.PI * 2f);
+            float angle = spawnRng.NextFloat(0f, math.PI * 2f);
             float2 spawnPos = SpawnCalculator.GetSpawnPosition(
                 new float2(playerPositionVar.Value.x, playerPositionVar.Value.y),
                 gameConfig.SpawnRadius, angle);
-            Polarity polarity = SpawnCalculator.GetRandomPolarity(rng.NextFloat());
+            Polarity polarity = SpawnCalculator.GetRandomPolarity(polarityRng.NextFloat());
 
-            var typeId = SpawnWaveCalculator.SelectType(elapsedTime, rng.NextFloat());
+            var typeId = SpawnWaveCalculator.SelectType(elapsedTime, spawnRng.NextFloat());
             var spec = EnemyTypeTable.Get(typeId);
 
             if (spec.MaxConcurrent > 0 && CountActiveByType(typeId) >= spec.MaxConcurrent)
@@ -86,7 +89,7 @@ namespace Action002.Enemy.Systems
                 spec = EnemyTypeTable.Get(typeId);
             }
 
-            float speedVariance = rng.NextFloat(0.8f, 1.2f);
+            float speedVariance = spawnRng.NextFloat(0.8f, 1.2f);
 
             var state = new EnemyState
             {
@@ -105,7 +108,7 @@ namespace Action002.Enemy.Systems
 
             if (spec.Movement == MovementPattern.KeepDistance)
             {
-                state.StrafeSign = rng.NextFloat() < 0.5f ? (sbyte)1 : (sbyte)-1;
+                state.StrafeSign = spawnRng.NextFloat() < 0.5f ? (sbyte)1 : (sbyte)-1;
             }
 
             int id = nextId++;
@@ -134,7 +137,7 @@ namespace Action002.Enemy.Systems
             float marginX = (maxX - minX) * 0.2f;
             float marginY = (maxY - minY) * 0.2f;
 
-            int corner = (int)math.floor(rng.NextFloat(0f, 4f));
+            int corner = (int)math.floor(spawnRng.NextFloat(0f, 4f));
             corner = math.clamp(corner, 0, 3);
 
             float2 target;
@@ -142,23 +145,23 @@ namespace Action002.Enemy.Systems
             {
                 case 0: // 左上
                     target = new float2(
-                        rng.NextFloat(minX, minX + marginX),
-                        rng.NextFloat(maxY - marginY, maxY));
+                        spawnRng.NextFloat(minX, minX + marginX),
+                        spawnRng.NextFloat(maxY - marginY, maxY));
                     break;
                 case 1: // 右上
                     target = new float2(
-                        rng.NextFloat(maxX - marginX, maxX),
-                        rng.NextFloat(maxY - marginY, maxY));
+                        spawnRng.NextFloat(maxX - marginX, maxX),
+                        spawnRng.NextFloat(maxY - marginY, maxY));
                     break;
                 case 2: // 左下
                     target = new float2(
-                        rng.NextFloat(minX, minX + marginX),
-                        rng.NextFloat(minY, minY + marginY));
+                        spawnRng.NextFloat(minX, minX + marginX),
+                        spawnRng.NextFloat(minY, minY + marginY));
                     break;
                 default: // 右下
                     target = new float2(
-                        rng.NextFloat(maxX - marginX, maxX),
-                        rng.NextFloat(minY, minY + marginY));
+                        spawnRng.NextFloat(maxX - marginX, maxX),
+                        spawnRng.NextFloat(minY, minY + marginY));
                     break;
             }
 

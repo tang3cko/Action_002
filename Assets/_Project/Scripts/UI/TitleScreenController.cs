@@ -89,7 +89,10 @@ namespace Action002.UI
 
         private void OnStartButtonPointerUp(PointerUpEvent evt)
         {
-            Vector2 screenPosition = new Vector2(evt.position.x, Screen.height - evt.position.y);
+            float scale = uiDocument.rootVisualElement.scaledPixelsPerPoint;
+            Vector2 screenPosition = new Vector2(
+                evt.position.x * scale,
+                Screen.height - evt.position.y * scale);
             onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
         }

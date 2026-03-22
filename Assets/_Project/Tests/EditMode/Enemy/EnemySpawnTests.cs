@@ -29,7 +29,7 @@ namespace Action002.Tests.Enemy
             enemySet = ScriptableObject.CreateInstance<EnemyStateSetSO>();
             playerPositionVar = ScriptableObject.CreateInstance<Vector2VariableSO>();
 
-            spawner = new EnemySpawn(gameConfig, enemySet, playerPositionVar, rngSeed: 42);
+            spawner = new EnemySpawn(gameConfig, enemySet, playerPositionVar, runSeed: 42);
             spawner.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
         }
 
@@ -45,7 +45,7 @@ namespace Action002.Tests.Enemy
         public void Constructor_NullGameConfig_ThrowsArgumentNullException()
         {
             Assert.That(
-                () => new EnemySpawn(null, enemySet, playerPositionVar, rngSeed: 42),
+                () => new EnemySpawn(null, enemySet, playerPositionVar, runSeed: 42),
                 Throws.TypeOf<System.ArgumentNullException>());
         }
 
@@ -109,14 +109,14 @@ namespace Action002.Tests.Enemy
         [Test]
         public void ProcessSpawning_DeterministicWithSameSeed()
         {
-            var spawnerA = new EnemySpawn(gameConfig, enemySet, playerPositionVar, rngSeed: 123);
+            var spawnerA = new EnemySpawn(gameConfig, enemySet, playerPositionVar, runSeed: 123);
             spawnerA.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
             spawnerA.SetActive(true);
             spawnerA.ProcessSpawning(1f);
             var posA = enemySet.Data[0].Position;
 
             var enemySet2 = ScriptableObject.CreateInstance<EnemyStateSetSO>();
-            var spawnerB = new EnemySpawn(gameConfig, enemySet2, playerPositionVar, rngSeed: 123);
+            var spawnerB = new EnemySpawn(gameConfig, enemySet2, playerPositionVar, runSeed: 123);
             spawnerB.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
             spawnerB.SetActive(true);
             spawnerB.ProcessSpawning(1f);
@@ -203,7 +203,7 @@ namespace Action002.Tests.Enemy
             var posFirst = enemySet.Data[0].Position;
 
             var enemySet2 = ScriptableObject.CreateInstance<EnemyStateSetSO>();
-            var spawner2 = new EnemySpawn(gameConfig, enemySet2, playerPositionVar, rngSeed: 42);
+            var spawner2 = new EnemySpawn(gameConfig, enemySet2, playerPositionVar, runSeed: 42);
             spawner2.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
             spawner2.ResetForNewRun(999);
             spawner2.SetActive(true);
@@ -317,6 +317,93 @@ namespace Action002.Tests.Enemy
                         "KeepDistance 型は StrafeSign が +1 or -1 であること");
                 }
             }
+        }
+
+        // ── RNG分離: 極性列スナップショット ──
+
+        [Test]
+        public void ProcessSpawning_PolaritySequence_MatchesSnapshot()
+        {
+            var set = ScriptableObject.CreateInstance<EnemyStateSetSO>();
+            var s = new EnemySpawn(gameConfig, set, playerPositionVar, runSeed: 42);
+            s.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
+            s.SetActive(true);
+
+            for (int i = 0; i < 10; i++)
+            {
+                s.ProcessSpawning(1f);
+            }
+
+            var data = set.Data;
+            Assert.That(data.Length, Is.EqualTo(10), "Exactly 10 enemies should have spawned");
+
+            // Hardcoded snapshot: polarity sequence for runSeed=42
+            var expected = new Polarity[]
+            {
+                Polarity.White, // 0
+                Polarity.Black, // 1
+                Polarity.White, // 2
+                Polarity.Black, // 3
+                Polarity.Black, // 4
+                Polarity.Black, // 5
+                Polarity.White, // 6
+                Polarity.White, // 7
+                Polarity.Black, // 8
+                Polarity.White, // 9
+            };
+
+            for (int i = 0; i < 10; i++)
+            {
+                Assert.That((Polarity)data[i].Polarity, Is.EqualTo(expected[i]),
+                    $"Polarity mismatch at index {i}");
+            }
+
+            Object.DestroyImmediate(set);
+        }
+
+        // ── ResetForNewRun 再初期化契約 ──
+
+        [Test]
+        public void ResetForNewRun_SameSeed_ProducesIdenticalSequence()
+        {
+            const uint seed = 777u;
+
+            // First run
+            var setA = ScriptableObject.CreateInstance<EnemyStateSetSO>();
+            var spA = new EnemySpawn(gameConfig, setA, playerPositionVar, runSeed: seed);
+            spA.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
+            spA.SetActive(true);
+            for (int i = 0; i < 5; i++) spA.ProcessSpawning(1f);
+            var dataA = setA.Data;
+
+            // Advance state, then reset
+            var setB = ScriptableObject.CreateInstance<EnemyStateSetSO>();
+            var spB = new EnemySpawn(gameConfig, setB, playerPositionVar, runSeed: 999u);
+            spB.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
+            spB.SetActive(true);
+            for (int i = 0; i < 10; i++) spB.ProcessSpawning(1f);
+
+            // Reset with same seed as first run
+            setB.Clear();
+            spB.ResetForNewRun(seed);
+            spB.SetActive(true);
+            for (int i = 0; i < 5; i++) spB.ProcessSpawning(1f);
+            var dataB = setB.Data;
+
+            Assert.That(dataA.Length, Is.EqualTo(dataB.Length), "Spawn count should match after reset");
+
+            for (int i = 0; i < dataA.Length; i++)
+            {
+                Assert.That(dataB[i].Position.x, Is.EqualTo(dataA[i].Position.x),
+                    $"Position.x mismatch at index {i}");
+                Assert.That(dataB[i].Position.y, Is.EqualTo(dataA[i].Position.y),
+                    $"Position.y mismatch at index {i}");
+                Assert.That(dataB[i].Polarity, Is.EqualTo(dataA[i].Polarity),
+                    $"Polarity mismatch at index {i}");
+            }
+
+            Object.DestroyImmediate(setA);
+            Object.DestroyImmediate(setB);
         }
 
         // ── Helpers ──

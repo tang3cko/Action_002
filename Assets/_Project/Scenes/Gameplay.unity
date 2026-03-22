@@ -1127,11 +1127,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e6e7ad83168264388a8a8a7fc9f47f4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Core.Flow.GameplaySceneLifetime
+  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
   enemyStateSet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletStateSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   inputReader: {fileID: 11400000, guid: 614c9f4fa7e6f45f4ab219fb36de3023, type: 2}
   gameLoopManager: {fileID: 445281357}
   rhythmClockSystem: {fileID: 445281356}
+  enemySpawnSystem: {fileID: 445281361}
   playerHpVar: {fileID: 11400000, guid: 057a6b093e2a248a8b54ddbb09ca2455, type: 2}
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}

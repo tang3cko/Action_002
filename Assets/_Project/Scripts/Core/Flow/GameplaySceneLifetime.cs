@@ -2,6 +2,7 @@ using UnityEngine;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
 using Action002.Enemy.Data;
+using Action002.Enemy.Systems;
 using Action002.Input;
 using Tang3cko.ReactiveSO;
 
@@ -9,6 +10,9 @@ namespace Action002.Core.Flow
 {
     public class GameplaySceneLifetime : MonoBehaviour, IGameplayStartupActions
     {
+        [Header("Config")]
+        [SerializeField] private GameConfigSO gameConfig;
+
         [Header("Sets")]
         [SerializeField] private EnemyStateSetSO enemyStateSet;
         [SerializeField] private BulletStateSetSO bulletStateSet;
@@ -19,6 +23,9 @@ namespace Action002.Core.Flow
         [Header("Systems")]
         [SerializeField] private GameLoopManager gameLoopManager;
         [SerializeField] private RhythmClockSystem rhythmClockSystem;
+        [SerializeField] private EnemySpawnSystem enemySpawnSystem;
+
+        private bool startupResetFailed;
 
         [Header("Variables (reset)")]
         [SerializeField] private IntVariableSO playerHpVar;
@@ -73,11 +80,30 @@ namespace Action002.Core.Flow
 
         void IGameplayStartupActions.ResetForNewRun()
         {
+            startupResetFailed = false;
+
+            if (gameConfig == null)
+            {
+                Debug.LogError("[GameplaySceneLifetime] gameConfig is not assigned. Cannot resolve run seed.", this);
+                startupResetFailed = true;
+                return;
+            }
+
+            uint runSeed = SeedHelper.ResolveRunSeed(
+                gameConfig.FixedRunSeed,
+                (uint)System.DateTime.Now.Ticks);
+            if (enemySpawnSystem != null) enemySpawnSystem.ResetForNewRun(runSeed);
             if (rhythmClockSystem != null) rhythmClockSystem.ResetForNewRun();
         }
 
         bool IGameplayStartupActions.StartClock()
         {
+            if (startupResetFailed)
+            {
+                Debug.LogError("[GameplaySceneLifetime] Startup reset failed. Cannot start clock.", this);
+                return false;
+            }
+
             if (rhythmClockSystem == null)
             {
                 Debug.LogError("[GameplaySceneLifetime] RhythmClockSystem is not assigned.", this);
@@ -111,11 +137,13 @@ namespace Action002.Core.Flow
 #if UNITY_EDITOR
         private void OnValidate()
         {
+            if (gameConfig == null) Debug.LogWarning($"[{GetType().Name}] gameConfig not assigned on {gameObject.name}.", this);
             if (enemyStateSet == null) Debug.LogWarning($"[{GetType().Name}] enemyStateSet not assigned on {gameObject.name}.", this);
             if (bulletStateSet == null) Debug.LogWarning($"[{GetType().Name}] bulletStateSet not assigned on {gameObject.name}.", this);
             if (inputReader == null) Debug.LogWarning($"[{GetType().Name}] inputReader not assigned on {gameObject.name}.", this);
             if (gameLoopManager == null) Debug.LogWarning($"[{GetType().Name}] gameLoopManager not assigned on {gameObject.name}.", this);
             if (rhythmClockSystem == null) Debug.LogWarning($"[{GetType().Name}] rhythmClockSystem not assigned on {gameObject.name}.", this);
+            if (enemySpawnSystem == null) Debug.LogWarning($"[{GetType().Name}] enemySpawnSystem not assigned on {gameObject.name}.", this);
             if (playerHpVar == null) Debug.LogWarning($"[{GetType().Name}] playerHpVar not assigned on {gameObject.name}.", this);
             if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
             if (comboCountVar == null) Debug.LogWarning($"[{GetType().Name}] comboCountVar not assigned on {gameObject.name}.", this);

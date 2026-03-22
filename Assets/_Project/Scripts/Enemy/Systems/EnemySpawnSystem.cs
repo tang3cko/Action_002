@@ -20,13 +20,9 @@ namespace Action002.Enemy.Systems
         private EnemySpawn logic;
         private Camera mainCamera;
 
-        private void Start()
+        private void Awake()
         {
             mainCamera = Camera.main;
-            uint ticks = (uint)System.DateTime.Now.Ticks;
-            logic = new EnemySpawn(gameConfig, enemySet, playerPositionVar, ticks == 0 ? 1u : ticks);
-            logic.SetActive(true);
-            UpdateWorldBounds();
         }
 
         public void ProcessSpawning()
@@ -37,10 +33,18 @@ namespace Action002.Enemy.Systems
             logic.ProcessSpawning(Time.deltaTime);
         }
 
-        public void ResetForNewRun()
+        public void ResetForNewRun(uint runSeed)
         {
-            uint ticks = (uint)System.DateTime.Now.Ticks;
-            logic?.ResetForNewRun(ticks == 0 ? 1u : ticks);
+            if (logic == null)
+            {
+                logic = new EnemySpawn(gameConfig, enemySet, playerPositionVar, runSeed);
+                logic.SetActive(true);
+                UpdateWorldBounds();
+            }
+            else
+            {
+                logic.ResetForNewRun(runSeed);
+            }
         }
 
         private void UpdateWorldBounds()
