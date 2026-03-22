@@ -391,6 +391,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Audio.Systems.PolaritySwitchSFX
   audioSource: {fileID: 328178211}
   switchClip: {fileID: 8300000, guid: c3b530890995a44c0b37326045159310, type: 3}
+  volume: 0.15
   onPolarityChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}
 --- !u!82 &328178211
 AudioSource:
@@ -710,6 +711,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Audio.Systems.RhythmClockSystem
   config: {fileID: 11400000, guid: 68bd4f2f35f0543d59efe7141e220ca1, type: 2}
   bgmSource: {fileID: 445281355}
+  bgmVolume: 0.7
 --- !u!114 &445281357
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -779,7 +781,7 @@ MonoBehaviour:
   onKillScoreAdded: {fileID: 11400000, guid: 6c7724dd95b7b47c190a7b15620e023f, type: 2}
   deathBuffer: {fileID: 11400000, guid: 54f6c2fefc4014338971fab426caae83, type: 2}
   absorbRadius: 1
-  damageRadius: 0.5
+  damageRadius: 0.12
   bulletHitRadius: 0.5
   killScore: 50
 --- !u!114 &445281360
@@ -954,6 +956,8 @@ GameObject:
   - component: {fileID: 703971813}
   - component: {fileID: 703971812}
   - component: {fileID: 703971811}
+  - component: {fileID: 703971815}
+  - component: {fileID: 703971814}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -1067,6 +1071,32 @@ Transform:
   - {fileID: 2048498617}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &703971814
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703971810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7e3acfb800b04499cb411b800583ebd0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Visual.PlayerOutlineVisual
+  onPolarityChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}
+  outlineThickness: 0.3
+--- !u!114 &703971815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 703971810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01c951aa8806740b0acc11f7c519c4b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Visual.PlayerCoreVisual
 --- !u!1 &904695632
 GameObject:
   m_ObjectHideFlags: 0
@@ -1237,6 +1267,55 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 333072510}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1168162852
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1168162854}
+  - component: {fileID: 1168162853}
+  m_Layer: 0
+  m_Name: PolarityShockwave
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1168162853
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1168162852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7e3c8513e2d24cf5ad631c36b6cec1b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Visual.PolarityShockwave
+  onPolarityChanged: {fileID: 11400000, guid: a18a1acad8338445bbfc4a1f86e839d1, type: 2}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
+  maxScale: 8
+  duration: 0.3
+  startAlpha: 0.5
+--- !u!4 &1168162854
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1168162852}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1419573760
 GameObject:
@@ -1714,3 +1793,4 @@ SceneRoots:
   - {fileID: 1532438266}
   - {fileID: 1440140616}
   - {fileID: 576994}
+  - {fileID: 1168162854}

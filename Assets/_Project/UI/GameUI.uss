@@ -1,8 +1,8 @@
 :root {
-    --color-pip-alive: rgba(220, 220, 255, 0.9);
-    --color-pip-dead: rgba(80, 80, 120, 0.3);
-    --color-text: rgba(230, 230, 255, 0.95);
-    --color-accent: #6688FF;
+    --color-pip-alive: rgba(240, 238, 230, 0.9);
+    --color-pip-dead: rgba(100, 100, 95, 0.3);
+    --color-text: rgba(240, 238, 230, 0.95);
+    --color-accent: rgba(240, 238, 230, 0.6);
     --color-gauge-track: rgba(255, 255, 255, 0.08);
     --color-gauge-fill: #6688FF;
 

@@ -9,8 +9,8 @@ namespace Action002.Visual
     /// </summary>
     public static class PolarityColors
     {
-        /// <summary>Background color for White polarity (dark navy).</summary>
-        public static readonly Color WhiteBackground = new Color(0.102f, 0.102f, 0.180f, 1f); // #1A1A2E
+        /// <summary>Background color for White polarity (near black).</summary>
+        public static readonly Color WhiteBackground = new Color(0.082f, 0.082f, 0.090f, 1f); // #151517
 
         /// <summary>Background color for Black polarity (warm off-white).</summary>
         public static readonly Color BlackBackground = new Color(0.941f, 0.933f, 0.902f, 1f); // #F0EEE6
@@ -19,7 +19,7 @@ namespace Action002.Visual
         public static readonly Color WhiteForeground = new Color(0.941f, 0.933f, 0.902f, 1f); // #F0EEE6
 
         /// <summary>Sprite/foreground color for Black polarity.</summary>
-        public static readonly Color BlackForeground = new Color(0.102f, 0.102f, 0.180f, 1f); // #1A1A2E
+        public static readonly Color BlackForeground = new Color(0.082f, 0.082f, 0.090f, 1f); // #151517
 
         public static Color GetBackground(int polarity)
         {

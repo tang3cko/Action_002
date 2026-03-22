@@ -30,7 +30,7 @@ namespace Action002.Bullet.Systems
 
         [Header("Settings")]
         [SerializeField] private float absorbRadius = 1.0f;
-        [SerializeField] private float damageRadius = 0.5f;
+        [SerializeField] private float damageRadius = 0.3f;
         [SerializeField] private float bulletHitRadius = 0.5f;
         [SerializeField] private int killScore = 50;
 
