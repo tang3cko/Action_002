@@ -1,5 +1,4 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using Action002.Core.Flow;
 using Tang3cko.ReactiveSO;
@@ -45,6 +44,7 @@ namespace Action002.UI
             }
 
             startButton.RegisterCallback<PointerUpEvent>(OnStartButtonPointerUp);
+            startButton.RegisterCallback<NavigationSubmitEvent>(OnStartButtonSubmit);
 
             if (onGamePhaseChanged != null)
                 onGamePhaseChanged.OnEventRaised += HandleGamePhaseChanged;
@@ -55,7 +55,10 @@ namespace Action002.UI
         private void OnDisable()
         {
             if (startButton != null)
+            {
                 startButton.UnregisterCallback<PointerUpEvent>(OnStartButtonPointerUp);
+                startButton.UnregisterCallback<NavigationSubmitEvent>(OnStartButtonSubmit);
+            }
 
             if (onGamePhaseChanged != null)
                 onGamePhaseChanged.OnEventRaised -= HandleGamePhaseChanged;
@@ -73,6 +76,9 @@ namespace Action002.UI
         {
             if (titleScreenRoot != null)
                 titleScreenRoot.style.display = DisplayStyle.Flex;
+
+            if (startButton != null)
+                startButton.Focus();
         }
 
         private void Hide()
@@ -84,6 +90,13 @@ namespace Action002.UI
         private void OnStartButtonPointerUp(PointerUpEvent evt)
         {
             Vector2 screenPosition = new Vector2(evt.position.x, Screen.height - evt.position.y);
+            onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
+            onTitleStartSelected?.RaiseEvent();
+        }
+
+        private void OnStartButtonSubmit(NavigationSubmitEvent evt)
+        {
+            Vector2 screenPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
             onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
         }
