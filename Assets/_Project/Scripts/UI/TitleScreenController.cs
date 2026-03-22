@@ -83,9 +83,7 @@ namespace Action002.UI
 
         private void OnStartButtonPointerUp(PointerUpEvent evt)
         {
-            Vector2 screenPosition = Pointer.current != null
-                ? Pointer.current.position.ReadValue()
-                : new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
+            Vector2 screenPosition = new Vector2(evt.position.x, Screen.height - evt.position.y);
             onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
         }
