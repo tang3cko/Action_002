@@ -23,6 +23,7 @@ namespace Action002.Bullet.Systems
         private readonly Dictionary<int, float> lastShotTimes = new Dictionary<int, float>(256);
         private readonly Dictionary<int, float> spiralAngles = new Dictionary<int, float>(64);
         private readonly Dictionary<int, Unity.Mathematics.Random> shotRngs = new Dictionary<int, Unity.Mathematics.Random>(64);
+        private readonly Dictionary<int, int> anchorShotCounts = new Dictionary<int, int>(16);
 
         public EnemyShoot(
             IRhythmClock rhythmClock,
@@ -67,33 +68,48 @@ namespace Action002.Bullet.Systems
                 int remaining = maxBulletsPerOffbeat - fired;
                 if (spec.ShotPattern.Count > remaining) continue;
 
-                Span<BulletState> buf = stackalloc BulletState[spec.ShotPattern.Count];
+                // Anchor タイプは Spiral と RandomSpread を交互に使う
+                var shotPattern = spec.ShotPattern;
+                bool useAlternating = enemy.TypeId == EnemyTypeId.Anchor;
+                if (useAlternating)
+                {
+                    if (!anchorShotCounts.TryGetValue(enemyId, out int shotCount))
+                        shotCount = 0;
+                    anchorShotCounts[enemyId] = shotCount + 1;
+
+                    if (shotCount % 2 == 0)
+                        shotPattern = new ShotPatternSpec(ShotPatternKind.Spiral, shotPattern.Count, shotPattern.ArcDegrees, shotPattern.BulletSpeed);
+                    else
+                        shotPattern = new ShotPatternSpec(ShotPatternKind.RandomSpread, shotPattern.Count, 25f, shotPattern.BulletSpeed);
+                }
+
+                Span<BulletState> buf = stackalloc BulletState[shotPattern.Count];
                 int written;
 
-                switch (spec.ShotPattern.Kind)
+                switch (shotPattern.Kind)
                 {
-                    case Data.ShotPatternKind.Spiral:
+                    case ShotPatternKind.Spiral:
                     {
                         if (!spiralAngles.TryGetValue(enemyId, out float currentAngle))
                             currentAngle = 0f;
 
-                        written = ShotPatternCalculator.CalculateSpiral(buf, spec.ShotPattern, enemy.Position, currentAngle, enemy.Polarity, spec.ScoreValue);
-                        spiralAngles[enemyId] = currentAngle + math.radians(spec.ShotPattern.ArcDegrees);
+                        written = ShotPatternCalculator.CalculateSpiral(buf, shotPattern, enemy.Position, currentAngle, enemy.Polarity, spec.ScoreValue);
+                        spiralAngles[enemyId] = currentAngle + math.radians(shotPattern.ArcDegrees);
                         break;
                     }
-                    case Data.ShotPatternKind.RandomSpread:
+                    case ShotPatternKind.RandomSpread:
                     {
                         if (!shotRngs.TryGetValue(enemyId, out var rng))
                         {
                             rng = new Unity.Mathematics.Random((uint)(enemyId * 7919 + 1));
                         }
 
-                        written = ShotPatternCalculator.CalculateRandomSpread(buf, spec.ShotPattern, enemy.Position, ref rng, enemy.Polarity, spec.ScoreValue);
+                        written = ShotPatternCalculator.CalculateRandomSpread(buf, shotPattern, enemy.Position, ref rng, enemy.Polarity, spec.ScoreValue);
                         shotRngs[enemyId] = rng;
                         break;
                     }
                     default:
-                        written = ShotPatternCalculator.Calculate(buf, spec.ShotPattern, enemy.Position, playerPos, enemy.Polarity, spec.ScoreValue);
+                        written = ShotPatternCalculator.Calculate(buf, shotPattern, enemy.Position, playerPos, enemy.Polarity, spec.ScoreValue);
                         break;
                 }
 
@@ -116,6 +132,7 @@ namespace Action002.Bullet.Systems
             lastShotTimes.Clear();
             spiralAngles.Clear();
             shotRngs.Clear();
+            anchorShotCounts.Clear();
         }
     }
 }

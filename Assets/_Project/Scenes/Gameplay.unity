@@ -154,11 +154,13 @@ MonoBehaviour:
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}
   spinGaugeVar: {fileID: 11400000, guid: d0dd4b52acd454de5a9509a0cd170e5b, type: 2}
+  playerLevelVar: {fileID: 11400000, guid: 8e7aeaf437f734cdcbec928c9f975df2, type: 2}
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
   onPlayerHpChanged: {fileID: 11400000, guid: a79ea5d21e78244fa85af269dbf6e175, type: 2}
   onScoreChanged: {fileID: 11400000, guid: b4e34b592c1a749ce8b76d095bda97a1, type: 2}
   onComboCountChanged: {fileID: 11400000, guid: 5ee9bed3815e04976bb93b1d3e7b2e4e, type: 2}
   onSpinGaugeChanged: {fileID: 11400000, guid: 294057b8f85b94def8b525a58057062f, type: 2}
+  onPlayerLevelUp: {fileID: 11400000, guid: faa957559b9ed474095a589559138c41, type: 2}
   uiDocument: {fileID: 230408326}
 --- !u!114 &230408326
 MonoBehaviour:
@@ -375,6 +377,8 @@ MonoBehaviour:
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
   playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
+  playerBulletCountVar: {fileID: 11400000, guid: 9621ca1f82d4c41e89dd8835ca3311b6, type: 2}
+  bulletSpeedMultiplierVar: {fileID: 11400000, guid: d16c8bf7fa0a04b00b9e884d08746c00, type: 2}
 --- !u!114 &445281359
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -598,11 +602,15 @@ MonoBehaviour:
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}
   spinGaugeVar: {fileID: 11400000, guid: d0dd4b52acd454de5a9509a0cd170e5b, type: 2}
+  playerLevelVar: {fileID: 11400000, guid: 8e7aeaf437f734cdcbec928c9f975df2, type: 2}
+  playerBulletCountVar: {fileID: 11400000, guid: 9621ca1f82d4c41e89dd8835ca3311b6, type: 2}
+  bulletSpeedMultiplierVar: {fileID: 11400000, guid: d16c8bf7fa0a04b00b9e884d08746c00, type: 2}
   onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
   onComboIncremented: {fileID: 11400000, guid: a5bb057ca18a6422eabc07343d974ab9, type: 2}
   onKillScoreAdded: {fileID: 11400000, guid: 6c7724dd95b7b47c190a7b15620e023f, type: 2}
   onScoreAdded: {fileID: 11400000, guid: a6c810aa4e9964c85857f3d57440aa62, type: 2}
   onGameOver: {fileID: 11400000, guid: accbfe13ebf0247238041e67bcf14dee, type: 2}
+  onPlayerLevelUp: {fileID: 11400000, guid: faa957559b9ed474095a589559138c41, type: 2}
   spriteRenderer: {fileID: 703971812}
 --- !u!212 &703971812
 SpriteRenderer:
@@ -723,6 +731,9 @@ MonoBehaviour:
   maxComboVar: {fileID: 11400000, guid: c82f4c7ba71294932bf1bb5db841fc25, type: 2}
   runKillCountVar: {fileID: 11400000, guid: cdaa30a23e6f243a49bd2e9471f04362, type: 2}
   runAbsorptionCountVar: {fileID: 11400000, guid: 2ee4bd461d20344798e04e281bd3bc8d, type: 2}
+  playerLevelVar: {fileID: 11400000, guid: 8e7aeaf437f734cdcbec928c9f975df2, type: 2}
+  playerBulletCountVar: {fileID: 11400000, guid: 9621ca1f82d4c41e89dd8835ca3311b6, type: 2}
+  bulletSpeedMultiplierVar: {fileID: 11400000, guid: d16c8bf7fa0a04b00b9e884d08746c00, type: 2}
 --- !u!4 &904695634
 Transform:
   m_ObjectHideFlags: 0

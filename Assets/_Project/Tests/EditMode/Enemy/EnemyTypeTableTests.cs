@@ -39,6 +39,19 @@ namespace Action002.Tests.Enemy
         }
 
         [Test]
+        public void Get_Anchor_ReturnsAnchorSpec()
+        {
+            var spec = EnemyTypeTable.Get(EnemyTypeId.Anchor);
+
+            Assert.That(spec.Hp, Is.EqualTo(15));
+            Assert.That(spec.ShotPattern.Count, Is.EqualTo(24));
+            Assert.That(spec.ShootCooldown, Is.LessThanOrEqualTo(0.5f));
+            Assert.That(spec.Movement, Is.EqualTo(MovementPattern.Anchor));
+            Assert.That(spec.MaxConcurrent, Is.EqualTo(2));
+            Assert.That(spec.BudgetCost, Is.EqualTo(5f));
+        }
+
+        [Test]
         public void Get_UndefinedId_ThrowsArgumentOutOfRange()
         {
             Assert.Throws<ArgumentOutOfRangeException>(() => EnemyTypeTable.Get((EnemyTypeId)999));
@@ -47,6 +60,7 @@ namespace Action002.Tests.Enemy
         [TestCase(EnemyTypeId.Shooter)]
         [TestCase(EnemyTypeId.NWay)]
         [TestCase(EnemyTypeId.Ring)]
+        [TestCase(EnemyTypeId.Anchor)]
         public void Get_AllTypes_HavePositiveCollisionRadius(EnemyTypeId id)
         {
             var spec = EnemyTypeTable.Get(id);
@@ -56,6 +70,7 @@ namespace Action002.Tests.Enemy
         [TestCase(EnemyTypeId.Shooter)]
         [TestCase(EnemyTypeId.NWay)]
         [TestCase(EnemyTypeId.Ring)]
+        [TestCase(EnemyTypeId.Anchor)]
         public void Get_AllTypes_HavePositiveVisualScale(EnemyTypeId id)
         {
             var spec = EnemyTypeTable.Get(id);

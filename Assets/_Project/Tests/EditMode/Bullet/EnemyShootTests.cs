@@ -313,13 +313,12 @@ namespace Action002.Tests.Bullet
         }
 
         [Test]
-        public void ProcessShooting_RandomSpreadPattern_FiresBullets()
+        public void ProcessShooting_RingPattern_FiresBullets()
         {
             stubClock.ShouldFireOffbeatResult = true;
             stubClock.CurrentHalfBeatIndex = 1;
             playerPositionVar.Value = Vector2.zero;
 
-            // Ring タイプは RandomSpread パターンを使う
             var enemy = new EnemyState
             {
                 Position = new float2(0f, 10f),
@@ -331,9 +330,71 @@ namespace Action002.Tests.Bullet
 
             shooter.ProcessShooting(0f);
 
-            var spreadSpec = EnemyTypeTable.Get(EnemyTypeId.Ring);
-            Assert.That(bulletSet.Count, Is.EqualTo(spreadSpec.ShotPattern.Count),
-                "RandomSpread pattern should fire the correct number of bullets");
+            var ringSpec = EnemyTypeTable.Get(EnemyTypeId.Ring);
+            Assert.That(bulletSet.Count, Is.EqualTo(ringSpec.ShotPattern.Count),
+                "Ring pattern should fire the correct number of bullets");
+        }
+
+        [Test]
+        public void ProcessShooting_AnchorType_FiresSpiralAndRandomSpreadAlternately()
+        {
+            stubClock.ShouldFireOffbeatResult = true;
+            playerPositionVar.Value = Vector2.zero;
+
+            var enemy = new EnemyState
+            {
+                Position = new float2(0f, 10f),
+                Hp = 5,
+                Polarity = 0,
+                TypeId = EnemyTypeId.Anchor,
+            };
+            enemySet.Register(1, enemy);
+
+            var anchorSpec = EnemyTypeTable.Get(EnemyTypeId.Anchor);
+            int bulletCount = anchorSpec.ShotPattern.Count;
+
+            // 1回目: Spiral（等角配置）
+            stubClock.CurrentHalfBeatIndex = 1;
+            shooter.ProcessShooting(0f);
+            Assert.That(bulletSet.Count, Is.EqualTo(bulletCount));
+
+            // Spiral は等角配置: 隣接弾の速度ベクトル間の内積が一定（角度差が一定）
+            var firstBatch = bulletSet.Data;
+            float expectedDot = -1f;
+            for (int i = 1; i < bulletCount; i++)
+            {
+                float2 d0 = math.normalize(firstBatch[i - 1].Velocity);
+                float2 d1 = math.normalize(firstBatch[i].Velocity);
+                float dot = math.dot(d0, d1);
+                if (i == 1)
+                {
+                    expectedDot = dot;
+                }
+                else
+                {
+                    Assert.That(dot, Is.EqualTo(expectedDot).Within(0.01f),
+                        $"Spiral bullet {i}: dot product should be uniform (equal angle steps)");
+                }
+            }
+
+            // 2回目: RandomSpread（ジッター入りなので内積が不均一）
+            stubClock.CurrentHalfBeatIndex = 2;
+            shooter.ProcessShooting(10f);
+            Assert.That(bulletSet.Count, Is.EqualTo(bulletCount * 2));
+
+            bool hasJitter = false;
+            for (int i = bulletCount + 1; i < bulletCount * 2; i++)
+            {
+                float2 d0 = math.normalize(bulletSet.Data[i - 1].Velocity);
+                float2 d1 = math.normalize(bulletSet.Data[i].Velocity);
+                float dot = math.dot(d0, d1);
+                if (math.abs(dot - expectedDot) > 0.02f)
+                {
+                    hasJitter = true;
+                    break;
+                }
+            }
+            Assert.IsTrue(hasJitter, "RandomSpread should have non-uniform angle spacing (jitter)");
         }
 
         // ── ResetForNewRun ──

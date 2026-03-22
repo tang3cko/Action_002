@@ -189,12 +189,12 @@ namespace Action002.Tests.Enemy
         [Test]
         public void ProcessSpawning_MaxConcurrent_FallsBackToShooterWhenLimitReached()
         {
-            var ringSpec = EnemyTypeTable.Get(EnemyTypeId.Ring);
-            Assert.That(ringSpec.MaxConcurrent, Is.EqualTo(2), "Ring のMaxConcurrentが2であること");
+            var anchorSpec = EnemyTypeTable.Get(EnemyTypeId.Anchor);
+            Assert.That(anchorSpec.MaxConcurrent, Is.EqualTo(2), "Anchor のMaxConcurrentが2であること");
 
-            // Ring 型を2体手動登録して上限に達する
-            enemySet.Register(9001, new EnemyState { TypeId = EnemyTypeId.Ring, Hp = 3 });
-            enemySet.Register(9002, new EnemyState { TypeId = EnemyTypeId.Ring, Hp = 3 });
+            // Anchor 型を2体手動登録して上限に達する
+            enemySet.Register(9001, new EnemyState { TypeId = EnemyTypeId.Anchor, Hp = 5 });
+            enemySet.Register(9002, new EnemyState { TypeId = EnemyTypeId.Anchor, Hp = 5 });
 
             spawner.SetActive(true);
             spawner.SetWorldBounds(new float4(-10f, -10f, 10f, 10f));
@@ -210,15 +210,15 @@ namespace Action002.Tests.Enemy
             // スポーン機会が無駄にならず、敵が増えていること
             Assert.Greater(enemySet.Count, beforeCount, "Enemies should spawn (fallback to Shooter)");
 
-            // Ring 型は2体を超えていないこと
-            int ringCount = 0;
+            // Anchor 型は2体を超えていないこと
+            int anchorCount = 0;
             var data = enemySet.Data;
             for (int i = 0; i < data.Length; i++)
             {
-                if (data[i].TypeId == EnemyTypeId.Ring)
-                    ringCount++;
+                if (data[i].TypeId == EnemyTypeId.Anchor)
+                    anchorCount++;
             }
-            Assert.LessOrEqual(ringCount, ringSpec.MaxConcurrent, "Ring count should not exceed MaxConcurrent");
+            Assert.LessOrEqual(anchorCount, anchorSpec.MaxConcurrent, "Anchor count should not exceed MaxConcurrent");
         }
 
         // ── Anchor 目標位置 ──
@@ -240,11 +240,11 @@ namespace Action002.Tests.Enemy
             float marginY = (bounds.w - bounds.y) * 0.2f; // 4.0
 
             var data = enemySet.Data;
-            int ringCount = 0;
+            int anchorFoundCount = 0;
             for (int i = 0; i < data.Length; i++)
             {
-                if (data[i].TypeId != EnemyTypeId.Ring) continue;
-                ringCount++;
+                if (data[i].TypeId != EnemyTypeId.Anchor) continue;
+                anchorFoundCount++;
 
                 var target = data[i].TargetPosition;
 
@@ -261,7 +261,7 @@ namespace Action002.Tests.Enemy
                     $"Anchor target ({target.x}, {target.y}) should be near a corner of bounds");
             }
 
-            Assert.Greater(ringCount, 0, "At least one Ring type should have spawned");
+            Assert.Greater(anchorFoundCount, 0, "At least one Anchor type should have spawned");
         }
 
         // ── KeepDistance strafeSign ──

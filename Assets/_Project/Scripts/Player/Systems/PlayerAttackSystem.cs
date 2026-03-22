@@ -22,6 +22,8 @@ namespace Action002.Player.Systems
         [Header("Variables (read)")]
         [SerializeField] private Vector2VariableSO playerPositionVar;
         [SerializeField] private IntVariableSO playerPolarityVar;
+        [SerializeField] private IntVariableSO playerBulletCountVar;
+        [SerializeField] private FloatVariableSO bulletSpeedMultiplierVar;
 
         private PlayerAttack attack;
 
@@ -33,7 +35,9 @@ namespace Action002.Player.Systems
                 enemySet,
                 bulletSet,
                 playerPositionVar,
-                playerPolarityVar);
+                playerPolarityVar,
+                playerBulletCountVar,
+                bulletSpeedMultiplierVar);
         }
 
         public void ProcessAttacks()
@@ -55,6 +59,8 @@ namespace Action002.Player.Systems
             if (bulletSet == null) Debug.LogWarning($"[{GetType().Name}] bulletSet not assigned on {gameObject.name}.", this);
             if (playerPositionVar == null) Debug.LogWarning($"[{GetType().Name}] playerPositionVar not assigned on {gameObject.name}.", this);
             if (playerPolarityVar == null) Debug.LogWarning($"[{GetType().Name}] playerPolarityVar not assigned on {gameObject.name}.", this);
+            if (playerBulletCountVar == null) Debug.LogWarning($"[{GetType().Name}] playerBulletCountVar not assigned on {gameObject.name}.", this);
+            if (bulletSpeedMultiplierVar == null) Debug.LogWarning($"[{GetType().Name}] bulletSpeedMultiplierVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }

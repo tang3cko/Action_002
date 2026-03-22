@@ -19,3 +19,5 @@ MonoBehaviour:
     Texture: {fileID: 0}
   - TypeId: 2
     Texture: {fileID: 0}
+  - TypeId: 3
+    Texture: {fileID: 0}

@@ -19,6 +19,8 @@ namespace Action002.Tests.Player
         private BulletStateSetSO bulletSet;
         private Vector2VariableSO playerPositionVar;
         private IntVariableSO playerPolarityVar;
+        private IntVariableSO playerBulletCountVar;
+        private FloatVariableSO bulletSpeedMultiplierVar;
         private PlayerAttack attack;
 
         [SetUp]
@@ -31,6 +33,11 @@ namespace Action002.Tests.Player
             bulletSet = ScriptableObject.CreateInstance<BulletStateSetSO>();
             playerPositionVar = ScriptableObject.CreateInstance<Vector2VariableSO>();
             playerPolarityVar = ScriptableObject.CreateInstance<IntVariableSO>();
+            playerBulletCountVar = ScriptableObject.CreateInstance<IntVariableSO>();
+            bulletSpeedMultiplierVar = ScriptableObject.CreateInstance<FloatVariableSO>();
+
+            playerBulletCountVar.Value = 1;
+            bulletSpeedMultiplierVar.Value = 1f;
 
             attack = new PlayerAttack(
                 stubClock,
@@ -38,7 +45,9 @@ namespace Action002.Tests.Player
                 enemySet,
                 bulletSet,
                 playerPositionVar,
-                playerPolarityVar);
+                playerPolarityVar,
+                playerBulletCountVar,
+                bulletSpeedMultiplierVar);
         }
 
         [TearDown]
@@ -49,6 +58,8 @@ namespace Action002.Tests.Player
             Object.DestroyImmediate(bulletSet);
             Object.DestroyImmediate(playerPositionVar);
             Object.DestroyImmediate(playerPolarityVar);
+            Object.DestroyImmediate(playerBulletCountVar);
+            Object.DestroyImmediate(bulletSpeedMultiplierVar);
         }
 
         // ── ProcessAttacks ──
@@ -157,6 +168,108 @@ namespace Action002.Tests.Player
             attack.ProcessAttacks();
 
             Assert.That(bulletSet.Count, Is.EqualTo(2));
+        }
+
+        // ── Multiple Bullets ──
+
+        [Test]
+        public void ProcessAttacks_BulletCount2_Registers2Bullets()
+        {
+            stubClock.ShouldFireResult = true;
+            stubClock.CurrentHalfBeatIndex = 2;
+            playerBulletCountVar.Value = 2;
+            playerPositionVar.Value = Vector2.zero;
+
+            attack.ProcessAttacks();
+
+            Assert.That(bulletSet.Count, Is.EqualTo(2));
+        }
+
+        [Test]
+        public void ProcessAttacks_BulletCount3_Registers3Bullets()
+        {
+            stubClock.ShouldFireResult = true;
+            stubClock.CurrentHalfBeatIndex = 2;
+            playerBulletCountVar.Value = 3;
+            playerPositionVar.Value = Vector2.zero;
+
+            attack.ProcessAttacks();
+
+            Assert.That(bulletSet.Count, Is.EqualTo(3));
+        }
+
+        [Test]
+        public void ProcessAttacks_BulletCount2_TwoEnemies_TargetsDifferentEnemies()
+        {
+            stubClock.ShouldFireResult = true;
+            stubClock.CurrentHalfBeatIndex = 2;
+            playerBulletCountVar.Value = 2;
+            playerPositionVar.Value = Vector2.zero;
+
+            enemySet.Register(1, new EnemyState { Position = new float2(0f, 10f), Hp = 1 });
+            enemySet.Register(2, new EnemyState { Position = new float2(10f, 0f), Hp = 1 });
+
+            attack.ProcessAttacks();
+
+            var bulletData = bulletSet.Data;
+            Assert.That(bulletSet.Count, Is.EqualTo(2));
+            // One should aim up, one should aim right (or vice versa)
+            bool hasUpward = bulletData[0].Velocity.y > 5f || bulletData[1].Velocity.y > 5f;
+            bool hasRightward = bulletData[0].Velocity.x > 5f || bulletData[1].Velocity.x > 5f;
+            Assert.That(hasUpward, Is.True);
+            Assert.That(hasRightward, Is.True);
+        }
+
+        [Test]
+        public void ProcessAttacks_BulletCount2_OneEnemy_DuplicatesTarget()
+        {
+            stubClock.ShouldFireResult = true;
+            stubClock.CurrentHalfBeatIndex = 2;
+            playerBulletCountVar.Value = 2;
+            playerPositionVar.Value = Vector2.zero;
+
+            enemySet.Register(1, new EnemyState { Position = new float2(0f, 10f), Hp = 1 });
+
+            attack.ProcessAttacks();
+
+            var bulletData = bulletSet.Data;
+            Assert.That(bulletSet.Count, Is.EqualTo(2));
+            // Both should aim at the same enemy (upward)
+            Assert.That(bulletData[0].Velocity.y, Is.GreaterThan(0f));
+            Assert.That(bulletData[1].Velocity.y, Is.GreaterThan(0f));
+        }
+
+        [Test]
+        public void ProcessAttacks_BulletCount2_NoEnemies_AllFireForward()
+        {
+            stubClock.ShouldFireResult = true;
+            stubClock.CurrentHalfBeatIndex = 2;
+            playerBulletCountVar.Value = 2;
+            playerPositionVar.Value = Vector2.zero;
+
+            attack.ProcessAttacks();
+
+            var bulletData = bulletSet.Data;
+            Assert.That(bulletSet.Count, Is.EqualTo(2));
+            Assert.That(bulletData[0].Velocity.y, Is.GreaterThan(0f));
+            Assert.That(bulletData[1].Velocity.y, Is.GreaterThan(0f));
+        }
+
+        // ── Bullet Speed Multiplier ──
+
+        [Test]
+        public void ProcessAttacks_BulletSpeedMultiplier_AppliedToVelocity()
+        {
+            stubClock.ShouldFireResult = true;
+            stubClock.CurrentHalfBeatIndex = 2;
+            bulletSpeedMultiplierVar.Value = 2f;
+            playerPositionVar.Value = Vector2.zero;
+
+            attack.ProcessAttacks();
+
+            var bulletData = bulletSet.Data;
+            // Base speed 15, multiplier 2, direction (0,1) -> velocity.y = 30
+            Assert.That(bulletData[0].Velocity.y, Is.EqualTo(30f).Within(0.01f));
         }
 
         // ── ResetForNewRun ──

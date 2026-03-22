@@ -9,7 +9,7 @@ using Tang3cko.ReactiveSO;
 
 namespace Action002.Player.Systems
 {
-    public class PlayerController : MonoBehaviour
+    public class PlayerController : MonoBehaviour, IPlayerGrowthActions
     {
         private Camera gameplayCamera;
 
@@ -27,6 +27,11 @@ namespace Action002.Player.Systems
         [SerializeField] private IntVariableSO comboCountVar;
         [SerializeField] private FloatVariableSO spinGaugeVar;
 
+        [Header("Growth Variables (write)")]
+        [SerializeField] private IntVariableSO playerLevelVar;
+        [SerializeField] private IntVariableSO playerBulletCountVar;
+        [SerializeField] private FloatVariableSO bulletSpeedMultiplierVar;
+
         [Header("Events (subscribe)")]
         [SerializeField] private VoidEventChannelSO onPlayerDamaged;
         [SerializeField] private FloatEventChannelSO onComboIncremented;
@@ -35,6 +40,7 @@ namespace Action002.Player.Systems
 
         [Header("Events (publish)")]
         [SerializeField] private VoidEventChannelSO onGameOver;
+        [SerializeField] private IntEventChannelSO onPlayerLevelUp;
 
         [Header("Visual")]
         [SerializeField] private SpriteRenderer spriteRenderer;
@@ -43,10 +49,13 @@ namespace Action002.Player.Systems
         private bool hasGameOverFired;
         private Vector2 moveInput;
         private Texture2D generatedTexture;
+        private PlayerGrowthCoordinator growthCoordinator;
+        private float moveSpeedMultiplier = 1f;
 
         private void Awake()
         {
             gameplayCamera = Camera.main;
+            growthCoordinator = new PlayerGrowthCoordinator(this);
         }
 
         private void OnEnable()
@@ -96,7 +105,7 @@ namespace Action002.Player.Systems
             if (gameConfig == null) return;
 
             float2 input = new float2(moveInput.x, moveInput.y);
-            float2 velocity = MovementCalculator.CalculateVelocity(input, gameConfig.MoveSpeed);
+            float2 velocity = MovementCalculator.CalculateVelocity(input, gameConfig.MoveSpeed * moveSpeedMultiplier);
             state.Position += velocity * Time.deltaTime;
 
             state.Position = ClampPositionToViewport(state.Position);
@@ -105,6 +114,12 @@ namespace Action002.Player.Systems
                 playerPositionVar.Value = new Vector2(state.Position.x, state.Position.y);
 
             state = DamageCalculator.TickInvincibility(state, Time.deltaTime);
+
+            if (growthCoordinator != null)
+            {
+                growthCoordinator.CheckAndApplyGrowth(state.SpinGauge);
+                SyncVariables();
+            }
 
             var prevCombo = state.ComboCount;
             state = ComboCalculator.TickComboTimer(state, Time.deltaTime);
@@ -171,6 +186,16 @@ namespace Action002.Player.Systems
             hasGameOverFired = false;
             moveInput = Vector2.zero;
             transform.position = Vector3.zero;
+
+            if (growthCoordinator != null)
+            {
+                growthCoordinator.Reset();
+                var defaultGrowth = PlayerGrowthCalculator.CreateDefault();
+                ApplyGrowth(defaultGrowth);
+                if (playerLevelVar != null)
+                    playerLevelVar.Value = defaultGrowth.Level;
+            }
+
             SyncVariables();
             UpdateVisual();
         }
@@ -227,6 +252,34 @@ namespace Action002.Player.Systems
             SyncVariables();
         }
 
+        // --- IPlayerGrowthActions ---
+
+        void IPlayerGrowthActions.ResetSpinGauge()
+        {
+            state.SpinGauge = 0f;
+        }
+
+        void IPlayerGrowthActions.ApplyGrowth(PlayerGrowthState growthState)
+        {
+            ApplyGrowth(growthState);
+        }
+
+        void IPlayerGrowthActions.RaiseLevelUp(int level)
+        {
+            if (playerLevelVar != null)
+                playerLevelVar.Value = level;
+            onPlayerLevelUp?.RaiseEvent(level);
+        }
+
+        private void ApplyGrowth(PlayerGrowthState growthState)
+        {
+            moveSpeedMultiplier = growthState.MoveSpeedMultiplier;
+            if (playerBulletCountVar != null)
+                playerBulletCountVar.Value = growthState.BulletCount;
+            if (bulletSpeedMultiplierVar != null)
+                bulletSpeedMultiplierVar.Value = growthState.BulletSpeedMultiplier;
+        }
+
         // --- State ---
 
         private void SyncVariables()
@@ -278,6 +331,10 @@ namespace Action002.Player.Systems
             if (onKillScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onKillScoreAdded not assigned on {gameObject.name}.", this);
             if (onScoreAdded == null) Debug.LogWarning($"[{GetType().Name}] onScoreAdded not assigned on {gameObject.name}.", this);
             if (onGameOver == null) Debug.LogWarning($"[{GetType().Name}] onGameOver not assigned on {gameObject.name}.", this);
+            if (onPlayerLevelUp == null) Debug.LogWarning($"[{GetType().Name}] onPlayerLevelUp not assigned on {gameObject.name}.", this);
+            if (playerLevelVar == null) Debug.LogWarning($"[{GetType().Name}] playerLevelVar not assigned on {gameObject.name}.", this);
+            if (playerBulletCountVar == null) Debug.LogWarning($"[{GetType().Name}] playerBulletCountVar not assigned on {gameObject.name}.", this);
+            if (bulletSpeedMultiplierVar == null) Debug.LogWarning($"[{GetType().Name}] bulletSpeedMultiplierVar not assigned on {gameObject.name}.", this);
             if (spriteRenderer == null) Debug.LogWarning($"[{GetType().Name}] spriteRenderer not assigned on {gameObject.name}.", this);
         }
 #endif

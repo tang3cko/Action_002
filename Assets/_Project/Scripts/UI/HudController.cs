@@ -16,6 +16,7 @@ namespace Action002.UI
         [SerializeField] private IntVariableSO scoreVar;
         [SerializeField] private IntVariableSO comboCountVar;
         [SerializeField] private FloatVariableSO spinGaugeVar;
+        [SerializeField] private IntVariableSO playerLevelVar;
 
         [Header("Events (subscribe)")]
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
@@ -23,6 +24,7 @@ namespace Action002.UI
         [SerializeField] private IntEventChannelSO onScoreChanged;
         [SerializeField] private IntEventChannelSO onComboCountChanged;
         [SerializeField] private FloatEventChannelSO onSpinGaugeChanged;
+        [SerializeField] private IntEventChannelSO onPlayerLevelUp;
 
         [Header("UI")]
         [SerializeField] private UIDocument uiDocument;
@@ -34,6 +36,7 @@ namespace Action002.UI
         private VisualElement[] hpPips;
         private Label scoreLabel;
         private Label comboLabel;
+        private Label levelLabel;
         private VisualElement gaugeFill;
         private VisualElement gaugeTrack;
 
@@ -78,6 +81,10 @@ namespace Action002.UI
             if (comboLabel == null)
                 Debug.LogError("[HudController] Label 'ComboLabel' not found in UIDocument.", this);
 
+            levelLabel = root.Q<Label>("LevelLabel");
+            if (levelLabel == null)
+                Debug.LogError("[HudController] Label 'LevelLabel' not found in UIDocument.", this);
+
             gaugeTrack = root.Q<VisualElement>("GaugeTrack");
             if (gaugeTrack == null)
                 Debug.LogError("[HudController] VisualElement 'GaugeTrack' not found in UIDocument.", this);
@@ -99,11 +106,14 @@ namespace Action002.UI
                 onComboCountChanged.OnEventRaised += OnComboChanged;
             if (onSpinGaugeChanged != null)
                 onSpinGaugeChanged.OnEventRaised += OnGaugeChanged;
+            if (onPlayerLevelUp != null)
+                onPlayerLevelUp.OnEventRaised += OnLevelChanged;
 
             if (playerHpVar != null) OnHpChanged(playerHpVar.Value);
             if (scoreVar != null) OnScoreChanged(scoreVar.Value);
             if (comboCountVar != null) OnComboChanged(comboCountVar.Value);
             if (spinGaugeVar != null) OnGaugeChanged(spinGaugeVar.Value);
+            if (playerLevelVar != null) OnLevelChanged(playerLevelVar.Value);
 
             Show();
         }
@@ -120,6 +130,8 @@ namespace Action002.UI
                 onComboCountChanged.OnEventRaised -= OnComboChanged;
             if (onSpinGaugeChanged != null)
                 onSpinGaugeChanged.OnEventRaised -= OnGaugeChanged;
+            if (onPlayerLevelUp != null)
+                onPlayerLevelUp.OnEventRaised -= OnLevelChanged;
         }
 
         private void HandleGamePhaseChanged(int phase)
@@ -166,6 +178,12 @@ namespace Action002.UI
                 comboLabel.text = combo > 1 ? $"x{combo}" : "";
         }
 
+        private void OnLevelChanged(int level)
+        {
+            if (levelLabel != null)
+                levelLabel.text = $"Lv.{level}";
+        }
+
         private void OnGaugeChanged(float gauge)
         {
             if (gaugeFill != null)
@@ -195,6 +213,10 @@ namespace Action002.UI
                 Debug.LogWarning("[HudController] onComboCountChanged is not assigned.", this);
             if (onSpinGaugeChanged == null)
                 Debug.LogWarning("[HudController] onSpinGaugeChanged is not assigned.", this);
+            if (playerLevelVar == null)
+                Debug.LogWarning("[HudController] playerLevelVar is not assigned.", this);
+            if (onPlayerLevelUp == null)
+                Debug.LogWarning("[HudController] onPlayerLevelUp is not assigned.", this);
             if (uiDocument == null)
                 Debug.LogWarning("[HudController] uiDocument is not assigned.", this);
         }

@@ -28,24 +28,31 @@ namespace Action002.Tests.Enemy
         }
 
         [Test]
-        public void After60Seconds_CanReturnRing()
+        public void After60Seconds_LowRandom_ReturnsShooter()
         {
-            // randomValue >= 0.8 → Ring
-            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.9f), Is.EqualTo(EnemyTypeId.Ring));
+            // randomValue < 0.4 → Shooter
+            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.2f), Is.EqualTo(EnemyTypeId.Shooter));
         }
 
         [Test]
         public void After60Seconds_MidRandom_ReturnsNWay()
         {
-            // 0.5 <= randomValue < 0.8 → NWay
-            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.6f), Is.EqualTo(EnemyTypeId.NWay));
+            // 0.4 <= randomValue < 0.65 → NWay
+            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.5f), Is.EqualTo(EnemyTypeId.NWay));
         }
 
         [Test]
-        public void After60Seconds_LowRandom_ReturnsShooter()
+        public void After60Seconds_CanReturnRing()
         {
-            // randomValue < 0.5 → Shooter
-            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.2f), Is.EqualTo(EnemyTypeId.Shooter));
+            // 0.65 <= randomValue < 0.85 → Ring
+            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.7f), Is.EqualTo(EnemyTypeId.Ring));
+        }
+
+        [Test]
+        public void After60Seconds_HighRandom_ReturnsAnchor()
+        {
+            // randomValue >= 0.85 → Anchor
+            Assert.That(SpawnWaveCalculator.SelectType(90f, 0.9f), Is.EqualTo(EnemyTypeId.Anchor));
         }
     }
 }

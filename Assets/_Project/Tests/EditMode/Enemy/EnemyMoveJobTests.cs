@@ -183,7 +183,7 @@ namespace Action002.Tests.Enemy
             {
                 Position = new float2(0, 0),
                 Speed = 5f,
-                TypeId = EnemyTypeId.Ring,
+                TypeId = EnemyTypeId.Anchor,
                 TargetPosition = new float2(10, 10),
             };
 
@@ -196,12 +196,12 @@ namespace Action002.Tests.Enemy
         [Test]
         public void Anchor_AtTarget_ShouldStop()
         {
-            float threshold = EnemyTypeTable.Get(EnemyTypeId.Ring).ArrivalThreshold;
+            float threshold = EnemyTypeTable.Get(EnemyTypeId.Anchor).ArrivalThreshold; // Anchor has ArrivalThreshold
             var state = new EnemyState
             {
                 Position = new float2(10, 10),
                 Speed = 5f,
-                TypeId = EnemyTypeId.Ring,
+                TypeId = EnemyTypeId.Anchor,
                 TargetPosition = new float2(10, 10),
             };
 
@@ -218,7 +218,7 @@ namespace Action002.Tests.Enemy
             {
                 Position = new float2(0, 0),
                 Speed = 100f,
-                TypeId = EnemyTypeId.Ring,
+                TypeId = EnemyTypeId.Anchor,
                 TargetPosition = new float2(1, 0),
             };
 
@@ -235,7 +235,7 @@ namespace Action002.Tests.Enemy
             {
                 Position = new float2(0, 0),
                 Speed = 5f,
-                TypeId = EnemyTypeId.Ring,
+                TypeId = EnemyTypeId.Anchor,
                 TargetPosition = new float2(10, 0),
             };
 

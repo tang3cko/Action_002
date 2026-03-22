@@ -5,5 +5,6 @@ namespace Action002.Enemy.Data
         Shooter = 0,
         NWay = 1,
         Ring = 2,
+        Anchor = 3,
     }
 }

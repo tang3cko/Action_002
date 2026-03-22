@@ -30,6 +30,9 @@ namespace Action002.Core.Flow
         [SerializeField] private IntVariableSO maxComboVar;
         [SerializeField] private IntVariableSO runKillCountVar;
         [SerializeField] private IntVariableSO runAbsorptionCountVar;
+        [SerializeField] private IntVariableSO playerLevelVar;
+        [SerializeField] private IntVariableSO playerBulletCountVar;
+        [SerializeField] private FloatVariableSO bulletSpeedMultiplierVar;
 
         private void Awake()
         {
@@ -45,6 +48,9 @@ namespace Action002.Core.Flow
             if (maxComboVar != null) maxComboVar.ResetToInitial();
             if (runKillCountVar != null) runKillCountVar.ResetToInitial();
             if (runAbsorptionCountVar != null) runAbsorptionCountVar.ResetToInitial();
+            if (playerLevelVar != null) playerLevelVar.ResetToInitial();
+            if (playerBulletCountVar != null) playerBulletCountVar.ResetToInitial();
+            if (bulletSpeedMultiplierVar != null) bulletSpeedMultiplierVar.ResetToInitial();
         }
 
         private void Start()
@@ -119,6 +125,9 @@ namespace Action002.Core.Flow
             if (maxComboVar == null) Debug.LogWarning($"[{GetType().Name}] maxComboVar not assigned on {gameObject.name}.", this);
             if (runKillCountVar == null) Debug.LogWarning($"[{GetType().Name}] runKillCountVar not assigned on {gameObject.name}.", this);
             if (runAbsorptionCountVar == null) Debug.LogWarning($"[{GetType().Name}] runAbsorptionCountVar not assigned on {gameObject.name}.", this);
+            if (playerLevelVar == null) Debug.LogWarning($"[{GetType().Name}] playerLevelVar not assigned on {gameObject.name}.", this);
+            if (playerBulletCountVar == null) Debug.LogWarning($"[{GetType().Name}] playerBulletCountVar not assigned on {gameObject.name}.", this);
+            if (bulletSpeedMultiplierVar == null) Debug.LogWarning($"[{GetType().Name}] bulletSpeedMultiplierVar not assigned on {gameObject.name}.", this);
         }
 #endif
     }
