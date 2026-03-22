@@ -4,6 +4,8 @@ namespace Action002.Player.Logic
 {
     public static class PlayerGrowthCalculator
     {
+        private const int MAX_BULLET_COUNT = 8;
+
         public static PlayerGrowthState CreateDefault()
         {
             return new PlayerGrowthState
@@ -19,8 +21,6 @@ namespace Action002.Player.Logic
         {
             return spinGauge >= 1f;
         }
-
-        private const int MAX_BULLET_COUNT = 8;
 
         public static PlayerGrowthState ApplyLevelUp(PlayerGrowthState current)
         {
