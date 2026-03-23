@@ -1,10 +1,22 @@
 fileFormatVersion: 2
-guid: 510ff12d7c6b94f07b8ce09ea7e18923
+guid: 7a85af64a17904a77a7b5ceb6000a861
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -5166755915559196194
-    second: enemy_ring_0
+      213: -4338869073412154844
+    second: enemy_anchor_white_0
+  - first:
+      213: -1521423724143214970
+    second: enemy_anchor_white_1
+  - first:
+      213: -4880384822487346548
+    second: enemy_anchor_white_2
+  - first:
+      213: -5181412950574177178
+    second: enemy_anchor_white_3
+  - first:
+      213: 386523087553885138
+    second: enemy_anchor_white_4
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +49,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -57,7 +69,7 @@ TextureImporter:
   alphaUsage: 1
   alphaIsTransparency: 1
   spriteTessellationDetail: -1
-  textureType: 0
+  textureType: 8
   textureShape: 1
   singleChannelComponent: 0
   flipbookRows: 1
@@ -72,10 +84,10 @@ TextureImporter:
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
-    maxTextureSize: 256
+    maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 0
+    textureCompression: 1
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -139,13 +151,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: enemy_ring_0
+      name: enemy_anchor_white_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
-        width: 2048
-        height: 2048
+        x: 34
+        y: 34
+        width: 60
+        height: 60
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -154,8 +166,96 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: ed922f39edefb48b0800000000000000
-      internalID: -5166755915559196194
+      spriteID: 42a1758e09d39c3c0800000000000000
+      internalID: -4338869073412154844
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy_anchor_white_1
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 93
+        width: 42
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 68e77990f21d2eae0800000000000000
+      internalID: -1521423724143214970
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy_anchor_white_2
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 43
+        width: 24
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c821f608cd3654cb0800000000000000
+      internalID: -4880384822487346548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy_anchor_white_3
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 43
+        width: 24
+        height: 42
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 664ea6eaf5ce718b0800000000000000
+      internalID: -5181412950574177178
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: enemy_anchor_white_4
+      rect:
+        serializedVersion: 2
+        x: 43
+        y: 11
+        width: 42
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d3f22343b43d5500800000000000000
+      internalID: 386523087553885138
       vertices: []
       indices: 
       edges: []
@@ -174,7 +274,11 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      enemy_ring_0: -5166755915559196194
+      enemy_anchor_white_0: -4338869073412154844
+      enemy_anchor_white_1: -1521423724143214970
+      enemy_anchor_white_2: -4880384822487346548
+      enemy_anchor_white_3: -5181412950574177178
+      enemy_anchor_white_4: 386523087553885138
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

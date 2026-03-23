@@ -14,10 +14,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: Action002::Action002.Enemy.Rendering.EnemyVisualConfigSO
   entries:
   - TypeId: 0
-    Texture: {fileID: 2800000, guid: 09878a88e018c41e691490b2a792e2a5, type: 3}
+    Polarity: 0
+    Texture: {fileID: 2800000, guid: 4cb83065d31b34683949599a82ed3136, type: 3}
+  - TypeId: 0
+    Polarity: 1
+    Texture: {fileID: 2800000, guid: 3c99b7cd8f7f44bfca1659e73f4ad7ab, type: 3}
   - TypeId: 1
-    Texture: {fileID: 2800000, guid: 0f9d5795a0a614f32b68fef29421e1ed, type: 3}
+    Polarity: 0
+    Texture: {fileID: 2800000, guid: 0264039243ff6464693bdf594a42f1e4, type: 3}
+  - TypeId: 1
+    Polarity: 1
+    Texture: {fileID: 2800000, guid: c3b40aae291314b73a3fd04ef65c3520, type: 3}
   - TypeId: 2
-    Texture: {fileID: 2800000, guid: 510ff12d7c6b94f07b8ce09ea7e18923, type: 3}
+    Polarity: 0
+    Texture: {fileID: 2800000, guid: 7ce09cb328d7f417aabed083870d11a9, type: 3}
+  - TypeId: 2
+    Polarity: 1
+    Texture: {fileID: 2800000, guid: 8f7fe438209614c0e989be4c1efd16a6, type: 3}
   - TypeId: 3
-    Texture: {fileID: 2800000, guid: 4fdd19ad055ea41718c57225f3baff0a, type: 3}
+    Polarity: 0
+    Texture: {fileID: 2800000, guid: 7a85af64a17904a77a7b5ceb6000a861, type: 3}
+  - TypeId: 3
+    Polarity: 1
+    Texture: {fileID: 2800000, guid: ead387e2aef0e4f59b37e7077a9e173e, type: 3}

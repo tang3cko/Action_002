@@ -1467,7 +1467,6 @@ MonoBehaviour:
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   baseMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
   visualConfig: {fileID: 11400000, guid: 6bcea781202334e92b389914098ff582, type: 2}
-  outlineThickness: 0.24
 --- !u!4 &1560037487
 Transform:
   m_ObjectHideFlags: 0

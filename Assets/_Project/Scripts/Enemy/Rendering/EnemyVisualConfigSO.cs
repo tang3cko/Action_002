@@ -11,6 +11,7 @@ namespace Action002.Enemy.Rendering
         public struct Entry
         {
             public EnemyTypeId TypeId;
+            public byte Polarity;
             public Texture2D Texture;
         }
 
@@ -18,10 +19,20 @@ namespace Action002.Enemy.Rendering
 
         private Texture2D[] lookup;
 
+        /// <summary>
+        /// Legacy overload kept for backward compatibility.
+        /// Returns the texture for polarity 0 (white).
+        /// </summary>
         public Texture2D GetTexture(EnemyTypeId typeId)
         {
+            return GetTexture(typeId, 0);
+        }
+
+        public Texture2D GetTexture(EnemyTypeId typeId, int polarity)
+        {
             if (lookup == null) BuildLookup();
-            int index = (int)typeId;
+            int polarityBit = polarity == 0 ? 0 : 1;
+            int index = (int)typeId * 2 + polarityBit;
             if (index >= 0 && index < lookup.Length)
                 return lookup[index];
             return null;
@@ -41,15 +52,17 @@ namespace Action002.Enemy.Rendering
                 if ((int)id > maxIndex) maxIndex = (int)id;
             }
 
-            lookup = new Texture2D[maxIndex + 1];
+            int slotCount = (maxIndex + 1) * 2;
+            lookup = new Texture2D[slotCount];
 
             if (entries == null) return;
 
             for (int i = 0; i < entries.Length; i++)
             {
-                int index = (int)entries[i].TypeId;
-                if (index >= 0 && index < lookup.Length)
-                    lookup[index] = entries[i].Texture;
+                int polarityBit = entries[i].Polarity == 0 ? 0 : 1;
+                int slot = (int)entries[i].TypeId * 2 + polarityBit;
+                if (slot >= 0 && slot < lookup.Length)
+                    lookup[slot] = entries[i].Texture;
             }
         }
 
@@ -64,29 +77,35 @@ namespace Action002.Enemy.Rendering
                 return;
             }
 
-            // Check all EnemyTypeIds are present
+            // Check all EnemyTypeId x Polarity combinations are present
             foreach (EnemyTypeId id in values)
             {
-                bool found = false;
-                for (int i = 0; i < entries.Length; i++)
+                for (int p = 0; p <= 1; p++)
                 {
-                    if (entries[i].TypeId == id)
+                    bool found = false;
+                    for (int i = 0; i < entries.Length; i++)
                     {
-                        found = true;
-                        break;
+                        int entryPolarityBit = entries[i].Polarity == 0 ? 0 : 1;
+                        if (entries[i].TypeId == id && entryPolarityBit == p)
+                        {
+                            found = true;
+                            break;
+                        }
                     }
+                    if (!found)
+                        Debug.LogWarning($"[{GetType().Name}] Missing entry for {id} polarity {p} on {name}.", this);
                 }
-                if (!found)
-                    Debug.LogWarning($"[{GetType().Name}] Missing entry for {id} on {name}.", this);
             }
 
-            // Check key uniqueness
+            // Check key uniqueness (TypeId + Polarity)
             for (int i = 0; i < entries.Length; i++)
             {
                 for (int j = i + 1; j < entries.Length; j++)
                 {
-                    if (entries[i].TypeId == entries[j].TypeId)
-                        Debug.LogWarning($"[{GetType().Name}] Duplicate entry for {entries[i].TypeId} on {name}.", this);
+                    int pi = entries[i].Polarity == 0 ? 0 : 1;
+                    int pj = entries[j].Polarity == 0 ? 0 : 1;
+                    if (entries[i].TypeId == entries[j].TypeId && pi == pj)
+                        Debug.LogWarning($"[{GetType().Name}] Duplicate entry for {entries[i].TypeId} polarity {pi} on {name}.", this);
                 }
             }
 

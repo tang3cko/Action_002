@@ -26,7 +26,6 @@ namespace Action002.Enemy.Rendering
         private int typeCount;
 
         private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_BaseMap");
-        private static readonly int COLOR_ID = Shader.PropertyToID("_BaseColor");
 
         private void Start()
         {
@@ -111,11 +110,11 @@ namespace Action002.Enemy.Rendering
             deathBuffer.RemoveCompleted(EnemyDeathCalculator.DURATION);
         }
 
-        private Texture2D GetTextureForType(EnemyTypeId typeId)
+        private Texture2D GetTextureForPolarity(EnemyTypeId typeId, int polarityBit)
         {
             if (visualConfig != null)
             {
-                var tex = visualConfig.GetTexture(typeId);
+                var tex = visualConfig.GetTexture(typeId, polarityBit);
                 if (tex != null) return tex;
             }
             return fallbackTexture;
@@ -132,9 +131,8 @@ namespace Action002.Enemy.Rendering
             int typeIndex = slot / 2;
             int polarityBit = slot % 2;
 
-            Texture2D tex = GetTextureForType((EnemyTypeId)typeIndex);
+            Texture2D tex = GetTextureForPolarity((EnemyTypeId)typeIndex, polarityBit);
             bodyBlock.SetTexture(MAIN_TEX_ID, tex);
-            bodyBlock.SetColor(COLOR_ID, PolarityColors.GetForeground(polarityBit));
 
             Graphics.DrawMeshInstanced(quadMesh, 0, bodyMaterial, bodyBatches[slot], bodyCounts[slot], bodyBlock);
         }
