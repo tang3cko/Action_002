@@ -13,7 +13,8 @@ namespace Action002.Accessory.SonicWave.Data
         public float2 Origin;
         public float CurrentRadius;
         public float MaxRadius;
-        public float ExpandSpeed;
+        public float ElapsedTime;
+        public float Duration;
         public float ArcCenterAngle;
         public float ArcHalfSpread;
         public WaveShape Shape;

@@ -12,13 +12,14 @@ namespace Action002.Tests.Accessory
         {
             float2 origin = new float2(1f, 2f);
             var wave = SonicWaveAttackCalculator.CreateArcWave(
-                origin, 0f, math.PI / 4f, 5f, 8f, 0, 2);
+                origin, 0f, math.PI / 4f, 5f, 0.625f, 0, 2);
 
             Assert.That(wave.Origin.x, Is.EqualTo(1f));
             Assert.That(wave.Origin.y, Is.EqualTo(2f));
             Assert.That(wave.CurrentRadius, Is.EqualTo(0f));
             Assert.That(wave.MaxRadius, Is.EqualTo(5f));
-            Assert.That(wave.ExpandSpeed, Is.EqualTo(8f));
+            Assert.That(wave.ElapsedTime, Is.EqualTo(0f));
+            Assert.That(wave.Duration, Is.EqualTo(0.625f));
             Assert.That(wave.ArcCenterAngle, Is.EqualTo(0f));
             Assert.That(wave.ArcHalfSpread, Is.EqualTo(math.PI / 4f));
             Assert.That(wave.Shape, Is.EqualTo(WaveShape.Arc));
@@ -31,13 +32,14 @@ namespace Action002.Tests.Accessory
         {
             float2 origin = new float2(3f, 4f);
             var wave = SonicWaveAttackCalculator.CreatePulse(
-                origin, 10f, 6f, 1, 3);
+                origin, 10f, 1.5f, 1, 3);
 
             Assert.That(wave.Origin.x, Is.EqualTo(3f));
             Assert.That(wave.Origin.y, Is.EqualTo(4f));
             Assert.That(wave.CurrentRadius, Is.EqualTo(0f));
             Assert.That(wave.MaxRadius, Is.EqualTo(10f));
-            Assert.That(wave.ExpandSpeed, Is.EqualTo(6f));
+            Assert.That(wave.ElapsedTime, Is.EqualTo(0f));
+            Assert.That(wave.Duration, Is.EqualTo(1.5f));
             Assert.That(wave.ArcHalfSpread, Is.EqualTo(math.PI));
             Assert.That(wave.Shape, Is.EqualTo(WaveShape.Circle));
             Assert.That(wave.Polarity, Is.EqualTo(1));
@@ -49,7 +51,7 @@ namespace Action002.Tests.Accessory
         {
             var wave = SonicWaveAttackCalculator.CreateArcWave(
                 float2.zero, SonicWaveAttackCalculator.LEFT_WAVE_CENTER_ANGLE,
-                math.PI / 4f, 5f, 8f, 0, 1);
+                math.PI / 4f, 5f, 0.625f, 0, 1);
 
             Assert.That(wave.ArcCenterAngle, Is.EqualTo(math.PI).Within(0.0001f));
         }
@@ -59,7 +61,7 @@ namespace Action002.Tests.Accessory
         {
             var wave = SonicWaveAttackCalculator.CreateArcWave(
                 float2.zero, SonicWaveAttackCalculator.RIGHT_WAVE_CENTER_ANGLE,
-                math.PI / 4f, 5f, 8f, 0, 1);
+                math.PI / 4f, 5f, 0.625f, 0, 1);
 
             Assert.That(wave.ArcCenterAngle, Is.EqualTo(0f));
         }

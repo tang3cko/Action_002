@@ -10,14 +10,15 @@ namespace Action002.Accessory.SonicWave.Logic
 
         public static WaveState CreateArcWave(
             float2 origin, float centerAngle, float halfSpread,
-            float maxRadius, float expandSpeed, byte polarity, int damage)
+            float maxRadius, float duration, byte polarity, int damage)
         {
             return new WaveState
             {
                 Origin = origin,
                 CurrentRadius = 0f,
                 MaxRadius = maxRadius,
-                ExpandSpeed = expandSpeed,
+                ElapsedTime = 0f,
+                Duration = duration,
                 ArcCenterAngle = centerAngle,
                 ArcHalfSpread = halfSpread,
                 Shape = WaveShape.Arc,
@@ -27,7 +28,7 @@ namespace Action002.Accessory.SonicWave.Logic
         }
 
         public static WaveState CreatePulse(
-            float2 origin, float maxRadius, float expandSpeed,
+            float2 origin, float maxRadius, float duration,
             byte polarity, int damage)
         {
             return new WaveState
@@ -35,7 +36,8 @@ namespace Action002.Accessory.SonicWave.Logic
                 Origin = origin,
                 CurrentRadius = 0f,
                 MaxRadius = maxRadius,
-                ExpandSpeed = expandSpeed,
+                ElapsedTime = 0f,
+                Duration = duration,
                 ArcCenterAngle = 0f,
                 ArcHalfSpread = math.PI,
                 Shape = WaveShape.Circle,

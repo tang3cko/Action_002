@@ -6,28 +6,27 @@ namespace Action002.Tests.Accessory
     public class WaveBoundsCalculatorTests
     {
         [Test]
-        public void IsExpired_RadiusBelowMax_ReturnsFalse()
+        public void IsExpired_ElapsedBelowDuration_ReturnsFalse()
         {
-            Assert.That(WaveBoundsCalculator.IsExpired(4f, 5f), Is.False);
+            Assert.That(WaveBoundsCalculator.IsExpired(0.3f, 0.5f), Is.False);
         }
 
         [Test]
-        public void IsExpired_RadiusEqualsMax_ReturnsFalse()
+        public void IsExpired_ElapsedEqualsDuration_ReturnsTrue()
         {
-            // Strict greater than, so exactly at max is NOT expired
-            Assert.That(WaveBoundsCalculator.IsExpired(5f, 5f), Is.False);
+            Assert.That(WaveBoundsCalculator.IsExpired(0.5f, 0.5f), Is.True);
         }
 
         [Test]
-        public void IsExpired_RadiusAboveMax_ReturnsTrue()
+        public void IsExpired_ElapsedAboveDuration_ReturnsTrue()
         {
-            Assert.That(WaveBoundsCalculator.IsExpired(5.01f, 5f), Is.True);
+            Assert.That(WaveBoundsCalculator.IsExpired(0.6f, 0.5f), Is.True);
         }
 
         [Test]
-        public void IsExpired_ZeroRadius_ReturnsFalse()
+        public void IsExpired_ZeroElapsed_ReturnsFalse()
         {
-            Assert.That(WaveBoundsCalculator.IsExpired(0f, 5f), Is.False);
+            Assert.That(WaveBoundsCalculator.IsExpired(0f, 0.5f), Is.False);
         }
     }
 }

@@ -80,7 +80,7 @@ namespace Action002.Accessory.SonicWave.Systems
                 Level, baseMaxRadius, baseExpandSpeed, beat);
 
             WaveState wave = SonicWaveAttackCalculator.CreatePulse(
-                playerPos, waveParams.MaxRadius, waveParams.ExpandSpeed,
+                playerPos, waveParams.MaxRadius, waveParams.Duration,
                 polarity, waveParams.Damage);
 
             waveSet.Register(nextWaveId++, wave);

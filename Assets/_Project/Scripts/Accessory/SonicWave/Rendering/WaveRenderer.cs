@@ -24,6 +24,7 @@ namespace Action002.Accessory.SonicWave.Rendering
         private static readonly int BASE_COLOR_ID = Shader.PropertyToID("_BaseColor");
         private static readonly int RING_RADIUS_ID = Shader.PropertyToID("_RingRadius");
         private static readonly int RING_THICKNESS_ID = Shader.PropertyToID("_RingThickness");
+        private static readonly int NORMALIZED_TIME_ID = Shader.PropertyToID("_NormalizedTime");
 
 
         private void Awake()
@@ -42,6 +43,9 @@ namespace Action002.Accessory.SonicWave.Rendering
             for (int i = 0; i < data.Length; i++)
             {
                 var wave = data[i];
+                float normalizedTime = wave.Duration > 0f
+                    ? Mathf.Clamp01(wave.ElapsedTime / wave.Duration)
+                    : 1f;
                 float meshHalfSize = wave.MaxRadius + ringThickness * 0.5f;
 
                 // normalized ring radius/thickness for the shader (0..1 across meshHalfSize)
@@ -51,6 +55,7 @@ namespace Action002.Accessory.SonicWave.Rendering
                 propertyBlock.SetColor(BASE_COLOR_ID, PolarityColors.GetWaveRing(wave.Polarity));
                 propertyBlock.SetFloat(RING_RADIUS_ID, normalizedRadius);
                 propertyBlock.SetFloat(RING_THICKNESS_ID, normalizedThickness);
+                propertyBlock.SetFloat(NORMALIZED_TIME_ID, normalizedTime);
 
                 // スケール: meshHalfSize * 2 で全体の大きさを決定
                 float scale = meshHalfSize * 2f;

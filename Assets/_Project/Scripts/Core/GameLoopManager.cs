@@ -416,7 +416,7 @@ namespace Action002.Core
             var ids = waveSet.EntityIds;
             for (int i = 0; i < data.Length; i++)
             {
-                if (WaveBoundsCalculator.IsExpired(data[i].CurrentRadius, data[i].MaxRadius))
+                if (WaveBoundsCalculator.IsExpired(data[i].ElapsedTime, data[i].Duration))
                     waveDespawnQueue.Add(ids[i]);
             }
 

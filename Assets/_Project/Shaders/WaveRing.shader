@@ -7,6 +7,7 @@ Shader "Action002/WaveRing"
         _RingThickness ("Ring Thickness (normalized)", Float) = 0.05
         _ArcCenter ("Arc Center Angle (rad)", Float) = 0.0
         _ArcSpread ("Arc Half Spread (rad)", Float) = 3.14159
+        _NormalizedTime ("Normalized Time (0-1)", Float) = 0.0
     }
 
     SubShader
@@ -51,6 +52,7 @@ Shader "Action002/WaveRing"
                 float _RingThickness;
                 float _ArcCenter;
                 float _ArcSpread;
+                float _NormalizedTime;
             CBUFFER_END
 
             #define PI 3.14159265
@@ -65,13 +67,20 @@ Shader "Action002/WaveRing"
 
             half4 frag(Varyings input) : SV_Target
             {
+                float t = saturate(_NormalizedTime);
+
+                // Ring thickness thins as wave expands (energy conservation)
+                // At t=0: full thickness. At t=1: 30% of original.
+                float thicknessMul = 1.0 - t * 0.7;
+                float effectiveThickness = _RingThickness * thicknessMul;
+
                 // UV center (0.5, 0.5) to normalized distance (0 to 1 across half-size)
                 float2 centered = input.uv - 0.5;
-                float dist = length(centered) * 2.0; // 0..1 maps to 0..meshHalfSize
+                float dist = length(centered) * 2.0;
 
-                // Ring test: distance from ring center line
+                // Ring test with dynamic thickness
                 float ringDist = abs(dist - _RingRadius);
-                float halfThickness = _RingThickness * 0.5;
+                float halfThickness = effectiveThickness * 0.5;
 
                 if (ringDist > halfThickness)
                     discard;
@@ -81,7 +90,6 @@ Shader "Action002/WaveRing"
                 {
                     float angle = atan2(centered.y, centered.x);
                     float delta = angle - _ArcCenter;
-                    // Normalize to [-PI, PI]
                     delta = delta - 2.0 * PI * floor((delta + PI) / (2.0 * PI));
                     if (abs(delta) > _ArcSpread)
                         discard;
@@ -89,11 +97,18 @@ Shader "Action002/WaveRing"
 
                 // Smooth edge falloff
                 float edgeFade = 1.0 - saturate(ringDist / halfThickness);
-                edgeFade = edgeFade * edgeFade; // quadratic falloff
+                edgeFade = edgeFade * edgeFade;
+
+                // Leading-edge brightening: outer half of ring glows brighter early on
+                float leadingEdge = saturate((dist - _RingRadius) / max(halfThickness, 0.001) + 0.5);
+                float leadingGlow = leadingEdge * (1.0 - t) * 0.4;
+
+                // Dissipation: alpha fades out as wave expands
+                float dissipation = 1.0 - smoothstep(0.4, 1.0, t);
 
                 half4 col = _BaseColor;
-                col.a *= edgeFade;
-                // Alpha blend — no premultiply needed
+                col.rgb += col.rgb * leadingGlow;
+                col.a *= edgeFade * dissipation;
 
                 return col;
             }

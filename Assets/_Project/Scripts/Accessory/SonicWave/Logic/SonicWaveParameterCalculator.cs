@@ -5,7 +5,7 @@ namespace Action002.Accessory.SonicWave.Logic
     public struct SonicWaveParameters
     {
         public float MaxRadius;
-        public float ExpandSpeed;
+        public float Duration;
         public int Damage;
         public float ArcHalfSpread;
     }
@@ -14,46 +14,50 @@ namespace Action002.Accessory.SonicWave.Logic
     {
         /// <summary>
         /// ビート種別に応じたパラメータを返す。
-        /// SmallPulse: MaxRadius を小さめ (×0.6)、通常の ExpandSpeed
-        /// LargePulse: MaxRadius を大きめ (×1.2)、ExpandSpeed を遅く (×0.5) して余韻を表現
+        /// Duration = MaxRadius / ExpandSpeed で算出。OutQuartイージングにより
+        /// 最初の25%の時間で約68%まで到達し、残りは余韻として減速する。
+        /// SmallPulse: 短いDuration（スナップ感）
+        /// LargePulse: 長いDuration（「てぇぇぇん」の余韻）
         /// </summary>
         public static SonicWaveParameters Calculate(int waveLevel,
             float baseMaxRadius, float baseExpandSpeed,
             SonicWaveBeat beat)
         {
             if (waveLevel < 1) waveLevel = 1;
-            var p = new SonicWaveParameters
-            {
-                MaxRadius = baseMaxRadius,
-                ExpandSpeed = baseExpandSpeed,
-                Damage = 1,
-                ArcHalfSpread = math.PI,  // 全方位（円パルス）
-            };
+            float maxRadius = baseMaxRadius;
+            float expandSpeed = baseExpandSpeed;
 
             // Damage
-            if (waveLevel >= 2) p.Damage = 2;
-            if (waveLevel >= 5) p.Damage = 3;
+            int damage = 1;
+            if (waveLevel >= 2) damage = 2;
+            if (waveLevel >= 5) damage = 3;
 
             // MaxRadius（レベルによるスケーリング）
-            if (waveLevel >= 3) p.MaxRadius = baseMaxRadius * 1.4f;
-            if (waveLevel >= 5) p.MaxRadius = baseMaxRadius * 1.8f;
+            if (waveLevel >= 3) maxRadius = baseMaxRadius * 1.4f;
+            if (waveLevel >= 5) maxRadius = baseMaxRadius * 1.8f;
 
             // ExpandSpeed（レベルによるスケーリング）
-            if (waveLevel >= 4) p.ExpandSpeed = baseExpandSpeed * 1.25f;
+            if (waveLevel >= 4) expandSpeed = baseExpandSpeed * 1.25f;
 
             // ビート種別によるサイズ差
             switch (beat)
             {
                 case SonicWaveBeat.SmallPulse:
-                    p.MaxRadius *= 0.6f;
+                    maxRadius *= 0.6f;
                     break;
                 case SonicWaveBeat.LargePulse:
-                    p.MaxRadius *= 1.2f;
-                    p.ExpandSpeed *= 0.5f;  // 遅くして「てぇぇぇん」の余韻を表現
+                    maxRadius *= 1.2f;
+                    expandSpeed *= 0.5f;
                     break;
             }
 
-            return p;
+            return new SonicWaveParameters
+            {
+                MaxRadius = maxRadius,
+                Duration = maxRadius / expandSpeed,
+                Damage = damage,
+                ArcHalfSpread = math.PI,
+            };
         }
     }
 }
