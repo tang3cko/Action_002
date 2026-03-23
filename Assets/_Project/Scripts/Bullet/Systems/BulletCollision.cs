@@ -26,6 +26,7 @@ namespace Action002.Bullet.Systems
         private readonly float bulletHitRadius;
         private readonly int killScore;
         private IBossHitTarget bossHitTarget;
+        private bool absorptionSuppressed;
 
         private readonly List<int> despawnQueue = new List<int>(256);
         private readonly List<int> enemyDespawnQueue = new List<int>(64);
@@ -66,6 +67,11 @@ namespace Action002.Bullet.Systems
             bossHitTarget = target;
         }
 
+        public void SetAbsorptionSuppressed(bool suppressed)
+        {
+            absorptionSuppressed = suppressed;
+        }
+
         public void ProcessCollisions()
         {
             if (bulletSet == null || bulletSet.Count == 0) return;
@@ -96,7 +102,7 @@ namespace Action002.Bullet.Systems
                 {
                     bool samePolarity = PolarityCalculator.IsSamePolarity(playerPolarity, bullet.Polarity);
 
-                    if (BulletCollisionCalculator.ShouldAbsorb(samePolarity, bullet.Position, playerPos, absorbRadius))
+                    if (!absorptionSuppressed && BulletCollisionCalculator.ShouldAbsorb(samePolarity, bullet.Position, playerPos, absorbRadius))
                     {
                         despawnQueue.Add(ids[i]);
                         onComboIncremented?.RaiseEvent(bullet.ScoreValue);

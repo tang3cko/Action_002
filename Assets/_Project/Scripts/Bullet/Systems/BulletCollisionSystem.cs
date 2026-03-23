@@ -2,6 +2,7 @@ using UnityEngine;
 using Action002.Bullet.Data;
 using Action002.Core;
 using Action002.Enemy.Data;
+using Action002.Player.Systems;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Bullet.Systems
@@ -27,6 +28,7 @@ namespace Action002.Bullet.Systems
 
         [Header("Dependencies")]
         [SerializeField] private EnemyDeathBufferSO deathBuffer;
+        [SerializeField] private PlayerController playerController;
 
         [Header("Settings")]
         [SerializeField] private float absorbRadius = 1.0f;
@@ -91,6 +93,7 @@ namespace Action002.Bullet.Systems
         public void ProcessCollisions()
         {
             if (logic == null) return;
+            logic.SetAbsorptionSuppressed(playerController != null && playerController.IsAbsorptionSuppressed);
             logic.ProcessCollisions();
         }
 

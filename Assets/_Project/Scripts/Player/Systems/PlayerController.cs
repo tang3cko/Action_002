@@ -43,6 +43,9 @@ namespace Action002.Player.Systems
         [SerializeField] private VoidEventChannelSO onGameOver;
         [SerializeField] private IntEventChannelSO onPlayerLevelUp;
 
+        [Header("Polarity Switch")]
+        [SerializeField] private float polaritySwitchGraceDuration = 0.15f;
+
         [Header("Visual")]
         [SerializeField] private SpriteRenderer spriteRenderer;
 
@@ -53,6 +56,9 @@ namespace Action002.Player.Systems
         private PlayerGrowthCoordinator growthCoordinator;
         private float moveSpeedMultiplier = 1f;
         private bool forcedSwitchPending;
+        private float polaritySwitchGraceTimer;
+
+        public bool IsAbsorptionSuppressed => polaritySwitchGraceTimer > 0f;
 
         private void Awake()
         {
@@ -118,6 +124,9 @@ namespace Action002.Player.Systems
                 playerPositionVar.Value = new Vector2(state.Position.x, state.Position.y);
 
             state = DamageCalculator.TickInvincibility(state, Time.deltaTime);
+
+            if (polaritySwitchGraceTimer > 0f)
+                polaritySwitchGraceTimer -= Time.deltaTime;
 
             if (growthCoordinator != null)
             {
@@ -232,6 +241,7 @@ namespace Action002.Player.Systems
         private void HandleSwitchPolarity()
         {
             state.CurrentPolarity = PolarityCalculator.Toggle(state.CurrentPolarity);
+            polaritySwitchGraceTimer = polaritySwitchGraceDuration;
             UpdateVisual();
             if (playerPolarityVar != null)
                 playerPolarityVar.Value = (int)state.CurrentPolarity;
