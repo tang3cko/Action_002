@@ -21,6 +21,12 @@ namespace Action002.Visual
         /// <summary>Sprite/foreground color for Black polarity.</summary>
         public static readonly Color BlackForeground = new Color(0.082f, 0.082f, 0.090f, 1f); // #151517
 
+        /// <summary>Wave ring color for White polarity (alpha pre-set to 0.25).</summary>
+        public static readonly Color WhiteWaveRing = new Color(0.941f, 0.933f, 0.902f, 0.25f);
+
+        /// <summary>Wave ring color for Black polarity (alpha pre-set to 0.25).</summary>
+        public static readonly Color BlackWaveRing = new Color(0.082f, 0.082f, 0.090f, 0.25f);
+
         public static Color GetBackground(int polarity)
         {
             return polarity == (int)Polarity.White ? WhiteBackground : BlackBackground;
@@ -39,6 +45,16 @@ namespace Action002.Visual
         public static Color GetForeground(Polarity polarity)
         {
             return polarity == Polarity.White ? WhiteForeground : BlackForeground;
+        }
+
+        public static Color GetWaveRing(int polarity)
+        {
+            return polarity == (int)Polarity.White ? WhiteWaveRing : BlackWaveRing;
+        }
+
+        public static Color GetWaveRing(Polarity polarity)
+        {
+            return polarity == Polarity.White ? WhiteWaveRing : BlackWaveRing;
         }
     }
 }

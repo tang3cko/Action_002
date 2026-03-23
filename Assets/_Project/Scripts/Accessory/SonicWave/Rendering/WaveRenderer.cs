@@ -48,9 +48,7 @@ namespace Action002.Accessory.SonicWave.Rendering
                 float normalizedRadius = wave.CurrentRadius / (meshHalfSize * 2f) * 2f;
                 float normalizedThickness = ringThickness / (meshHalfSize * 2f) * 2f;
 
-                var baseColor = PolarityColors.GetForeground(wave.Polarity);
-                baseColor.a = 0.25f;
-                propertyBlock.SetColor(BASE_COLOR_ID, baseColor);
+                propertyBlock.SetColor(BASE_COLOR_ID, PolarityColors.GetWaveRing(wave.Polarity));
                 propertyBlock.SetFloat(RING_RADIUS_ID, normalizedRadius);
                 propertyBlock.SetFloat(RING_THICKNESS_ID, normalizedThickness);
 

@@ -24,6 +24,7 @@ namespace Action002.Enemy.Rendering
         private Matrix4x4[][] bodyBatches;
         private int[] bodyCounts;
         private int typeCount;
+        private int slotCount;
 
         private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_BaseMap");
 
@@ -47,8 +48,8 @@ namespace Action002.Enemy.Rendering
                     maxTypeIndex = (int)id;
             }
             typeCount = maxTypeIndex + 1;
+            slotCount = typeCount * 2;
 
-            int slotCount = typeCount * 2;
             bodyBatches = new Matrix4x4[slotCount][];
             bodyCounts = new int[slotCount];
             for (int i = 0; i < slotCount; i++)
@@ -74,7 +75,6 @@ namespace Action002.Enemy.Rendering
 
             deathBuffer.AdvanceTimers(Time.deltaTime);
 
-            int slotCount = typeCount * 2;
             for (int i = 0; i < slotCount; i++)
             {
                 bodyCounts[i] = 0;

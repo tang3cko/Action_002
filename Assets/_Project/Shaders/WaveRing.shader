@@ -25,7 +25,7 @@ Shader "Action002/WaveRing"
 
             ZWrite Off
             Cull Off
-            Blend One One // Additive
+            Blend SrcAlpha OneMinusSrcAlpha // Alpha Blend
 
             HLSLPROGRAM
             #pragma vertex vert
@@ -93,7 +93,7 @@ Shader "Action002/WaveRing"
 
                 half4 col = _BaseColor;
                 col.a *= edgeFade;
-                col.rgb *= col.a; // premultiplied alpha for additive
+                // Alpha blend — no premultiply needed
 
                 return col;
             }

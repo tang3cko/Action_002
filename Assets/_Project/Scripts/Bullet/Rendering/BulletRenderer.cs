@@ -28,6 +28,9 @@ namespace Action002.Bullet.Rendering
         private int factionCount;
         private int slotCount;
 
+        // Pre-cached policy per slot (faction x polarity)
+        private BulletVisualConfigSO.Entry[] cachedPolicies;
+
         private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_BaseMap");
 
         private void Start()
@@ -53,6 +56,17 @@ namespace Action002.Bullet.Rendering
             for (int i = 0; i < slotCount; i++)
             {
                 bodyBatches[i] = new Matrix4x4[BATCH_SIZE];
+            }
+
+            // Pre-cache policies per slot to avoid per-bullet lookup in LateUpdate
+            cachedPolicies = new BulletVisualConfigSO.Entry[slotCount];
+            for (int fi = 0; fi < factionCount; fi++)
+            {
+                for (int pi = 0; pi <= 1; pi++)
+                {
+                    int slot = fi * 2 + pi;
+                    cachedPolicies[slot] = GetPolicy((BulletFaction)fi, pi);
+                }
             }
         }
 
@@ -86,7 +100,7 @@ namespace Action002.Bullet.Rendering
                 int polarityBit = state.Polarity == 0 ? 0 : 1;
                 int slot = factionIndex * 2 + polarityBit;
 
-                var policy = GetPolicy(faction, polarityBit);
+                var policy = cachedPolicies[slot];
                 float size = policy.Size;
 
                 var bodyMatrix = Matrix4x4.TRS(
