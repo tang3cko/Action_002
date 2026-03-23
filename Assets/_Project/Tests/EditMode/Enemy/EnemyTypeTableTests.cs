@@ -22,7 +22,7 @@ namespace Action002.Tests.Enemy
         {
             var spec = EnemyTypeTable.Get(EnemyTypeId.NWay);
 
-            Assert.That(spec.Hp, Is.EqualTo(5));
+            Assert.That(spec.Hp, Is.EqualTo(10));
             Assert.That(spec.ShotPattern.Count, Is.EqualTo(3));
             Assert.That(spec.ShotPattern.ArcDegrees, Is.GreaterThan(0f));
         }
@@ -32,7 +32,7 @@ namespace Action002.Tests.Enemy
         {
             var spec = EnemyTypeTable.Get(EnemyTypeId.Ring);
 
-            Assert.That(spec.Hp, Is.EqualTo(7));
+            Assert.That(spec.Hp, Is.EqualTo(14));
             Assert.That(spec.ShotPattern.Count, Is.EqualTo(8));
             Assert.That(spec.VisualScale, Is.GreaterThan(1f));
             Assert.That(spec.CollisionRadius, Is.GreaterThan(0.5f));
@@ -43,7 +43,7 @@ namespace Action002.Tests.Enemy
         {
             var spec = EnemyTypeTable.Get(EnemyTypeId.Anchor);
 
-            Assert.That(spec.Hp, Is.EqualTo(15));
+            Assert.That(spec.Hp, Is.EqualTo(30));
             Assert.That(spec.ShotPattern.Count, Is.EqualTo(24));
             Assert.That(spec.ShootCooldown, Is.LessThanOrEqualTo(0.5f));
             Assert.That(spec.Movement, Is.EqualTo(MovementPattern.Anchor));
