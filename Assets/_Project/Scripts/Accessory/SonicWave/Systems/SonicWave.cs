@@ -35,12 +35,6 @@ namespace Action002.Accessory.SonicWave.Systems
             return levelUpTable[playerLevel];
         }
 
-        /// <summary>最後の ProcessAttacks で発生したビート種別。nullなら何も起きなかった。</summary>
-        public SonicWaveBeat? LastFiredBeat { get; private set; }
-
-        /// <summary>最後に発火したハーフビートのパターン内インデックス（0-7）。SE選択用。</summary>
-        public int LastFiredBeatInPattern { get; private set; }
-
         private readonly float baseMaxRadius;
         private readonly float baseExpandSpeed;
 
@@ -62,7 +56,6 @@ namespace Action002.Accessory.SonicWave.Systems
 
         public void ProcessAttacks()
         {
-            LastFiredBeat = null;
             if (!IsUnlocked) return;
             if (rhythmClock == null || waveSet == null) return;
             if (playerPositionVar == null || playerPolarityVar == null) return;
@@ -84,15 +77,12 @@ namespace Action002.Accessory.SonicWave.Systems
                 polarity, waveParams.Damage);
 
             waveSet.Register(nextWaveId++, wave);
-            LastFiredBeat = beat;
-            LastFiredBeatInPattern = currentHalfBeat % BeatPatternCalculator.PATTERN_LENGTH;
         }
 
         public void ResetForNewRun()
         {
             lastConsumedHalfBeatIndex = -1;
             nextWaveId = 400000;
-            LastFiredBeat = null;
             Level = 0;
         }
     }

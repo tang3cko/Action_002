@@ -18,7 +18,6 @@ namespace Action002.Tests.Accessory
             Assert.That(p.MaxRadius, Is.EqualTo(expectedRadius).Within(0.001f));
             Assert.That(p.Duration, Is.EqualTo(expectedRadius / BASE_EXPAND_SPEED).Within(0.001f));
             Assert.That(p.Damage, Is.EqualTo(1));
-            Assert.That(p.ArcHalfSpread, Is.EqualTo(math.PI).Within(0.0001f));
         }
 
         [Test]
@@ -55,7 +54,6 @@ namespace Action002.Tests.Accessory
         {
             var p = SonicWaveParameterCalculator.Calculate(4, BASE_MAX_RADIUS, BASE_EXPAND_SPEED, SonicWaveBeat.SmallPulse);
 
-            // Level4: expandSpeed * 1.25, SmallPulse: radius * 0.6
             float expectedRadius = BASE_MAX_RADIUS * 1.4f * 0.6f;
             float expectedSpeed = BASE_EXPAND_SPEED * 1.25f;
             Assert.That(p.Duration, Is.EqualTo(expectedRadius / expectedSpeed).Within(0.001f));
@@ -66,7 +64,6 @@ namespace Action002.Tests.Accessory
         {
             var p = SonicWaveParameterCalculator.Calculate(4, BASE_MAX_RADIUS, BASE_EXPAND_SPEED, SonicWaveBeat.LargePulse);
 
-            // Level4: expandSpeed * 1.25, LargePulse: expandSpeed * 0.5, radius * 1.2
             float expectedRadius = BASE_MAX_RADIUS * 1.4f * 1.2f;
             float expectedSpeed = BASE_EXPAND_SPEED * 1.25f * 0.5f;
             Assert.That(p.Duration, Is.EqualTo(expectedRadius / expectedSpeed).Within(0.001f));

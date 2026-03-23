@@ -7,7 +7,6 @@ namespace Action002.Accessory.SonicWave.Logic
         public float MaxRadius;
         public float Duration;
         public int Damage;
-        public float ArcHalfSpread;
     }
 
     public static class SonicWaveParameterCalculator
@@ -56,7 +55,6 @@ namespace Action002.Accessory.SonicWave.Logic
                 MaxRadius = maxRadius,
                 Duration = maxRadius / expandSpeed,
                 Damage = damage,
-                ArcHalfSpread = math.PI,
             };
         }
     }

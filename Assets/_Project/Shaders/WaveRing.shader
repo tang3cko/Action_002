@@ -5,8 +5,6 @@ Shader "Action002/WaveRing"
         _BaseColor ("Base Color", Color) = (1, 1, 1, 0.8)
         _RingRadius ("Ring Radius (normalized)", Float) = 0.5
         _RingThickness ("Ring Thickness (normalized)", Float) = 0.05
-        _ArcCenter ("Arc Center Angle (rad)", Float) = 0.0
-        _ArcSpread ("Arc Half Spread (rad)", Float) = 3.14159
         _NormalizedTime ("Normalized Time (0-1)", Float) = 0.0
     }
 
@@ -50,12 +48,8 @@ Shader "Action002/WaveRing"
                 half4 _BaseColor;
                 float _RingRadius;
                 float _RingThickness;
-                float _ArcCenter;
-                float _ArcSpread;
                 float _NormalizedTime;
             CBUFFER_END
-
-            #define PI 3.14159265
 
             Varyings vert(Attributes input)
             {
@@ -84,16 +78,6 @@ Shader "Action002/WaveRing"
 
                 if (ringDist > halfThickness)
                     discard;
-
-                // Arc test (skip for full circle where ArcSpread >= PI)
-                if (_ArcSpread < PI - 0.001)
-                {
-                    float angle = atan2(centered.y, centered.x);
-                    float delta = angle - _ArcCenter;
-                    delta = delta - 2.0 * PI * floor((delta + PI) / (2.0 * PI));
-                    if (abs(delta) > _ArcSpread)
-                        discard;
-                }
 
                 // Smooth edge falloff
                 float edgeFade = 1.0 - saturate(ringDist / halfThickness);
