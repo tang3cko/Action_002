@@ -16,26 +16,19 @@ namespace Action002.Bullet.Rendering
         [Header("Visual Config")]
         [SerializeField] private BulletVisualConfigSO visualConfig;
 
-        [Header("Outline")]
-        [SerializeField] private float outlineThickness = 0.1f;
-
         private const int BATCH_SIZE = 1023;
 
         private Material bodyMaterial;
-        private Material outlineMaterial;
         private Texture2D fallbackTexture;
         private MaterialPropertyBlock bodyBlock;
-        private MaterialPropertyBlock outlineBlock;
 
-        // Per BulletFaction × Polarity batch arrays
+        // Per BulletFaction x Polarity batch arrays
         private Matrix4x4[][] bodyBatches;
-        private Matrix4x4[][] outlineBatches;
         private int[] bodyCounts;
-        private int[] outlineCounts;
         private int factionCount;
+        private int slotCount;
 
         private static readonly int MAIN_TEX_ID = Shader.PropertyToID("_BaseMap");
-        private static readonly int COLOR_ID = Shader.PropertyToID("_BaseColor");
 
         private void Start()
         {
@@ -45,29 +38,21 @@ namespace Action002.Bullet.Rendering
             {
                 bodyMaterial = Instantiate(baseMaterial);
                 SetupMaterialAlphaClip(bodyMaterial, fallbackTexture);
-
-                outlineMaterial = Instantiate(baseMaterial);
-                SetupMaterialAlphaClip(outlineMaterial, fallbackTexture);
-                outlineMaterial.SetFloat("_ZWrite", 0f);
             }
 
             bodyBlock = new MaterialPropertyBlock();
-            outlineBlock = new MaterialPropertyBlock();
 
             var factionValues = System.Enum.GetValues(typeof(BulletFaction));
             int maxFactionIndex = 0;
             foreach (BulletFaction f in factionValues)
                 if ((int)f > maxFactionIndex) maxFactionIndex = (int)f;
             factionCount = maxFactionIndex + 1;
-            int slotCount = factionCount * 2;
+            slotCount = factionCount * 2;
             bodyBatches = new Matrix4x4[slotCount][];
-            outlineBatches = new Matrix4x4[slotCount][];
             bodyCounts = new int[slotCount];
-            outlineCounts = new int[slotCount];
             for (int i = 0; i < slotCount; i++)
             {
                 bodyBatches[i] = new Matrix4x4[BATCH_SIZE];
-                outlineBatches[i] = new Matrix4x4[BATCH_SIZE];
             }
         }
 
@@ -84,13 +69,11 @@ namespace Action002.Bullet.Rendering
         private void LateUpdate()
         {
             if (bulletSet == null || bulletSet.Count == 0) return;
-            if (bodyMaterial == null || outlineMaterial == null || quadMesh == null) return;
+            if (bodyMaterial == null || quadMesh == null) return;
 
-            int slotCount = factionCount * 2;
             for (int i = 0; i < slotCount; i++)
             {
                 bodyCounts[i] = 0;
-                outlineCounts[i] = 0;
             }
 
             var data = bulletSet.Data;
@@ -103,7 +86,7 @@ namespace Action002.Bullet.Rendering
                 int polarityBit = state.Polarity == 0 ? 0 : 1;
                 int slot = factionIndex * 2 + polarityBit;
 
-                var policy = GetPolicy(faction);
+                var policy = GetPolicy(faction, polarityBit);
                 float size = policy.Size;
 
                 var bodyMatrix = Matrix4x4.TRS(
@@ -118,32 +101,8 @@ namespace Action002.Bullet.Rendering
                     FlushBody(slot);
                     bodyCounts[slot] = 0;
                 }
-
-                if (policy.HasOutline)
-                {
-                    var outMatrix = Matrix4x4.TRS(
-                        new Vector3(state.Position.x, state.Position.y, policy.OutlineZ),
-                        Quaternion.identity,
-                        Vector3.one * (size + outlineThickness)
-                    );
-
-                    outlineBatches[slot][outlineCounts[slot]++] = outMatrix;
-                    if (outlineCounts[slot] == BATCH_SIZE)
-                    {
-                        FlushOutline(slot);
-                        outlineCounts[slot] = 0;
-                    }
-                }
             }
 
-            // Draw outlines first (behind bodies)
-            for (int slot = 0; slot < slotCount; slot++)
-            {
-                if (outlineCounts[slot] > 0)
-                    FlushOutline(slot);
-            }
-
-            // Draw bodies on top
             for (int slot = 0; slot < slotCount; slot++)
             {
                 if (bodyCounts[slot] > 0)
@@ -155,7 +114,6 @@ namespace Action002.Bullet.Rendering
         {
             if (fallbackTexture != null) Destroy(fallbackTexture);
             if (bodyMaterial != null) Destroy(bodyMaterial);
-            if (outlineMaterial != null) Destroy(outlineMaterial);
         }
 
         private void FlushBody(int slot)
@@ -163,47 +121,35 @@ namespace Action002.Bullet.Rendering
             int factionIndex = slot / 2;
             int polarityBit = slot % 2;
 
-            Texture2D tex = GetTextureForFaction((BulletFaction)factionIndex);
+            Texture2D tex = GetTextureForPolarity((BulletFaction)factionIndex, polarityBit);
+            bodyBlock.Clear();
             bodyBlock.SetTexture(MAIN_TEX_ID, tex);
-            bodyBlock.SetColor(COLOR_ID, PolarityColors.GetForeground(polarityBit));
 
             Graphics.DrawMeshInstanced(quadMesh, 0, bodyMaterial, bodyBatches[slot], bodyCounts[slot], bodyBlock);
         }
 
-        private void FlushOutline(int slot)
-        {
-            int factionIndex = slot / 2;
-            int polarityBit = slot % 2;
-
-            Texture2D tex = GetTextureForFaction((BulletFaction)factionIndex);
-            outlineBlock.SetTexture(MAIN_TEX_ID, tex);
-            outlineBlock.SetColor(COLOR_ID, PolarityColors.GetBackground(polarityBit));
-
-            Graphics.DrawMeshInstanced(quadMesh, 0, outlineMaterial, outlineBatches[slot], outlineCounts[slot], outlineBlock);
-        }
-
-        private BulletVisualConfigSO.Entry GetPolicy(BulletFaction faction)
+        private BulletVisualConfigSO.Entry GetPolicy(BulletFaction faction, int polarityBit)
         {
             if (visualConfig != null)
             {
-                var entry = visualConfig.GetPolicy(faction);
+                var entry = visualConfig.GetPolicy(faction, polarityBit);
                 // Guard against missing config entry (Size=0 means unconfigured)
                 if (entry.Size > 0f) return entry;
             }
 
             // Fallback defaults
             if (faction == BulletFaction.Player)
-                return new BulletVisualConfigSO.Entry { Size = 0.28f, HasOutline = false, BodyZ = 0.02f };
+                return new BulletVisualConfigSO.Entry { Size = 0.28f, BodyZ = 0.02f };
 
-            return new BulletVisualConfigSO.Entry { Size = 0.4f, HasOutline = true, BodyZ = 0.08f, OutlineZ = 0.10f };
+            return new BulletVisualConfigSO.Entry { Size = 0.4f, BodyZ = 0.08f };
         }
 
-        private Texture2D GetTextureForFaction(BulletFaction faction)
+        private Texture2D GetTextureForPolarity(BulletFaction faction, int polarityBit)
         {
             if (visualConfig != null)
             {
-                var policy = visualConfig.GetPolicy(faction);
-                if (policy.Texture != null) return policy.Texture;
+                var tex = visualConfig.GetTexture(faction, polarityBit);
+                if (tex != null) return tex;
             }
             return fallbackTexture;
         }

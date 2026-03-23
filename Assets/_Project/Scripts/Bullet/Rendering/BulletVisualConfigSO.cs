@@ -11,24 +11,34 @@ namespace Action002.Bullet.Rendering
         public struct Entry
         {
             public BulletFaction Faction;
+            public byte Polarity;
             public Texture2D Texture;
             public float Size;
-            public bool HasOutline;
             public float BodyZ;
-            public float OutlineZ;
         }
 
         [SerializeField] private Entry[] entries;
 
         private Entry[] lookup;
 
-        public Entry GetPolicy(BulletFaction faction)
+        public Entry GetPolicy(BulletFaction faction, int polarity)
         {
             if (lookup == null) BuildLookup();
-            int index = (int)faction;
+            int polarityBit = polarity == 0 ? 0 : 1;
+            int index = (int)faction * 2 + polarityBit;
             if (index >= 0 && index < lookup.Length)
                 return lookup[index];
             return default;
+        }
+
+        public Texture2D GetTexture(BulletFaction faction, int polarity)
+        {
+            if (lookup == null) BuildLookup();
+            int polarityBit = polarity == 0 ? 0 : 1;
+            int index = (int)faction * 2 + polarityBit;
+            if (index >= 0 && index < lookup.Length)
+                return lookup[index].Texture;
+            return null;
         }
 
         private void OnEnable()
@@ -45,15 +55,17 @@ namespace Action002.Bullet.Rendering
                 if ((int)f > maxIndex) maxIndex = (int)f;
             }
 
-            lookup = new Entry[maxIndex + 1];
+            int slotCount = (maxIndex + 1) * 2;
+            lookup = new Entry[slotCount];
 
             if (entries == null) return;
 
             for (int i = 0; i < entries.Length; i++)
             {
-                int index = (int)entries[i].Faction;
-                if (index >= 0 && index < lookup.Length)
-                    lookup[index] = entries[i];
+                int polarityBit = entries[i].Polarity == 0 ? 0 : 1;
+                int slot = (int)entries[i].Faction * 2 + polarityBit;
+                if (slot >= 0 && slot < lookup.Length)
+                    lookup[slot] = entries[i];
             }
         }
 
@@ -68,29 +80,35 @@ namespace Action002.Bullet.Rendering
                 return;
             }
 
-            // Check all BulletFactions are present
+            // Check all BulletFaction x Polarity combinations are present
             foreach (BulletFaction f in values)
             {
-                bool found = false;
-                for (int i = 0; i < entries.Length; i++)
+                for (int p = 0; p <= 1; p++)
                 {
-                    if (entries[i].Faction == f)
+                    bool found = false;
+                    for (int i = 0; i < entries.Length; i++)
                     {
-                        found = true;
-                        break;
+                        int entryPolarityBit = entries[i].Polarity == 0 ? 0 : 1;
+                        if (entries[i].Faction == f && entryPolarityBit == p)
+                        {
+                            found = true;
+                            break;
+                        }
                     }
+                    if (!found)
+                        Debug.LogWarning($"[{GetType().Name}] Missing entry for {f} polarity {p} on {name}.", this);
                 }
-                if (!found)
-                    Debug.LogWarning($"[{GetType().Name}] Missing entry for {f} on {name}.", this);
             }
 
-            // Check key uniqueness
+            // Check key uniqueness (Faction + Polarity)
             for (int i = 0; i < entries.Length; i++)
             {
                 for (int j = i + 1; j < entries.Length; j++)
                 {
-                    if (entries[i].Faction == entries[j].Faction)
-                        Debug.LogWarning($"[{GetType().Name}] Duplicate entry for {entries[i].Faction} on {name}.", this);
+                    int pi = entries[i].Polarity == 0 ? 0 : 1;
+                    int pj = entries[j].Polarity == 0 ? 0 : 1;
+                    if (entries[i].Faction == entries[j].Faction && pi == pj)
+                        Debug.LogWarning($"[{GetType().Name}] Duplicate entry for {entries[i].Faction} polarity {pi} on {name}.", this);
                 }
             }
 
