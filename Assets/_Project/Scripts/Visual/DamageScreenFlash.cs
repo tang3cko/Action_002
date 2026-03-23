@@ -7,9 +7,6 @@ namespace Action002.Visual
     [RequireComponent(typeof(SpriteRenderer))]
     public class DamageScreenFlash : MonoBehaviour
     {
-        [Header("Dependencies")]
-        [SerializeField] private Camera targetCamera;
-
         [Header("Settings")]
         [SerializeField] private float flashAlpha = 0.3f;
         [SerializeField] private float flashDuration = 0.15f;
@@ -20,6 +17,7 @@ namespace Action002.Visual
         [Header("Event Channels")]
         [SerializeField] private VoidEventChannelSO onPlayerDamaged;
 
+        private Camera mainCamera;
         private SpriteRenderer overlayRenderer;
         private Texture2D overlayTexture;
         private Sprite overlaySprite;
@@ -27,6 +25,7 @@ namespace Action002.Visual
 
         private void Awake()
         {
+            mainCamera = Camera.main;
             overlayRenderer = GetComponent<SpriteRenderer>();
             overlayTexture = CreateOverlayTexture();
             overlaySprite = CreateOverlaySprite(overlayTexture);
@@ -97,7 +96,7 @@ namespace Action002.Visual
 
         private void PositionOverlay()
         {
-            Camera cameraToUse = targetCamera != null ? targetCamera : Camera.main;
+            Camera cameraToUse = mainCamera;
             if (cameraToUse == null)
             {
                 return;
