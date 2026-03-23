@@ -1,9 +1,13 @@
 using UnityEngine;
+using Action002.Accessory;
+using Action002.Accessory.SonicWave.Data;
+using Action002.Accessory.SonicWave.Systems;
 using Action002.Audio.Systems;
 using Action002.Bullet.Data;
 using Action002.Enemy.Data;
 using Action002.Enemy.Systems;
 using Action002.Input;
+using Action002.Player.Systems;
 using Tang3cko.ReactiveSO;
 
 namespace Action002.Core.Flow
@@ -24,6 +28,12 @@ namespace Action002.Core.Flow
         [SerializeField] private GameLoopManager gameLoopManager;
         [SerializeField] private RhythmClockSystem rhythmClockSystem;
         [SerializeField] private EnemySpawnSystem enemySpawnSystem;
+        [SerializeField] private SonicWaveSystem sonicWaveSystem;
+        [SerializeField] private WaveCollisionSystem waveCollisionSystem;
+        [SerializeField] private PlayerController playerController;
+
+        [Header("Sets (Wave)")]
+        [SerializeField] private WaveStateSetSO waveStateSet;
 
         private bool startupResetFailed;
 
@@ -45,6 +55,7 @@ namespace Action002.Core.Flow
         {
             if (enemyStateSet != null) enemyStateSet.Clear();
             if (bulletStateSet != null) bulletStateSet.Clear();
+            if (waveStateSet != null) waveStateSet.Clear();
 
             if (playerHpVar != null) playerHpVar.ResetToInitial();
             if (scoreVar != null) scoreVar.ResetToInitial();
@@ -62,8 +73,24 @@ namespace Action002.Core.Flow
 
         private void Start()
         {
+            // AccessoryManager を作成し、SonicWave を登録して PlayerController に注入
+            SetupAccessoryManager();
+
             var logic = new GameplayStartupLogic(this);
             logic.Execute();
+        }
+
+        private void SetupAccessoryManager()
+        {
+            var accessoryManager = new AccessoryManager();
+
+            // SonicWave の IAccessory を登録
+            if (sonicWaveSystem != null && sonicWaveSystem.Accessory != null)
+                accessoryManager.Register(sonicWaveSystem.Accessory);
+
+            // PlayerController に注入
+            if (playerController != null)
+                playerController.SetAccessoryManager(accessoryManager);
         }
 
         // --- IGameplayStartupActions implementation ---
@@ -94,6 +121,9 @@ namespace Action002.Core.Flow
                 (uint)System.DateTime.Now.Ticks);
             if (enemySpawnSystem != null) enemySpawnSystem.ResetForNewRun(runSeed);
             if (rhythmClockSystem != null) rhythmClockSystem.ResetForNewRun();
+            if (sonicWaveSystem != null) sonicWaveSystem.ResetForNewRun();
+            if (waveCollisionSystem != null) waveCollisionSystem.ResetForNewRun();
+            if (waveStateSet != null) waveStateSet.Clear();
         }
 
         bool IGameplayStartupActions.StartClock()
@@ -132,6 +162,7 @@ namespace Action002.Core.Flow
             // Clear entity sets (SO persists across scenes)
             if (enemyStateSet != null) enemyStateSet.Clear();
             if (bulletStateSet != null) bulletStateSet.Clear();
+            if (waveStateSet != null) waveStateSet.Clear();
         }
 
 #if UNITY_EDITOR
@@ -144,6 +175,7 @@ namespace Action002.Core.Flow
             if (gameLoopManager == null) Debug.LogWarning($"[{GetType().Name}] gameLoopManager not assigned on {gameObject.name}.", this);
             if (rhythmClockSystem == null) Debug.LogWarning($"[{GetType().Name}] rhythmClockSystem not assigned on {gameObject.name}.", this);
             if (enemySpawnSystem == null) Debug.LogWarning($"[{GetType().Name}] enemySpawnSystem not assigned on {gameObject.name}.", this);
+            if (playerController == null) Debug.LogWarning($"[{GetType().Name}] playerController not assigned on {gameObject.name}.", this);
             if (playerHpVar == null) Debug.LogWarning($"[{GetType().Name}] playerHpVar not assigned on {gameObject.name}.", this);
             if (scoreVar == null) Debug.LogWarning($"[{GetType().Name}] scoreVar not assigned on {gameObject.name}.", this);
             if (comboCountVar == null) Debug.LogWarning($"[{GetType().Name}] comboCountVar not assigned on {gameObject.name}.", this);

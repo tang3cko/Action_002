@@ -3,6 +3,9 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using System.Collections.Generic;
+using Action002.Accessory.SonicWave.Data;
+using Action002.Accessory.SonicWave.Logic;
+using Action002.Accessory.SonicWave.Systems;
 using Action002.Bullet.Data;
 using Action002.Bullet.Logic;
 using Action002.Bullet.Systems;
@@ -25,6 +28,7 @@ namespace Action002.Core
         [Header("Sets")]
         [SerializeField] private EnemyStateSetSO enemySet;
         [SerializeField] private BulletStateSetSO bulletSet;
+        [SerializeField] private WaveStateSetSO waveSet;
 
         [Header("Variables (read)")]
         [SerializeField] private Vector2VariableSO playerPositionVar;
@@ -37,6 +41,8 @@ namespace Action002.Core
         [SerializeField] private BulletCollisionSystem bulletCollision;
         [SerializeField] private EnemySpawnSystem enemySpawn;
         [SerializeField] private EnemyShootSystem enemyShoot;
+        [SerializeField] private SonicWaveSystem sonicWave;
+        [SerializeField] private WaveCollisionSystem waveCollision;
 
         [Header("Events (subscribe)")]
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
@@ -47,8 +53,11 @@ namespace Action002.Core
 
         private ReactiveEntitySetOrchestrator<EnemyState> enemyOrchestrator;
         private ReactiveEntitySetOrchestrator<BulletState> bulletOrchestrator;
+        private ReactiveEntitySetOrchestrator<WaveState> waveOrchestrator;
         private bool hasPendingEnemyJob;
         private bool hasPendingBulletJob;
+        private bool hasPendingWaveJob;
+        private List<int> waveDespawnQueue = new List<int>(16);
         private List<int> despawnQueue = new List<int>(256);
         private List<int> enemyDespawnQueue = new List<int>(64);
         private List<int> sameContactIds = new List<int>(64);
@@ -67,6 +76,9 @@ namespace Action002.Core
 
             enemyOrchestrator = new ReactiveEntitySetOrchestrator<EnemyState>(enemySet);
             bulletOrchestrator = new ReactiveEntitySetOrchestrator<BulletState>(bulletSet);
+
+            if (waveSet != null)
+                waveOrchestrator = new ReactiveEntitySetOrchestrator<WaveState>(waveSet);
 
             // EnemyTypeId の値の数だけ MovementSpec を構築
             int typeCount = System.Enum.GetValues(typeof(EnemyTypeId)).Length;
@@ -93,6 +105,7 @@ namespace Action002.Core
 
             ScheduleEnemyJob();
             ScheduleBulletJob();
+            ScheduleWaveExpandJob();
         }
 
         private void LateUpdate()
@@ -111,6 +124,12 @@ namespace Action002.Core
                 hasPendingBulletJob = false;
             }
 
+            if (hasPendingWaveJob)
+            {
+                waveOrchestrator.CompleteAndApply();
+                hasPendingWaveJob = false;
+            }
+
             RemoveOffscreenBullets();
 
             if (rhythmClock != null)
@@ -118,8 +137,17 @@ namespace Action002.Core
 
             if (playerAttack != null)
                 playerAttack.ProcessAttacks();
+
+            if (sonicWave != null)
+                sonicWave.ProcessAttacks();
+
             if (bulletCollision != null)
                 bulletCollision.ProcessCollisions();
+
+            if (waveCollision != null)
+                waveCollision.ProcessCollisions();
+
+            RemoveExpiredWaves();
 
             ProcessEnemyContacts();
 
@@ -148,10 +176,17 @@ namespace Action002.Core
                 bulletOrchestrator?.CompleteAndApply();
                 hasPendingBulletJob = false;
             }
+            if (hasPendingWaveJob)
+            {
+                waveOrchestrator?.CompleteAndApply();
+                hasPendingWaveJob = false;
+            }
             enemyOrchestrator?.Dispose();
             enemyOrchestrator = null;
             bulletOrchestrator?.Dispose();
             bulletOrchestrator = null;
+            waveOrchestrator?.Dispose();
+            waveOrchestrator = null;
 
             if (movementSpecs.IsCreated)
                 movementSpecs.Dispose();
@@ -220,6 +255,11 @@ namespace Action002.Core
             {
                 bulletOrchestrator?.CompleteAndApply();
                 hasPendingBulletJob = false;
+            }
+            if (hasPendingWaveJob)
+            {
+                waveOrchestrator?.CompleteAndApply();
+                hasPendingWaveJob = false;
             }
         }
 
@@ -345,6 +385,43 @@ namespace Action002.Core
             {
                 bulletSet.Unregister(id);
             }
+        }
+
+        private void ScheduleWaveExpandJob()
+        {
+            if (waveSet == null || waveSet.Count == 0) return;
+            if (waveOrchestrator == null) return;
+
+            var src = waveSet.Data;
+            var dst = waveOrchestrator.GetBackBuffer();
+
+            var job = new WaveExpandJob
+            {
+                Src = src,
+                Dst = dst,
+                DeltaTime = Time.deltaTime,
+            };
+
+            var handle = job.Schedule(waveSet.Count, 64);
+            waveOrchestrator.ScheduleUpdate(handle, waveSet.Count);
+            hasPendingWaveJob = true;
+        }
+
+        private void RemoveExpiredWaves()
+        {
+            if (waveSet == null || waveSet.Count == 0) return;
+            waveDespawnQueue.Clear();
+
+            var data = waveSet.Data;
+            var ids = waveSet.EntityIds;
+            for (int i = 0; i < data.Length; i++)
+            {
+                if (WaveBoundsCalculator.IsExpired(data[i].CurrentRadius, data[i].MaxRadius))
+                    waveDespawnQueue.Add(ids[i]);
+            }
+
+            foreach (var id in waveDespawnQueue)
+                waveSet.Unregister(id);
         }
 
 #if UNITY_EDITOR

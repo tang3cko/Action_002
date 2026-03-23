@@ -32,6 +32,11 @@ namespace Action002.Core
         [SerializeField] private float playerContactRadius = 0.3f;
         [SerializeField] private int contactScoreBonus = 10;
 
+        [Header("Wave Attack")]
+        [SerializeField] private float waveBaseMaxRadius = 5f;
+        [SerializeField] private float waveBaseExpandSpeed = 8f;
+        [SerializeField] private float waveRingThickness = 0.5f;
+
         [Header("Seed")]
         [SerializeField] private uint fixedRunSeed = 12345u;
 
@@ -50,6 +55,9 @@ namespace Action002.Core
         public float KillGaugeRate => killGaugeRate;
         public float PlayerContactRadius => playerContactRadius;
         public int ContactScoreBonus => contactScoreBonus;
+        public float WaveBaseMaxRadius => waveBaseMaxRadius;
+        public float WaveBaseExpandSpeed => waveBaseExpandSpeed;
+        public float WaveRingThickness => waveRingThickness;
         public uint FixedRunSeed => fixedRunSeed;
     }
 }

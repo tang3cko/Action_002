@@ -44,6 +44,39 @@ namespace Action002.Boss.Systems
             ai != null && ai.IsActive &&
             (ai.CurrentPhase == BossPhaseId.Phase1 || ai.CurrentPhase == BossPhaseId.Phase2);
 
+        public int EntityCount => 3;
+
+        public bool GetEntityInfo(int index, out float2 position,
+            out float collisionRadius, out bool isActive)
+        {
+            if (ai == null || index < 0 || index >= 3)
+            {
+                position = float2.zero;
+                collisionRadius = 0f;
+                isActive = false;
+                return false;
+            }
+
+            var entity = ai.GetEntity((BossEntityId)index);
+            position = entity.Position;
+            collisionRadius = entity.CollisionRadius;
+            isActive = entity.IsActive;
+            return true;
+        }
+
+        public bool TryApplyDamageToEntity(int entityIndex, int damage)
+        {
+            if (ai == null || !ai.IsActive) return false;
+            if (entityIndex < 0 || entityIndex >= 3) return false;
+
+            var entityId = (BossEntityId)entityIndex;
+            var entity = ai.GetEntity(entityId);
+            if (!entity.IsActive) return false;
+
+            ai.ApplyDamage(entityId, damage);
+            return true;
+        }
+
         public bool TryHitAny(float bulletX, float bulletY, float bulletRadius, int damage)
         {
             if (ai == null || !ai.IsActive) return false;

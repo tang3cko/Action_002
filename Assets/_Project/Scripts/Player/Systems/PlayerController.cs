@@ -184,6 +184,15 @@ namespace Action002.Player.Systems
             }
         }
 
+        /// <summary>
+        /// AccessoryManager を PlayerGrowthCoordinator に注入する。
+        /// GameplaySceneLifetime 等の初期化箇所から呼ばれる。
+        /// </summary>
+        public void SetAccessoryManager(Accessory.AccessoryManager manager)
+        {
+            growthCoordinator?.SetAccessoryManager(manager);
+        }
+
         public void ResetForNewRun()
         {
             if (gameConfig == null) return;

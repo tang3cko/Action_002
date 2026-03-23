@@ -18,6 +18,7 @@ namespace Action002.Tests.Boss
             public int HalfBeatIndex;
             public bool Playing = false;
 
+            public int CurrentHalfBeatIndex => HalfBeatIndex;
             public bool StartClock() { Playing = true; return true; }
             public void StopClock() { Playing = false; }
             public void ProcessClock() { }

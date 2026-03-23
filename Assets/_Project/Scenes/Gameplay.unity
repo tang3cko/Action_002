@@ -149,7 +149,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 94e9ccd89634543c7b3e71b0969686c1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Action002::Action002.Visual.DamageScreenFlash
-  targetCamera: {fileID: 0}
   flashAlpha: 0.3
   flashDuration: 0.15
   sortingOrder: 999
@@ -303,6 +302,56 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 230408324}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &253211768
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 253211770}
+  - component: {fileID: 253211769}
+  m_Layer: 0
+  m_Name: WaveRenderer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &253211769
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253211768}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f07a813587cde459e9fb5441c20352d7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Accessory.SonicWave.Rendering.WaveRenderer
+  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
+  waveSet: {fileID: 11400000, guid: 5f8fa4cdce49c4f3a80703d730f885f8, type: 2}
+  quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
+  waveMaterial: {fileID: 2100000, guid: 4036035fb61f440668ce07e4b5528100, type: 2}
+  sortingLayer: 0
+  waveZ: -0.5
+--- !u!4 &253211770
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 253211768}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -727,6 +776,7 @@ MonoBehaviour:
   gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
   enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
   bulletSet: {fileID: 11400000, guid: 22ad47ab3d1634c489afbd739d8337f2, type: 2}
+  waveSet: {fileID: 11400000, guid: 5f8fa4cdce49c4f3a80703d730f885f8, type: 2}
   playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
   playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
   playerHpVar: {fileID: 11400000, guid: 057a6b093e2a248a8b54ddbb09ca2455, type: 2}
@@ -735,6 +785,8 @@ MonoBehaviour:
   bulletCollision: {fileID: 445281359}
   enemySpawn: {fileID: 445281361}
   enemyShoot: {fileID: 445281360}
+  sonicWave: {fileID: 1134658342}
+  waveCollision: {fileID: 1732617722}
   onGamePhaseChanged: {fileID: 11400000, guid: 26c10b92ae342450995af2dae0415140, type: 2}
   onPlayerDamaged: {fileID: 11400000, guid: 6faa338368f76479cadacce53a009ca2, type: 2}
   onScoreAdded: {fileID: 11400000, guid: a6c810aa4e9964c85857f3d57440aa62, type: 2}
@@ -1134,6 +1186,10 @@ MonoBehaviour:
   gameLoopManager: {fileID: 445281357}
   rhythmClockSystem: {fileID: 445281356}
   enemySpawnSystem: {fileID: 445281361}
+  sonicWaveSystem: {fileID: 1134658342}
+  waveCollisionSystem: {fileID: 1732617722}
+  playerController: {fileID: 703971811}
+  waveStateSet: {fileID: 11400000, guid: 5f8fa4cdce49c4f3a80703d730f885f8, type: 2}
   playerHpVar: {fileID: 11400000, guid: 057a6b093e2a248a8b54ddbb09ca2455, type: 2}
   scoreVar: {fileID: 11400000, guid: 899e41234c1cc4778910f992a68c0eb3, type: 2}
   comboCountVar: {fileID: 11400000, guid: e9a02000bc2364dee8a5e459a62930e5, type: 2}
@@ -1269,6 +1325,157 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 333072510}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1134658341
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1134658344}
+  - component: {fileID: 1134658343}
+  - component: {fileID: 1134658342}
+  m_Layer: 0
+  m_Name: SonicWaveSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1134658342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1134658341}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23a68f9c6033e415aba53e3bc621a82e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Accessory.SonicWave.Systems.SonicWaveSystem
+  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
+  rhythmClock: {fileID: 445281356}
+  waveSet: {fileID: 11400000, guid: 5f8fa4cdce49c4f3a80703d730f885f8, type: 2}
+  playerPositionVar: {fileID: 11400000, guid: d709740f3d31d4f44af9304e71441d47, type: 2}
+  playerPolarityVar: {fileID: 11400000, guid: c7bad999d144747d29998dea8fcf30d7, type: 2}
+  sfxSource: {fileID: 1134658343}
+  smallPulse1Clip: {fileID: 8300000, guid: be51fe24a06a743afa2bbecf98c73e31, type: 3}
+  smallPulse2Clip: {fileID: 0}
+  largePulseClip: {fileID: 0}
+--- !u!82 &1134658343
+AudioSource:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1134658341}
+  m_Enabled: 1
+  serializedVersion: 4
+  OutputAudioMixerGroup: {fileID: 0}
+  m_audioClip: {fileID: 0}
+  m_Resource: {fileID: 0}
+  m_PlayOnAwake: 0
+  m_Volume: 1
+  m_Pitch: 1
+  Loop: 0
+  Mute: 0
+  Spatialize: 0
+  SpatializePostEffects: 0
+  Priority: 128
+  DopplerLevel: 1
+  MinDistance: 1
+  MaxDistance: 500
+  Pan2D: 0
+  rolloffMode: 0
+  BypassEffects: 0
+  BypassListenerEffects: 0
+  BypassReverbZones: 0
+  rolloffCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  panLevelCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spreadCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  reverbZoneMixCustomCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+--- !u!4 &1134658344
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1134658341}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1168162852
 GameObject:
@@ -1449,7 +1656,6 @@ MonoBehaviour:
   quadMesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
   baseMaterial: {fileID: 2100000, guid: 32f26962ed0cc4709ba78431f0e2d5d6, type: 2}
   visualConfig: {fileID: 11400000, guid: 5f9059f895e854c838b484b334ac6d34, type: 2}
-  outlineThickness: 0.1
 --- !u!114 &1560037486
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1474,6 +1680,58 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1560037484}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1732617721
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1732617723}
+  - component: {fileID: 1732617722}
+  m_Layer: 0
+  m_Name: WaveCollisionSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1732617722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1732617721}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27f1564a1c8e648fc9591ca86708399c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Action002::Action002.Accessory.SonicWave.Systems.WaveCollisionSystem
+  gameConfig: {fileID: 11400000, guid: cc3367b577c8646b2a2eb463ff138374, type: 2}
+  waveSet: {fileID: 11400000, guid: 5f8fa4cdce49c4f3a80703d730f885f8, type: 2}
+  enemySet: {fileID: 11400000, guid: b4bf21c2d77bc404ca0d2120c2bb40f9, type: 2}
+  deathBuffer: {fileID: 11400000, guid: 54f6c2fefc4014338971fab426caae83, type: 2}
+  onBossHitTargetChanged: {fileID: 11400000, guid: f171ab2e9948143469f8527baba0d2d2, type: 2}
+  onEnemyKilled: {fileID: 11400000, guid: 6e56ddcdb27984d40a318c62117b693d, type: 2}
+  onKillScoreAdded: {fileID: 11400000, guid: 6c7724dd95b7b47c190a7b15620e023f, type: 2}
+  killScore: 50
+--- !u!4 &1732617723
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1732617721}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
@@ -1799,3 +2057,6 @@ SceneRoots:
   - {fileID: 576994}
   - {fileID: 1168162854}
   - {fileID: 1947298748}
+  - {fileID: 1134658344}
+  - {fileID: 1732617723}
+  - {fileID: 253211770}
