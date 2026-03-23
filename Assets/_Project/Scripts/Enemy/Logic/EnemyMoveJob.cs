@@ -37,7 +37,34 @@ namespace Action002.Enemy.Logic
             if (spec.RotationSpeed > 0f)
             {
                 float direction = state.Velocity.x >= 0f ? -1f : 1f;
-                state.RotationAngle += direction * spec.RotationSpeed * DeltaTime;
+                state.RotationAccumulator += direction * spec.RotationSpeed * DeltaTime;
+
+                if (spec.StepAngle > 0f)
+                {
+                    // Stepped "gakon" rotation: hold → OutQuart snap → hold
+                    float absAccum = math.abs(state.RotationAccumulator);
+                    float sign = state.RotationAccumulator >= 0f ? 1f : -1f;
+                    float rawSteps = absAccum / spec.StepAngle;
+                    float stepIndex = math.floor(rawSteps);
+                    float progress = rawSteps - stepIndex;
+
+                    float t;
+                    if (progress < spec.HoldRatio)
+                    {
+                        t = 0f;
+                    }
+                    else
+                    {
+                        float snapProgress = (progress - spec.HoldRatio) / (1f - spec.HoldRatio);
+                        float inv = 1f - snapProgress;
+                        t = 1f - inv * inv * inv * inv; // OutQuart
+                    }
+                    state.RotationAngle = sign * (stepIndex + t) * spec.StepAngle;
+                }
+                else
+                {
+                    state.RotationAngle = state.RotationAccumulator;
+                }
             }
 
             Dst[index] = state;

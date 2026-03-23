@@ -17,5 +17,6 @@ namespace Action002.Enemy.Data
         public sbyte StrafeSign;
         public float SpawnTime;
         public float RotationAngle;
+        public float RotationAccumulator;
     }
 }

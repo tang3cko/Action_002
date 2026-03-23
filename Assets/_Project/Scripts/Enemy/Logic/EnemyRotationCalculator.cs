@@ -7,8 +7,13 @@ namespace Action002.Enemy.Logic
     public static class EnemyRotationCalculator
     {
         public const float N_WAY_DEGREES_PER_SECOND = 45f;
-        public const float RING_DEGREES_PER_SECOND = 90f;
-        public const float ANCHOR_DEGREES_PER_SECOND = 30f;
+        public const float RING_DEGREES_PER_SECOND = 80f;    // 60° / 0.75s = 3 half-beats at 120BPM
+        public const float ANCHOR_DEGREES_PER_SECOND = 90f;  // 90° / 1.0s = 2 beats at 120BPM
+
+        public const float RING_STEP_ANGLE = 60f;   // 360 / 6 panels
+        public const float ANCHOR_STEP_ANGLE = 90f;  // 360 / 4 arms
+
+        private const float SNAP_DURATION = 0.15f;
 
         public static float CalculateAngle(EnemyTypeId typeId, float2 enemyPos, float2 playerPos, float rotationAngle)
         {
@@ -39,6 +44,26 @@ namespace Action002.Enemy.Logic
                 EnemyTypeId.Anchor => ANCHOR_DEGREES_PER_SECOND,
                 _ => 0f,
             };
+        }
+
+        public static float GetStepAngle(EnemyTypeId typeId)
+        {
+            return typeId switch
+            {
+                EnemyTypeId.Ring => RING_STEP_ANGLE,
+                EnemyTypeId.Anchor => ANCHOR_STEP_ANGLE,
+                _ => 0f,
+            };
+        }
+
+        public static float GetHoldRatio(EnemyTypeId typeId)
+        {
+            float stepAngle = GetStepAngle(typeId);
+            if (stepAngle <= 0f) return 0f;
+            float rotationSpeed = GetRotationSpeed(typeId);
+            if (rotationSpeed <= 0f) return 0f;
+            float stepDuration = stepAngle / rotationSpeed;
+            return math.saturate(1f - SNAP_DURATION / stepDuration);
         }
     }
 }

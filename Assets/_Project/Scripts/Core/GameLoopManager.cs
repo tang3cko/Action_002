@@ -92,6 +92,8 @@ namespace Action002.Core
                     KeepDistance = spec.KeepDistance,
                     ArrivalThreshold = spec.ArrivalThreshold,
                     RotationSpeed = EnemyRotationCalculator.GetRotationSpeed((EnemyTypeId)i),
+                    StepAngle = EnemyRotationCalculator.GetStepAngle((EnemyTypeId)i),
+                    HoldRatio = EnemyRotationCalculator.GetHoldRatio((EnemyTypeId)i),
                 };
             }
 
