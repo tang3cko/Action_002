@@ -22,7 +22,7 @@ namespace Action002.Tests.Enemy
         {
             var spec = EnemyTypeTable.Get(EnemyTypeId.NWay);
 
-            Assert.That(spec.Hp, Is.EqualTo(1));
+            Assert.That(spec.Hp, Is.EqualTo(5));
             Assert.That(spec.ShotPattern.Count, Is.EqualTo(3));
             Assert.That(spec.ShotPattern.ArcDegrees, Is.GreaterThan(0f));
         }
@@ -32,7 +32,7 @@ namespace Action002.Tests.Enemy
         {
             var spec = EnemyTypeTable.Get(EnemyTypeId.Ring);
 
-            Assert.That(spec.Hp, Is.EqualTo(3));
+            Assert.That(spec.Hp, Is.EqualTo(7));
             Assert.That(spec.ShotPattern.Count, Is.EqualTo(8));
             Assert.That(spec.VisualScale, Is.GreaterThan(1f));
             Assert.That(spec.CollisionRadius, Is.GreaterThan(0.5f));

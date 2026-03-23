@@ -19,7 +19,7 @@ namespace Action002.Enemy.Logic
         );
 
         static readonly EnemyTypeSpec NWaySpec = new EnemyTypeSpec(
-            hp: 1,
+            hp: 5,
             speedMultiplier: 0.8f,
             visualScale: 2.0f,
             collisionRadius: 0.6f,
@@ -32,7 +32,7 @@ namespace Action002.Enemy.Logic
         );
 
         static readonly EnemyTypeSpec RingSpec = new EnemyTypeSpec(
-            hp: 3,
+            hp: 7,
             speedMultiplier: 0.5f,
             visualScale: 2.8f,
             collisionRadius: 1.0f,

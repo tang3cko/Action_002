@@ -8,6 +8,7 @@ namespace Action002.Enemy.Logic
         {
             if (elapsedTime < 30f)
             {
+                // Shooter only
                 return EnemyTypeId.Shooter;
             }
 
@@ -17,9 +18,17 @@ namespace Action002.Enemy.Logic
                 return randomValue < 0.7f ? EnemyTypeId.Shooter : EnemyTypeId.NWay;
             }
 
-            // Shooter 40%, NWay 25%, Ring 20%, Anchor 15%
-            if (randomValue < 0.4f) return EnemyTypeId.Shooter;
-            if (randomValue < 0.65f) return EnemyTypeId.NWay;
+            if (elapsedTime < 90f)
+            {
+                // Shooter 45%, NWay 30%, Ring 25%
+                if (randomValue < 0.45f) return EnemyTypeId.Shooter;
+                if (randomValue < 0.75f) return EnemyTypeId.NWay;
+                return EnemyTypeId.Ring;
+            }
+
+            // 90s~: Shooter 35%, NWay 25%, Ring 25%, Anchor 15%
+            if (randomValue < 0.35f) return EnemyTypeId.Shooter;
+            if (randomValue < 0.60f) return EnemyTypeId.NWay;
             if (randomValue < 0.85f) return EnemyTypeId.Ring;
             return EnemyTypeId.Anchor;
         }

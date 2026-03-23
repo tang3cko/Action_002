@@ -83,7 +83,8 @@ namespace Action002.Enemy.Systems
             var typeId = SpawnWaveCalculator.SelectType(elapsedTime, spawnRng.NextFloat());
             var spec = EnemyTypeTable.Get(typeId);
 
-            if (spec.MaxConcurrent > 0 && CountActiveByType(typeId) >= spec.MaxConcurrent)
+            int effectiveMaxConcurrent = (int)(spec.MaxConcurrent * SpawnCalculator.GetOvertimeMultiplier(elapsedTime));
+            if (spec.MaxConcurrent > 0 && CountActiveByType(typeId) >= effectiveMaxConcurrent)
             {
                 typeId = EnemyTypeId.Shooter;
                 spec = EnemyTypeTable.Get(typeId);
