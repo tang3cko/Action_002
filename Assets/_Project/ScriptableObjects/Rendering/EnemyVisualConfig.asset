@@ -37,3 +37,15 @@ MonoBehaviour:
   - TypeId: 3
     Polarity: 1
     Texture: {fileID: 2800000, guid: ead387e2aef0e4f59b37e7077a9e173e, type: 3}
+  - TypeId: 4
+    Polarity: 0
+    Texture: {fileID: 2800000, guid: 6f479a908db2f4c288dd79a3aa6e5dc4, type: 3}
+  - TypeId: 4
+    Polarity: 1
+    Texture: {fileID: 2800000, guid: 9925a02f7ef5c4723b6fe505fe15aeaa, type: 3}
+  - TypeId: 5
+    Polarity: 0
+    Texture: {fileID: 2800000, guid: 71414b90cfbf742e69d22ce9fe313574, type: 3}
+  - TypeId: 5
+    Polarity: 1
+    Texture: {fileID: 2800000, guid: 8f8e8e139354a446bb806c9c73d8c25e, type: 3}

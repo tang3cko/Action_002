@@ -61,6 +61,7 @@ namespace Action002.Audio.Systems
 
         private void OnDisable()
         {
+            CancelFades();
             if (onPlayerLevelUp != null)
                 onPlayerLevelUp.OnEventRaised -= HandlePlayerLevelUp;
         }

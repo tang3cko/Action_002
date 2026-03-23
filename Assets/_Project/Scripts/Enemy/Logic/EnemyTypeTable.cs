@@ -19,7 +19,7 @@ namespace Action002.Enemy.Logic
         );
 
         static readonly EnemyTypeSpec NWaySpec = new EnemyTypeSpec(
-            hp: 10,
+            hp: 6,
             speedMultiplier: 0.8f,
             visualScale: 2.0f,
             collisionRadius: 0.6f,
@@ -32,7 +32,7 @@ namespace Action002.Enemy.Logic
         );
 
         static readonly EnemyTypeSpec RingSpec = new EnemyTypeSpec(
-            hp: 14,
+            hp: 10,
             speedMultiplier: 0.5f,
             visualScale: 2.8f,
             collisionRadius: 1.0f,
@@ -57,12 +57,40 @@ namespace Action002.Enemy.Logic
             budgetCost: 5f
         );
 
+        static readonly EnemyTypeSpec RushSpec = new EnemyTypeSpec(
+            hp: 1,
+            speedMultiplier: 2.5f,
+            visualScale: 1.0f,
+            collisionRadius: 0.3f,
+            shootCooldown: 999f,
+            shotPattern: new ShotPatternSpec(ShotPatternKind.Aimed, 1, 0f, 0f),
+            scoreValue: 30f,
+            movement: MovementPattern.Chase,
+            budgetCost: 1f
+        );
+
+        static readonly EnemyTypeSpec ZoningSpec = new EnemyTypeSpec(
+            hp: 36,
+            speedMultiplier: 0.7f,
+            visualScale: 2.2f,
+            collisionRadius: 0.7f,
+            shootCooldown: 0.25f,
+            shotPattern: new ShotPatternSpec(ShotPatternKind.NWay, 3, 90f, 0.8f),
+            scoreValue: 100f,
+            movement: MovementPattern.KeepDistance,
+            keepDistance: 6f,
+            maxConcurrent: 4,
+            budgetCost: 3f
+        );
+
         public static EnemyTypeSpec Get(EnemyTypeId id) => id switch
         {
             EnemyTypeId.Shooter => ShooterSpec,
             EnemyTypeId.NWay => NWaySpec,
             EnemyTypeId.Ring => RingSpec,
             EnemyTypeId.Anchor => AnchorSpec,
+            EnemyTypeId.Rush => RushSpec,
+            EnemyTypeId.Zoning => ZoningSpec,
             _ => throw new ArgumentOutOfRangeException(nameof(id), id, "Unknown EnemyTypeId"),
         };
     }

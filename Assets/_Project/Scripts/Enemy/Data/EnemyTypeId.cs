@@ -6,5 +6,7 @@ namespace Action002.Enemy.Data
         NWay = 1,
         Ring = 2,
         Anchor = 3,
+        Rush = 4,
+        Zoning = 5,
     }
 }

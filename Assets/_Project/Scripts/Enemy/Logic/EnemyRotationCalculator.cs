@@ -23,6 +23,8 @@ namespace Action002.Enemy.Logic
                 EnemyTypeId.NWay => rotationAngle,
                 EnemyTypeId.Ring => rotationAngle,
                 EnemyTypeId.Anchor => rotationAngle,
+                EnemyTypeId.Rush => CalculateShooterAngle(enemyPos, playerPos),
+                EnemyTypeId.Zoning => CalculateShooterAngle(enemyPos, playerPos),
                 _ => throw new ArgumentOutOfRangeException(nameof(typeId), typeId, "Unknown EnemyTypeId"),
             };
         }
@@ -42,6 +44,8 @@ namespace Action002.Enemy.Logic
                 EnemyTypeId.NWay => N_WAY_DEGREES_PER_SECOND,
                 EnemyTypeId.Ring => RING_DEGREES_PER_SECOND,
                 EnemyTypeId.Anchor => ANCHOR_DEGREES_PER_SECOND,
+                EnemyTypeId.Rush => 0f,
+                EnemyTypeId.Zoning => 0f,
                 _ => 0f,
             };
         }
@@ -52,6 +56,7 @@ namespace Action002.Enemy.Logic
             {
                 EnemyTypeId.Ring => RING_STEP_ANGLE,
                 EnemyTypeId.Anchor => ANCHOR_STEP_ANGLE,
+                EnemyTypeId.Rush => 0f,
                 _ => 0f,
             };
         }

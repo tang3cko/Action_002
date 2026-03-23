@@ -27,7 +27,7 @@ namespace Action002.Enemy.Logic
         {
             if (elapsedTime <= 120f) return 1f;
             float overtime = elapsedTime - 120f;
-            return 1f + math.log2(1f + overtime / 60f);
+            return 1f + 3f * math.log2(1f + overtime / 60f);
         }
     }
 }
