@@ -449,13 +449,11 @@ namespace Action002.Tests.Core
         }
 
         /// <summary>
-        /// Advances logic from Title to Stage by simulating HandleTitleStartSelected
-        /// followed by HandleTransitionClosed.
+        /// Advances logic from Title to Stage by simulating HandleTitleStartSelected.
         /// </summary>
         private static void AdvanceToStage(GameFlowLogic logic)
         {
             logic.HandleTitleStartSelected();
-            logic.HandleTransitionClosed();
         }
 
         /// <summary>
@@ -564,63 +562,30 @@ namespace Action002.Tests.Core
         }
 
         [Test]
-        public void Controller_TitleStartSelected_WithOrigin_ShouldCallCloseTransitionWithOrigin()
-        {
-            // Arrange
-            var (logic, spy) = CreateInitializedLogic();
-
-            // Act
-            logic.HandleTitleStartTransitionOriginSelected(123.5f, 456.0f);
-            logic.HandleTitleStartSelected();
-
-            // Assert
-            Assert.That(spy.LastTransitionOriginX, Is.EqualTo(123.5f));
-            Assert.That(spy.LastTransitionOriginY, Is.EqualTo(456.0f));
-            Assert.That(spy.CloseTransitionCallCount, Is.EqualTo(1));
-        }
-
-        [Test]
-        public void Controller_TitleStartSelected_ShouldNotChangeCurrentPhase()
-        {
-            // Arrange
-            var (logic, _) = CreateInitializedLogic();
-
-            // Act
-            logic.HandleTitleStartSelected();
-
-            // Assert
-            Assert.That(logic.CurrentPhase, Is.EqualTo(GamePhase.Title),
-                "Phase should NOT change until transition closes.");
-        }
-
-        [Test]
-        public void Controller_TitleToStage_AfterTransitionClosed_ShouldChangePhaseToStage()
+        public void Controller_TitleStartSelected_ShouldChangePhaseToStageImmediately()
         {
             // Arrange
             var (logic, spy) = CreateInitializedLogic();
 
             // Act
             logic.HandleTitleStartSelected();
-            logic.HandleTransitionClosed();
 
             // Assert
             Assert.That(logic.CurrentPhase, Is.EqualTo(GamePhase.Stage),
-                "After transition closes, phase should become Stage.");
+                "HandleTitleStartSelected should transition to Stage immediately.");
             Assert.That(spy.LastGamePhaseVarValue, Is.EqualTo((int)GamePhase.Stage),
-                "gamePhaseVar should reflect Stage after transition closes.");
+                "gamePhaseVar should reflect Stage.");
         }
 
         [Test]
-        public void Controller_TitleToStage_ShouldFireGamePhaseChangedWithStage()
+        public void Controller_TitleStartSelected_ShouldFireGamePhaseChangedWithStage()
         {
             // Arrange
             var (logic, spy) = CreateInitializedLogic();
-            // Clear history from Initialize
             spy.GamePhaseChangedHistory.Clear();
 
             // Act
             logic.HandleTitleStartSelected();
-            logic.HandleTransitionClosed();
 
             // Assert
             Assert.That(spy.GamePhaseChangedHistory.Count, Is.EqualTo(1));
@@ -628,18 +593,17 @@ namespace Action002.Tests.Core
         }
 
         [Test]
-        public void Controller_TitleStartSelected_ShouldCallCloseTransition()
+        public void Controller_TitleStartSelected_ShouldLoadGameplayScene()
         {
             // Arrange
             var (logic, spy) = CreateInitializedLogic();
-            int closeCountBefore = spy.CloseTransitionCallCount;
 
             // Act
             logic.HandleTitleStartSelected();
 
             // Assert
-            Assert.That(spy.CloseTransitionCallCount, Is.EqualTo(closeCountBefore + 1),
-                "HandleTitleStartSelected should call CloseTransition on actions.");
+            Assert.That(spy.LoadSceneHistory, Has.Member("Gameplay"),
+                "HandleTitleStartSelected should load the Gameplay scene directly.");
         }
 
         #endregion

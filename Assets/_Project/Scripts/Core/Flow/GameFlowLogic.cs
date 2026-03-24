@@ -32,9 +32,6 @@ namespace Action002.Core.Flow
         public GamePhase PendingPhase { get; private set; }
         public GameResultType PendingResultType { get; private set; }
 
-        private float pendingOriginX;
-        private float pendingOriginY;
-        private bool hasPendingTransitionOrigin;
         private bool resultCommitted;
 
         private readonly IGameFlowActions actions;
@@ -76,23 +73,11 @@ namespace Action002.Core.Flow
             actions.CloseTransition();
         }
 
-        public void HandleTitleStartTransitionOriginSelected(float screenX, float screenY)
-        {
-            pendingOriginX = screenX;
-            pendingOriginY = screenY;
-            hasPendingTransitionOrigin = true;
-        }
-
         public void HandleTitleStartSelected()
         {
             PendingPhase = GamePhase.Stage;
-
-            if (hasPendingTransitionOrigin)
-                actions.CloseTransitionWithOrigin(pendingOriginX, pendingOriginY);
-            else
-                actions.CloseTransition();
-
-            ClearPendingTransitionOrigin();
+            TransitionTo(PendingPhase);
+            actions.LoadScene("Gameplay");
         }
 
         // TODO: ボス実装時に復活
@@ -168,11 +153,5 @@ namespace Action002.Core.Flow
             actions.RaiseGamePhaseChanged((int)CurrentPhase);
         }
 
-        private void ClearPendingTransitionOrigin()
-        {
-            pendingOriginX = 0f;
-            pendingOriginY = 0f;
-            hasPendingTransitionOrigin = false;
-        }
     }
 }

@@ -20,7 +20,6 @@ namespace Action002.UI
         [SerializeField] private IntEventChannelSO onGamePhaseChanged;
 
         [Header("Events (publish)")]
-        [SerializeField] private Vector2EventChannelSO onTitleStartTransitionOriginSelected;
         [SerializeField] private VoidEventChannelSO onTitleStartSelected;
 
         private UIDocument uiDocument;
@@ -104,19 +103,12 @@ namespace Action002.UI
         private void OnStartButtonPointerUp(PointerUpEvent evt)
         {
             PlayClickSFX();
-            float scale = uiDocument.rootVisualElement.scaledPixelsPerPoint;
-            Vector2 screenPosition = new Vector2(
-                evt.position.x * scale,
-                Screen.height - evt.position.y * scale);
-            onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
         }
 
         private void OnStartButtonSubmit(NavigationSubmitEvent evt)
         {
             PlayClickSFX();
-            Vector2 screenPosition = new Vector2(Screen.width * 0.5f, Screen.height * 0.5f);
-            onTitleStartTransitionOriginSelected?.RaiseEvent(screenPosition);
             onTitleStartSelected?.RaiseEvent();
         }
 
@@ -125,7 +117,6 @@ namespace Action002.UI
         {
             if (GetComponent<UIDocument>() == null) Debug.LogWarning($"[{GetType().Name}] UIDocument component missing on {gameObject.name}.", this);
             if (onGamePhaseChanged == null) Debug.LogWarning($"[{GetType().Name}] onGamePhaseChanged not assigned on {gameObject.name}.", this);
-            if (onTitleStartTransitionOriginSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartTransitionOriginSelected not assigned on {gameObject.name}.", this);
             if (onTitleStartSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartSelected not assigned on {gameObject.name}.", this);
 
             if (audioSource == null)

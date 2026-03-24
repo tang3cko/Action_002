@@ -15,7 +15,6 @@ namespace Action002.Core.Flow
         [Header("Events (subscribe)")]
         [SerializeField] private VoidEventChannelSO onGameOver;
         [SerializeField] private VoidEventChannelSO onTutorialCompleted;
-        [SerializeField] private Vector2EventChannelSO onTitleStartTransitionOriginSelected;
         [SerializeField] private VoidEventChannelSO onTitleStartSelected;
         [SerializeField] private VoidEventChannelSO onBossTriggerReached;
         [SerializeField] private VoidEventChannelSO onBossDefeated;
@@ -67,8 +66,6 @@ namespace Action002.Core.Flow
                 onGameOver.OnEventRaised += HandleGameOver;
             if (onTutorialCompleted != null)
                 onTutorialCompleted.OnEventRaised += HandleTutorialCompleted;
-            if (onTitleStartTransitionOriginSelected != null)
-                onTitleStartTransitionOriginSelected.OnEventRaised += HandleTitleStartTransitionOriginSelected;
             if (onTitleStartSelected != null)
                 onTitleStartSelected.OnEventRaised += HandleTitleStartSelected;
             // TODO: ボス実装時に復活
@@ -99,8 +96,6 @@ namespace Action002.Core.Flow
                 onGameOver.OnEventRaised -= HandleGameOver;
             if (onTutorialCompleted != null)
                 onTutorialCompleted.OnEventRaised -= HandleTutorialCompleted;
-            if (onTitleStartTransitionOriginSelected != null)
-                onTitleStartTransitionOriginSelected.OnEventRaised -= HandleTitleStartTransitionOriginSelected;
             if (onTitleStartSelected != null)
                 onTitleStartSelected.OnEventRaised -= HandleTitleStartSelected;
             // TODO: ボス実装時に復活
@@ -130,11 +125,6 @@ namespace Action002.Core.Flow
         private void HandleTutorialCompleted()
         {
             Logic.HandleTutorialCompleted();
-        }
-
-        private void HandleTitleStartTransitionOriginSelected(Vector2 screenPosition)
-        {
-            Logic.HandleTitleStartTransitionOriginSelected(screenPosition.x, screenPosition.y);
         }
 
         private void HandleTitleStartSelected()
@@ -267,7 +257,6 @@ namespace Action002.Core.Flow
             if (screenTransitionController == null) Debug.LogWarning($"[{GetType().Name}] screenTransitionController not assigned on {gameObject.name}.", this);
             if (onGameOver == null) Debug.LogWarning($"[{GetType().Name}] onGameOver not assigned on {gameObject.name}.", this);
             if (onTutorialCompleted == null) Debug.LogWarning($"[{GetType().Name}] onTutorialCompleted not assigned on {gameObject.name}.", this);
-            if (onTitleStartTransitionOriginSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartTransitionOriginSelected not assigned on {gameObject.name}.", this);
             if (onTitleStartSelected == null) Debug.LogWarning($"[{GetType().Name}] onTitleStartSelected not assigned on {gameObject.name}.", this);
             if (onBossTriggerReached == null) Debug.LogWarning($"[{GetType().Name}] onBossTriggerReached not assigned on {gameObject.name}.", this);
             if (onBossDefeated == null) Debug.LogWarning($"[{GetType().Name}] onBossDefeated not assigned on {gameObject.name}.", this);
