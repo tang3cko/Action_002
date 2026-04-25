@@ -25,6 +25,12 @@
       "dependencies": {},
       "hash": "ff0df085da19fba67052c125a229889cc1b3d185"
     },
+    "com.tang3cko.web-publish-tools": {
+      "version": "file:com.tang3cko.web-publish-tools",
+      "depth": 0,
+      "source": "embedded",
+      "dependencies": {}
+    },
     "com.unity.2d.animation": {
       "version": "13.0.4",
       "depth": 0,

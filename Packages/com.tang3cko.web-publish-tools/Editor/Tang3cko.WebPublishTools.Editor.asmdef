@@ -1,0 +1,16 @@
+{
+    "name": "Tang3cko.WebPublishTools.Editor",
+    "rootNamespace": "Tang3cko.WebPublishTools.Editor",
+    "references": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

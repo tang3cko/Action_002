@@ -1,0 +1,236 @@
+/* ================================================================
+ * WebPublishToolsWindow.uss
+ * BEM block: web-publish-tools
+ *
+ * Editor-tuned font sizes (smaller than the unity-ui game UI minimums
+ * since this is an Inspector-style editor window viewed up-close).
+ * ================================================================ */
+
+:root {
+    /* ── Color Tokens ─────────────────────────────────── */
+    --color-success:        #66CC66;
+    --color-warning:        #E6B333;
+    --color-danger:         #E64D4D;
+    --color-info:           #6FAEDB;
+    --color-text:           #D2D2D2;
+    --color-text-muted:     rgba(255, 255, 255, 0.65);
+    --color-divider:        rgba(255, 255, 255, 0.10);
+    --color-card-bg:        rgba(255, 255, 255, 0.04);
+    --color-card-border:    rgba(255, 255, 255, 0.08);
+
+    /* ── Spacing Tokens ───────────────────────────────── */
+    --space-xs:   3px;
+    --space-sm:   6px;
+    --space-md:  10px;
+    --space-lg:  14px;
+    --space-xl:  18px;
+
+    /* ── Font Size Tokens (Editor-tuned) ──────────────── */
+    --font-size-pc-small:   12px;
+    --font-size-pc-medium:  14px;
+    --font-size-pc-large:   16px;
+
+    /* ── Border Tokens ────────────────────────────────── */
+    --border-radius:    4px;
+    --border-radius-sm: 3px;
+
+    /* ── Component Tokens ─────────────────────────────── */
+    --icon-size:        20px;
+}
+
+/* ── Root ─────────────────────────────────────────────── */
+
+.web-publish-tools__root {
+    padding: var(--space-xl);
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* ── Toolbar ──────────────────────────────────────────── */
+
+.web-publish-tools__toolbar {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: var(--space-md);
+}
+
+.web-publish-tools__toolbar Button {
+    margin: 0 var(--space-xs) 0 0;
+}
+
+.web-publish-tools__toolbar-button {
+    font-size: var(--font-size-pc-small);
+    padding: var(--space-xs) var(--space-md);
+}
+
+.web-publish-tools__profile-label {
+    font-size: var(--font-size-pc-small);
+    color: var(--color-text-muted);
+    margin-right: var(--space-sm);
+}
+
+.web-publish-tools__profile-dropdown {
+    min-width: 200px;
+    font-size: var(--font-size-pc-small);
+}
+
+/* ── About ────────────────────────────────────────────── */
+
+.web-publish-tools__about {
+    margin-bottom: var(--space-lg);
+}
+
+.web-publish-tools__about-title {
+    font-size: var(--font-size-pc-large);
+    -unity-font-style: bold;
+    margin-bottom: var(--space-sm);
+}
+
+.web-publish-tools__about-body {
+    white-space: normal;
+    font-size: var(--font-size-pc-small);
+    color: var(--color-text-muted);
+}
+
+/* ── Divider ──────────────────────────────────────────── */
+
+.web-publish-tools__divider {
+    height: 1px;
+    background-color: var(--color-divider);
+    margin-bottom: var(--space-lg);
+}
+
+/* ── ScrollView ───────────────────────────────────────── */
+
+.web-publish-tools__scroll {
+    flex-grow: 1;
+}
+
+/* ── Card ─────────────────────────────────────────────── */
+
+.web-publish-tools__card {
+    flex-direction: column;
+    background-color: var(--color-card-bg);
+    border-width: 1px;
+    border-color: var(--color-card-border);
+    border-radius: var(--border-radius);
+    padding: var(--space-lg);
+    margin-bottom: var(--space-md);
+}
+
+.web-publish-tools__card-header {
+    flex-direction: row;
+    align-items: center;
+    margin-bottom: var(--space-sm);
+}
+
+.web-publish-tools__card-title {
+    -unity-font-style: bold;
+    font-size: var(--font-size-pc-medium);
+    flex-grow: 1;
+}
+
+.web-publish-tools__card-subtitle {
+    font-size: var(--font-size-pc-small);
+    color: var(--color-text-muted);
+    margin-bottom: var(--space-sm);
+    white-space: normal;
+}
+
+.web-publish-tools__card-button {
+    margin-top: var(--space-md);
+    align-self: flex-start;
+    font-size: var(--font-size-pc-small);
+    padding: var(--space-xs) var(--space-md);
+}
+
+/* ── Row (single inline check row) ────────────────────── */
+
+.web-publish-tools__row {
+    flex-direction: row;
+    align-items: center;
+    margin-top: var(--space-sm);
+}
+
+.web-publish-tools__row-icon {
+    margin-right: var(--space-sm);
+}
+
+.web-publish-tools__row-label {
+    font-size: var(--font-size-pc-small);
+    flex-grow: 1;
+}
+
+.web-publish-tools__row-control {
+    width: 200px;
+    flex-shrink: 0;
+    margin-left: auto;
+    font-size: var(--font-size-pc-small);
+}
+
+.web-publish-tools__row-control--toggle {
+    width: auto;
+    min-width: 32px;
+}
+
+.web-publish-tools__row-button {
+    font-size: var(--font-size-pc-small);
+    margin-left: var(--space-sm);
+    padding: var(--space-xs) var(--space-md);
+    flex-shrink: 0;
+}
+
+/* ── Status Icons ─────────────────────────────────────── */
+
+.web-publish-tools__icon--ok {
+    color: var(--color-success);
+    -unity-font-style: bold;
+    font-size: var(--font-size-pc-medium);
+    width: var(--icon-size);
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+}
+
+.web-publish-tools__icon--ng {
+    color: var(--color-danger);
+    -unity-font-style: bold;
+    font-size: var(--font-size-pc-medium);
+    width: var(--icon-size);
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+}
+
+.web-publish-tools__icon--info {
+    color: var(--color-info);
+    font-size: var(--font-size-pc-medium);
+    width: var(--icon-size);
+    flex-shrink: 0;
+    -unity-text-align: middle-center;
+}
+
+/* ── Notice ───────────────────────────────────────────── */
+
+.web-publish-tools__notice {
+    font-size: var(--font-size-pc-small);
+    color: var(--color-text-muted);
+    margin-top: var(--space-sm);
+    white-space: normal;
+}
+
+/* ── Resolution Card ──────────────────────────────────── */
+
+.web-publish-tools__dropdown {
+    margin-top: var(--space-md);
+    font-size: var(--font-size-pc-small);
+}
+
+.web-publish-tools__custom-row {
+    flex-direction: row;
+    margin-top: var(--space-sm);
+}
+
+.web-publish-tools__custom-field {
+    flex-grow: 1;
+    margin-right: var(--space-sm);
+    font-size: var(--font-size-pc-small);
+}

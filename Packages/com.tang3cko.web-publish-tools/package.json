@@ -1,0 +1,24 @@
+{
+  "name": "com.tang3cko.web-publish-tools",
+  "version": "0.1.0",
+  "displayName": "Web Publish Tools",
+  "description": "Editor window that validates and applies WebGL build settings for publishing platforms (unityroom, etc.). Profile-based: switch the platform from a dropdown and each card shows whether your settings match.",
+  "unity": "6000.0",
+  "author": {
+    "name": "tang3cko",
+    "url": "https://github.com/tang3cko"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tang3cko/WebPublishTools.git"
+  },
+  "keywords": [
+    "editor",
+    "webgl",
+    "build-settings",
+    "unityroom",
+    "publish",
+    "utility"
+  ],
+  "license": "MIT"
+}
